@@ -6,7 +6,6 @@ package de.unibonn.iai.eis.linda.converters.impl;
 import java.io.File;
 
 import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.Model;
 
 /**
  * @author jattard
