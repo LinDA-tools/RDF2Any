@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unibonn.iai.eis.linda.converters.impl;
+package de.unibonn.iai.eis.linda.converters;
 
 import java.io.File;
 
