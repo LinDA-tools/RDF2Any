@@ -10,7 +10,7 @@ import com.hp.hpl.jena.query.ResultSet;
 
 public class SPARQLHandler {
 
-	public static ResultSet executeDBPEDIAQuery(String queryString){
+	public static ResultSet executeDBPediaQuery(String queryString){
 		return executeQuery("http://dbpedia.org/sparql",queryString);
 	}
 	

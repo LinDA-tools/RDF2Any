@@ -29,7 +29,7 @@ public class SPARQLExample {
 				"SELECT ?subject ?label "+
 				"WHERE { ?subject rdfs:label ?label } LIMIT 10 ";
 
-		ResultSet results = SPARQLHandler.executeDBPEDIAQuery(queryString);
+		ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
 		if(results != null){
 			ResultSetFormatter.out(baos, results);
 	    	System.out.print(baos.toString());
