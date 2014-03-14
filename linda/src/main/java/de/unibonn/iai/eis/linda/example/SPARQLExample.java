@@ -32,17 +32,35 @@ public class SPARQLExample {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		String queryString=
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+
-				"SELECT ?subject ?label "+
-				"WHERE { ?subject rdfs:label ?label. "+
-				"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT 10 ";
+						"SELECT ?subject ?label "+
+						"WHERE { ?subject rdfs:label ?label. "+
+						"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT 10 ";
 
 		ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
-		if(results != null){
-			ResultSetFormatter.out(baos, results);
-	    	return baos.toString();
+		if(type.equals("text")){
+			if(results != null){
+				ResultSetFormatter.out(baos, results);
+				return baos.toString();
+			}
+			else{
+				return "";
+			}
+		}
+		else if(type.equals("csv")){
+			return "CSV Converstion to be implemented soon";
+		}
+		else if(type.equals("html")){
+			return "HTML Converstion to be implemented soon";
+		}
+		else if(type.equals("xml")){
+			return "XML Converstion to be implemented soon";
+		}
+		else if(type.equals("json")){
+			return "JSON Converstion to be implemented soon";
 		}
 		else{
-			return "";
+			return "No Converstion type '"+type+"' recognized.";
 		}
+		
 	}
 }
