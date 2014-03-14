@@ -2,6 +2,7 @@ package com.servlet;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -10,7 +11,7 @@ import de.unibonn.iai.eis.linda.example.SPARQLExample;
 /**
  * Root resource (exposed at "myresource" path)
  */
-@Path("example")
+@Path("/example/{type}/")
 public class MyResource {
 
     /**
@@ -21,7 +22,7 @@ public class MyResource {
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
-        return SPARQLExample.exampleResultSet("text");
+    public String getExample(@PathParam("type") String type) {
+        return SPARQLExample.exampleResultSet(type);
     }
 }
