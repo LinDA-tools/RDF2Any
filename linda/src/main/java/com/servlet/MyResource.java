@@ -11,7 +11,7 @@ import de.unibonn.iai.eis.linda.example.SPARQLExample;
 /**
  * Root resource (exposed at "myresource" path)
  */
-@Path("/example/{type}/")
+@Path("/v1.0/example/{type}/")
 public class MyResource {
 
     /**

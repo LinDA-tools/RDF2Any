@@ -3,8 +3,11 @@ package de.unibonn.iai.eis.linda.example;
 import java.io.ByteArrayOutputStream;
 
 
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
@@ -47,7 +50,14 @@ public class SPARQLExample {
 			}
 		}
 		else if(type.equals("csv")){
-			return "CSV Converstion to be implemented soon";
+			String strResult = "subject,label\n"; 
+			while(results.hasNext()){
+				 QuerySolution row= results.next();
+				 RDFNode subject= row.get("subject");
+				 Literal label= row.getLiteral("label");
+				 strResult += subject.toString()+","+label.toString()+"\n";
+			}
+			return strResult;
 		}
 		else if(type.equals("html")){
 			return "HTML Converstion to be implemented soon";
