@@ -1,4 +1,4 @@
-package de.unibonn.iai.eis.linda.converters.impl;
+package de.unibonn.iai.eis.linda.helper;
 
 
 import com.hp.hpl.jena.query.Query;
