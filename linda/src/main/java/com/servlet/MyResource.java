@@ -16,6 +16,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 import de.unibonn.iai.eis.linda.example.SPARQLExample;
+import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
 /**
@@ -41,46 +42,16 @@ public class MyResource {
 	@Produces({"application/csv"})
 	public StreamingOutput getCSVExample(@PathParam("query") String query) {
 
-		return new StreamingOutput(){
-
-			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				try{
-					
-					ResultSet results = SPARQLHandler.executeDBPediaQuery(SPARQLExample.exampleQueryString(50000));
-					CSVConverter csvConverter = new CSVConverter();
-					csvConverter.convert(output, results);
-				}catch(Exception e){
-					throw new WebApplicationException(e);
-				}
-
-			}
-
-		};
+		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),SPARQLExample.exampleQueryString(50000) );
 
 	}
-	
+
 	@GET
 	@Path("rdb-converter.sql")
 	@Produces({"application/sql"})
 	public StreamingOutput getRDBExample(@PathParam("query") String query) {
 
-		return new StreamingOutput(){
-
-			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				try{
-					
-					ResultSet results = SPARQLHandler.executeDBPediaQuery(SPARQLExample.exampleQueryString(20000));
-					RDBConverter rdbConverter = new RDBConverter();
-					rdbConverter.convert(output, results);
-				}catch(Exception e){
-					throw new WebApplicationException(e);
-				}
-
-			}
-
-		};
+		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), SPARQLExample.exampleQueryString(20000) );
 
 	}
 
