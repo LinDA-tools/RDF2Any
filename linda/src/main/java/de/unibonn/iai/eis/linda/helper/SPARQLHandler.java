@@ -23,7 +23,7 @@ public class SPARQLHandler {
 
 		}
 		finally {
-		   qexec.close();
+
 		}
 	}
 

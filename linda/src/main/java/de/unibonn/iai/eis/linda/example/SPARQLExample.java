@@ -37,7 +37,7 @@ public class SPARQLExample {
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+
 						"SELECT ?subject ?label "+
 						"WHERE { ?subject rdfs:label ?label. "+
-						"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT 10 ";
+						"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT 300 ";
 
 		ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
 		if(type.equals("text")){
