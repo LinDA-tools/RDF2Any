@@ -31,6 +31,11 @@ public class SPARQLExample {
 		System.out.print(exampleResultSet("text"));
 	}
 
+	//This function returns a sample SPARQL query String
+	public static String exampleQueryString(){
+		return exampleQueryString(300);
+	}
+	
 	public static String exampleQueryString(Integer length){
 		String queryString=
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+
@@ -43,7 +48,7 @@ public class SPARQLExample {
 	
 	public static String exampleResultSet(String type){
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		String queryString=	exampleQueryString(300);
+		String queryString=	exampleQueryString();
 
 		ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
 		if(type.equals("text")){

@@ -12,6 +12,12 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
 
+/**
+ * @author gsingharoy
+ *
+ *This converts ResultSet to CSV
+ **/
+
 public class CSVConverter implements Converter{
 
 

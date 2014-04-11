@@ -3,11 +3,9 @@
  */
 package de.unibonn.iai.eis.linda.converters;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.ResultSet;
 
 /**
