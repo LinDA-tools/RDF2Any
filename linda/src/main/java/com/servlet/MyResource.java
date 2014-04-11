@@ -45,13 +45,8 @@ public class MyResource {
 			public void write(OutputStream output) throws IOException,
 			WebApplicationException {
 				try{
-					String queryString=
-							"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+
-									"SELECT ?subject ?label "+
-									"WHERE { ?subject rdfs:label ?label. "+
-									"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT 4000 ";
-
-					ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
+					
+					ResultSet results = SPARQLHandler.executeDBPediaQuery(SPARQLExample.exampleQueryString(50000));
 					CSVConverter csvConverter = new CSVConverter();
 					csvConverter.convert(output, results);
 				}catch(Exception e){

@@ -31,13 +31,19 @@ public class SPARQLExample {
 		System.out.print(exampleResultSet("text"));
 	}
 
-	public static String exampleResultSet(String type){
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	public static String exampleQueryString(Integer length){
 		String queryString=
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+
 						"SELECT ?subject ?label "+
 						"WHERE { ?subject rdfs:label ?label. "+
-						"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT 300 ";
+						"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT "+length.toString()+" ";
+
+		return queryString;
+	}
+	
+	public static String exampleResultSet(String type){
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		String queryString=	exampleQueryString(300);
 
 		ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
 		if(type.equals("text")){
