@@ -1,5 +1,5 @@
 .classpath
 .project
 .settings/org.maven.ide.eclipse.prefs
-
+.DS_STORE
 /target
