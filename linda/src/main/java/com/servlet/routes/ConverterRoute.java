@@ -1,4 +1,4 @@
-package com.servlet;
+package com.servlet.routes;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
