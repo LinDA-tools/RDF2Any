@@ -7,6 +7,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.json.stream.JsonGenerator;
+
 /**
  * Main class.
  *
@@ -22,8 +24,7 @@ public class Main {
     public static HttpServer startServer() {
         // create a resource config that scans for JAX-RS resources and providers
         // in com.example package
-        final ResourceConfig rc = new ResourceConfig().packages("com.servlet.routes");
-
+        final ResourceConfig rc = new ResourceConfig().packages("com.servlet.routes").property(JsonGenerator.PRETTY_PRINTING, true);	;
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);

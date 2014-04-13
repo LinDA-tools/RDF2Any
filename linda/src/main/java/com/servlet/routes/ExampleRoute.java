@@ -7,8 +7,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.hp.hpl.jena.sparql.resultset.JSONOutput;
+
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
+
 import de.unibonn.iai.eis.linda.example.SPARQLExample;
 import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
 
@@ -46,6 +49,13 @@ public class ExampleRoute {
 
 		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), SPARQLExample.exampleQueryString(20000) );
 
+	}
+	
+	@GET
+	@Path("json/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JSONOutput getJSONExample(){
+		return new JSONOutput();
 	}
 
 }
