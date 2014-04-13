@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hp.hpl.jena.query.ResultSet;
+
 
 
 
@@ -12,10 +14,10 @@ public class JSONOutput {
 	Map<String, Collection<String>> head; 
 
 	
-	public JSONOutput(){
+	public JSONOutput(ResultSet rdfResults){
 		this.head =  new HashMap<String, Collection<String>>();
 		this.head.put("link", new ArrayList<String>());
-		this.head.put("vars", new ArrayList<String>());
+		this.head.put("vars", rdfResults.getResultVars());
 
 	}
 }

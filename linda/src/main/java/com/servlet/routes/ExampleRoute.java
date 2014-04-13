@@ -10,6 +10,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
+import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 
@@ -58,8 +59,8 @@ public class ExampleRoute {
 	@Path("json/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONOutput getJSONExample(){
-		JSONOutput j = new JSONOutput();
-		return j;
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(SPARQLExample.exampleQueryString()));
+		return converter.jsonOutput;
 	}
 
 }
