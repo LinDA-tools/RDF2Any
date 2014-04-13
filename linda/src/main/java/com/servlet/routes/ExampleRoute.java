@@ -7,13 +7,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 
-import com.hp.hpl.jena.sparql.resultset.JSONOutput;
+
 
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
+import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
+
 
 import de.unibonn.iai.eis.linda.example.SPARQLExample;
 import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
+import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -55,7 +58,8 @@ public class ExampleRoute {
 	@Path("json/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONOutput getJSONExample(){
-		return new JSONOutput();
+		JSONOutput j = new JSONOutput();
+		return j;
 	}
 
 }
