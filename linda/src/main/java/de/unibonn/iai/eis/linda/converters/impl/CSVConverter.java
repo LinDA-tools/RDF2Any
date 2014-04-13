@@ -12,6 +12,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
+import de.unibonn.iai.eis.linda.helper.CSVHelper;
 
 /**
  * @author gsingharoy
@@ -41,7 +42,7 @@ public class CSVConverter implements Converter{
 		for(int i=0;i<resultVars.size();i++){
 			if(i>0)
 				result+=",";
-			result += row.get(resultVars.get(i)).toString();
+			result += CSVHelper.getCSVReadyEntry(row.get(resultVars.get(i)).toString());
 		}
 		result +="\n";
 		return result;
