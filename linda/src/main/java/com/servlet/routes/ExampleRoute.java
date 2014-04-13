@@ -35,7 +35,7 @@ public class ExampleRoute {
 	@Produces({"application/csv"})
 	public StreamingOutput getCSVExample() {
 
-		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),SPARQLExample.exampleQueryString(50000) );
+		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),SPARQLExample.exampleQueryString(20000) );
 
 	}
 
