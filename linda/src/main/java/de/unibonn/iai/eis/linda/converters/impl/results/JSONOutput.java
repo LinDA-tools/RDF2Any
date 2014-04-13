@@ -22,7 +22,7 @@ public class JSONOutput {
 		this.head =  new HashMap<String, Collection<String>>();
 		this.head.put("link", new ArrayList<String>());
 		this.head.put("vars", rdfResults.getResultVars());
-		this.results = new JSONResult(rdfResults);
+		this.results = new JSONResult();
 
 	}
 }
