@@ -19,6 +19,7 @@ public interface Converter {
 	 * @param Dataset to convert (may include multiple models)
 	 * @throws IOException 
 	 */
+	
 	void convert(OutputStream output,ResultSet rdfResults) throws IOException;
 
 }
