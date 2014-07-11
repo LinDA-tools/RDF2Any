@@ -10,6 +10,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
+import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
 
 /**
  * @author gsingharoy
@@ -28,7 +29,10 @@ public class SPARQLExample {
 	 */
 	public static void main(String[] args) {
 
-		System.out.print(exampleResultSet("text"));
+		//System.out.print(exampleResultSet("text"));
+		ClassSearch c = new ClassSearch("dbpedia","animal");
+		System.out.print(c.getSPARQLQuery());
+		SPARQLHandler.executeDBPediaQuery(c.getSPARQLQuery());
 	}
 
 	//This function returns a sample SPARQL query String
@@ -38,7 +42,7 @@ public class SPARQLExample {
 	
 	public static String exampleQueryString(Integer length){
 		String queryString=
-				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+
+				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "+
 						"SELECT ?subject ?label "+
 						"WHERE { ?subject rdfs:label ?label. "+
 						"FILTER(langMatches(lang(?label), \"EN\"))} LIMIT "+length.toString()+" ";
