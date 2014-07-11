@@ -13,8 +13,8 @@ public class ClassSearch {
 	
 	public String getSPARQLQuery(){
 		String query = SPARQLHandler.getPrefixes();
-		query += " SELECT distinct ?a ?label ";
-		query += " WHERE { ?a rdf:type owl:Class. ?a rdfs:label ?label. ";
+		query += " SELECT distinct ?class ?label ";
+		query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ";
 		query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\") && REGEX(?label, \""+this.searchString+"\"))}";
 		return query;
 	}
