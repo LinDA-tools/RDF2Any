@@ -23,11 +23,12 @@ public class BuilderRoute {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String search = queryParams.getFirst("search");
 		String dataset = queryParams.getFirst("dataset");
-		System.out.println("Searching for classes matching '"+search+"' in dataset '"+dataset+"'");
+		System.out.println("START Searching for classes matching '"+search+"' in dataset '"+dataset+"'");
 		Double startMilliseconds = (double) System.currentTimeMillis( );
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(new ClassSearch(dataset,search).getSPARQLQuery()));
 		Double endMilliseconds = (double) System.currentTimeMillis( );
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
+		System.out.println("FINISH searching for classes ... ");
 		return converter.jsonOutput;
 	}
 }

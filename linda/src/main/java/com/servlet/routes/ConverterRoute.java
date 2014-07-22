@@ -27,6 +27,7 @@ public class ConverterRoute {
 	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
+		System.out.println("START CSV conversion for query \n"+query);
 		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),query );
 
 	}
@@ -37,6 +38,7 @@ public class ConverterRoute {
 	public StreamingOutput getRDBConverter(@Context UriInfo uriInfo) {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
+		System.out.println("START RDV conversion for query \n"+query);
 		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), query);
 
 	}
@@ -49,9 +51,11 @@ public class ConverterRoute {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
 		Double startMilliseconds = (double) System.currentTimeMillis( );
+		System.out.println("START JSON conversion for query \n"+query);
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(query));
 		Double endMilliseconds = (double) System.currentTimeMillis( );
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
+		System.out.println("FINISH JSON conversion ... ");
 		return converter.jsonOutput;
 	}
 

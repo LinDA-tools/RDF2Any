@@ -38,13 +38,14 @@ public class ExampleRoute {
 	@Path("text/")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getExample() {
+		System.out.println("START example text conversion ...");
 		return SPARQLExample.exampleResultSet("text");
 	}
 	@GET
 	@Path("csv-converter.csv")
 	@Produces({"application/csv"})
 	public StreamingOutput getCSVExample() {
-
+		System.out.println("START example CSV conversion ...");
 		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),SPARQLExample.exampleQueryString(20000) );
 
 	}
@@ -53,9 +54,8 @@ public class ExampleRoute {
 	@Path("rdb-converter.sql")
 	@Produces({"application/sql"})
 	public StreamingOutput getRDBExample() {
-
-		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), SPARQLExample.exampleQueryString(20000) );
-
+		System.out.println("START example RDB conversion ... ");
+		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), SPARQLExample.exampleQueryString(20000) );	
 	}
 	
 	@GET
@@ -63,9 +63,11 @@ public class ExampleRoute {
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONOutput getJSONExample(){
 		Double startMilliseconds = (double) System.currentTimeMillis( );
+		System.out.println("START example JSON conversion ... ");
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(SPARQLExample.exampleQueryString()));
 		Double endMilliseconds = (double) System.currentTimeMillis( );
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
+		System.out.println("FINISH example RDB conversion ... ");
 		return converter.jsonOutput;
 	}
 
