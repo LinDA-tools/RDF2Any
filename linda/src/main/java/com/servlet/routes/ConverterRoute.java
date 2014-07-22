@@ -48,7 +48,10 @@ public class ConverterRoute {
 	public JSONOutput getJSONConverter(@Context UriInfo uriInfo){
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
+		Double startMilliseconds = (double) System.currentTimeMillis( );
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(query));
+		Double endMilliseconds = (double) System.currentTimeMillis( );
+		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		return converter.jsonOutput;
 	}
 

@@ -21,6 +21,7 @@ public class JSONConverter extends MainConverter {
 	public ResultSet rdfResults;
 	public JSONOutput jsonOutput;
 
+
 	public JSONConverter(ResultSet rdfResultSet){
 		this.rdfResults = rdfResultSet;
 		super.generateResultVars(rdfResultSet);

@@ -20,11 +20,14 @@ public class BuilderRoute {
 	@Path("classes")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONOutput getJSONConverter(@Context UriInfo uriInfo){
-		System.out.print("Inside builder");
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String search = queryParams.getFirst("search");
 		String dataset = queryParams.getFirst("dataset");
+		System.out.println("Searching for classes matching '"+search+"' in dataset '"+dataset+"'");
+		Double startMilliseconds = (double) System.currentTimeMillis( );
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(new ClassSearch(dataset,search).getSPARQLQuery()));
+		Double endMilliseconds = (double) System.currentTimeMillis( );
+		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		return converter.jsonOutput;
 	}
 }

@@ -62,7 +62,10 @@ public class ExampleRoute {
 	@Path("json/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONOutput getJSONExample(){
+		Double startMilliseconds = (double) System.currentTimeMillis( );
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(SPARQLExample.exampleQueryString()));
+		Double endMilliseconds = (double) System.currentTimeMillis( );
+		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		return converter.jsonOutput;
 	}
 
