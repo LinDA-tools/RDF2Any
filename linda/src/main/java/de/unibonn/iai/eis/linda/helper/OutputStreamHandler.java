@@ -17,14 +17,14 @@ import de.unibonn.iai.eis.linda.converters.Converter;
  *
  **/
 public class OutputStreamHandler {
-	public static StreamingOutput getConverterStreamingOutput(final Converter converter, final String queryString){
+	public static StreamingOutput getConverterStreamingOutput(final Converter converter, final String dataset, final String queryString){
 		return new StreamingOutput(){
 
 			public void write(OutputStream output) throws IOException,
 			WebApplicationException {
 				try{
 					
-					ResultSet results = SPARQLHandler.executeDBPediaQuery(queryString);
+					ResultSet results = SPARQLHandler.executeQuery(dataset, queryString);
 					converter.convert(output, results);
 				}catch(Exception e){
 					throw new WebApplicationException(e);

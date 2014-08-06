@@ -27,6 +27,7 @@ public class SPARQLExample {
 	/**
 	 * @param args
 	 */
+	
 	public static void main(String[] args) {
 
 		//System.out.print(exampleResultSet("text"));
@@ -50,6 +51,11 @@ public class SPARQLExample {
 		return queryString;
 	}
 	
+	public static String exampleDataset(){
+		return "http://dbpedia.org/sparql?timeout=60000";
+	}
+	
+
 	public static String exampleResultSet(String type){
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		String queryString=	exampleQueryString();

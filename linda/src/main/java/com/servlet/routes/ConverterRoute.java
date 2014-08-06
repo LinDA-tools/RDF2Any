@@ -27,8 +27,9 @@ public class ConverterRoute {
 	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
-		System.out.println("START CSV conversion for query \n"+query);
-		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),query );
+		String dataset = queryParams.getFirst("dataset");
+		System.out.println("START CSV conversion for query in dataset "+dataset+" \n"+query);
+		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),dataset,query );
 
 	}
 
@@ -38,8 +39,9 @@ public class ConverterRoute {
 	public StreamingOutput getRDBConverter(@Context UriInfo uriInfo) {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
-		System.out.println("START RDV conversion for query \n"+query);
-		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), query);
+		String dataset = queryParams.getFirst("dataset");
+		System.out.println("START RDV conversion for query in dataset "+dataset+" \n"+query);
+		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), dataset, query);
 
 	}
 	
