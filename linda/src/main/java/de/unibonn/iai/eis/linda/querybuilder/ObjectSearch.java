@@ -12,9 +12,12 @@ public class ObjectSearch {
 	
 		public String searchString;
 		public String[] classes;
-		public ObjectSearch( String searchString, String classes){
+		public String dataset;
+		
+		public ObjectSearch(String dataset,  String searchString, String classes){
 			this.searchString = searchString;
 			this.classes = classes.split(",");
+			this.dataset = dataset;
 		}
 		
 		public String getSPARQLQuery(){

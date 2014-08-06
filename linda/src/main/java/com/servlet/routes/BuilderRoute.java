@@ -26,7 +26,7 @@ public class BuilderRoute {
 		String dataset = queryParams.getFirst("dataset");
 		System.out.println("START Searching for classes matching '"+search+"' in dataset '"+dataset+"'");
 		Double startMilliseconds = (double) System.currentTimeMillis( );
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(new ClassSearch(dataset,search).getSPARQLQuery()));
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, new ClassSearch(dataset,search).getSPARQLQuery()));
 		Double endMilliseconds = (double) System.currentTimeMillis( );
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		System.out.println("FINISH searching for classes ... ");
@@ -44,7 +44,7 @@ public class BuilderRoute {
 		String classes = queryParams.getFirst("classes");
 		System.out.println("START Searching for objects of classes '"+classes+"' matching '"+search+"' in dataset '"+dataset+"'");
 		Double startMilliseconds = (double) System.currentTimeMillis( );
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, new ObjectSearch(search,classes).getSPARQLQuery()));
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, new ObjectSearch(dataset, search,classes).getSPARQLQuery()));
 		Double endMilliseconds = (double) System.currentTimeMillis( );
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		System.out.println("FINISH searching for objects ... ");
