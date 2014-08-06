@@ -10,11 +10,9 @@ public class ObjectSearch {
 	 * This class searches for objects of a class in an RDF dataset
 	 */
 	
-		public String dataset;
 		public String searchString;
 		public String[] classes;
-		public ObjectSearch(String dataset, String searchString, String classes){
-			this.dataset = dataset;
+		public ObjectSearch( String searchString, String classes){
 			this.searchString = searchString;
 			this.classes = classes.split(",");
 		}
