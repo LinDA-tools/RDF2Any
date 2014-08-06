@@ -50,9 +50,10 @@ public class ConverterRoute {
 	public JSONOutput getJSONConverter(@Context UriInfo uriInfo){
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
 		String query = queryParams.getFirst("query");
+		String dataset = queryParams.getFirst("dataset");
 		Double startMilliseconds = (double) System.currentTimeMillis( );
-		System.out.println("START JSON conversion for query \n"+query);
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeDBPediaQuery(query));
+		System.out.println("START JSON conversion for query in dataset "+dataset+" \n"+query);
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, query));
 		Double endMilliseconds = (double) System.currentTimeMillis( );
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		System.out.println("FINISH JSON conversion ... ");
