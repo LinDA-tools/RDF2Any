@@ -31,7 +31,7 @@ public class ObjectSearch {
 				query += " {?object rdf:type <"+this.classes[i]+">} ";
 			}
 			query += ". ?object rdfs:label ?label.  ";
-			query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\") && REGEX(?label, \""+this.searchString+"\"))}";
+			query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\") && REGEX(?label, \""+this.searchString+"\", \"i\"))}";
 			return query;
 		}
 
