@@ -3,13 +3,18 @@ RDF2Any
 
 All tools necessary for RDF2Any, including convereters
 
-To run the API server
-  
-  mvn exec:java -X
-  
-Example API's
+Installation
+------------
+Maven should be installed and configured
+```sh
+mvn clean install
+```
 
-1. CSV conversion 
-  http://localhost:8080/rdf2any/v1.0/example/csv-converter.csv 
-2. RDB conversion
-  http://localhost:8080/rdf2any/v1.0/example/rdb-converter.sql 
+Server Start
+------------
+
+To run the API server
+```sh
+mvn exec:java -X
+```
+
