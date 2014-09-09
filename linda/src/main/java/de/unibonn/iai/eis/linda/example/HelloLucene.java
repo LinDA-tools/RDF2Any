@@ -1,4 +1,5 @@
 package de.unibonn.iai.eis.linda.example;
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -18,6 +19,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 public class HelloLucene {
 	  public static void main(String[] args) throws IOException, ParseException {
@@ -27,7 +29,8 @@ public class HelloLucene {
 	    StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 
 	    // 1. create the index
-	    Directory index = new RAMDirectory();
+	    File indexPath = new File("example-indexes");
+	    Directory index = new SimpleFSDirectory(indexPath);
 
 	    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
 
