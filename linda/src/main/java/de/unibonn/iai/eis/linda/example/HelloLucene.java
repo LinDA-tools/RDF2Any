@@ -29,7 +29,7 @@ public class HelloLucene {
 	    StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 
 	    // 1. create the index
-	    File indexPath = new File("src/main/java/de/unibonn/iai/eis/linda/example/example-indexes");
+	    File indexPath = new File(".lucene_indexes/example-indexes");
 	    Directory index = new SimpleFSDirectory(indexPath);
 
 	    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);

@@ -2,4 +2,5 @@
 .project
 .settings
 .DS_STORE
+.lucene_indexes
 /target
