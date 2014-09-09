@@ -21,6 +21,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
+
+import de.unibonn.iai.eis.linda.helper.LuceneHelper;
 public class HelloLucene {
 	  public static void main(String[] args) throws IOException, ParseException {
 		  
@@ -29,7 +31,7 @@ public class HelloLucene {
 	    StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 
 	    // 1. create the index
-	    File indexPath = new File(".lucene_indexes/example-indexes");
+	    File indexPath = new File(LuceneHelper.homeDir()+"/example-indexes");
 	    Directory index = new SimpleFSDirectory(indexPath);
 
 	    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
