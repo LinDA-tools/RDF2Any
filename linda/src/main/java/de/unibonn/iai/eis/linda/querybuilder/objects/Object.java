@@ -19,6 +19,15 @@ public class Object {
 	public void generateProperties(){
 		
 	}
+	public String toString(){
+		String result = "uri : "+this.uri+", dataset : "+this.dataset;
+		for(Integer i=0;i<properties.size();i++){
+			result += "\n" + properties.get(i).toString();
+		}
+		
+		return result;
+		
+	}
 	
 
 }

@@ -12,4 +12,8 @@ public class Property {
 		this.label = label;
 		this.range = range;
 	}
+	
+	public String toString(){
+		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : "+this.range;
+	}
 }
