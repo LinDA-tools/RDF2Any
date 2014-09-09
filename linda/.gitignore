@@ -3,5 +3,3 @@
 .settings
 .DS_STORE
 /target
-/src/main/de/unibonn/iai/eis/linda/example/example-indexes/*
-/src/main/de/unibonn/iai/eis/linda/example/example-indexes/*.*
