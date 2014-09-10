@@ -1,8 +1,8 @@
-package de.unibonn.iai.eis.linda.querybuilder.objects;
+package de.unibonn.iai.eis.linda.querybuilder.classes;
 
 import java.util.List;
 
-public class Object {
+public class RDFClass {
 
 	/**
 	 * @param args
@@ -10,7 +10,7 @@ public class Object {
 	public String uri;
 	public String dataset;
 	public List<Property> properties;
-	public Object(String dataset,String uri){
+	public RDFClass(String dataset,String uri){
 		this.uri = uri;
 		this.dataset = dataset;
 	}

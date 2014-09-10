@@ -7,7 +7,7 @@ public class LuceneHelper {
 		return ".lucene_indexes";
 	}
 	
-	public static String objectPropertiesDir(String dataset){
-		return homeDir() + "/object_properties/" + dataset.hashCode();
+	public static String classPropertiesDir(String dataset){
+		return homeDir() + "/class_properties/" + dataset.hashCode();
 	}
 }

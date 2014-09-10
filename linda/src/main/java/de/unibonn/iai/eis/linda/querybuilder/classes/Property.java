@@ -1,4 +1,4 @@
-package de.unibonn.iai.eis.linda.querybuilder.objects;
+package de.unibonn.iai.eis.linda.querybuilder.classes;
 
 public class Property {
 	public String uri;
