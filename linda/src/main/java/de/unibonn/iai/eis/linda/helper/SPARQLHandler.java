@@ -42,7 +42,7 @@ public class SPARQLHandler {
 		return prefixes;
 	}
 	
-	public String getLabelName(RDFNode label){
+	public static String getLabelName(RDFNode label){
 		Integer languageIdentifierPoint = label.toString().length()-3;
 		return label.toString().substring(0,languageIdentifierPoint);
 	}
