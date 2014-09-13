@@ -1,13 +1,19 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.hp.hpl.jena.query.ResultSet;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
 public class RDFClass {
 
 	/**
-	 * @param args
+	 * @author gauravsingharoy
+	 * 
+	 * This class will contain an RDF class and its properties
+	 * 
 	 */
 	public String uri;
 	public String dataset;
@@ -15,11 +21,21 @@ public class RDFClass {
 	public RDFClass(String dataset,String uri){
 		this.uri = uri;
 		this.dataset = dataset;
+		this.properties = new ArrayList<Property>();
 	}
 	
-	//this method will generate properties for the object
-	public void generateProperties(){
-		
+	//this method will generate properties for the object from SPARQL endpoint
+	public void generatePropertiesFromSPARQL(){
+		//Get dataType properties
+		ResultSet dataTypeProperties = SPARQLHandler.executeDBPediaQuery(getPropertiesSPARQLQuery("datatype"));
+		addRdfResultSetToProperties(dataTypeProperties);
+	}
+	
+	//This method adds the ResultSet properties to the properties List 
+	public void addRdfResultSetToProperties(ResultSet resultSetProperties){
+		while(resultSetProperties.hasNext()){
+			
+		}
 	}
 	
 	//this method returns the query to get properties of a class

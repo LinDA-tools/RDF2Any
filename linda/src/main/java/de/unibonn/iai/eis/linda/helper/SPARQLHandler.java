@@ -6,6 +6,7 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
  * @author gsingharoy
@@ -39,6 +40,11 @@ public class SPARQLHandler {
 		prefixes += "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> ";
 		prefixes += "PREFIX owl:<http://www.w3.org/2002/07/owl#> ";
 		return prefixes;
+	}
+	
+	public String getLabelName(RDFNode label){
+		Integer languageIdentifierPoint = label.toString().length()-3;
+		return label.toString().substring(0,languageIdentifierPoint);
 	}
 	
 
