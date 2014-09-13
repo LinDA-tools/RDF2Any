@@ -37,6 +37,7 @@ public class RDFClass {
 	//This method adds the ResultSet properties to the properties List 
 	public void addRdfResultSetToProperties(ResultSet resultSetProperties, String type){
 		while(resultSetProperties.hasNext()){
+			System.out.println("inside result set..");
 			QuerySolution row = resultSetProperties.next();
 			RDFNode propertyNode = row.get("property");
 			Literal propertyLabel = (Literal) row.get("label");
@@ -53,7 +54,7 @@ public class RDFClass {
 			query += " ?property rdf:type owl:ObjectProperty. ?property rdfs:range ?range. ";
 		else if(propertyType == "datatype")
 			query += " ?property rdf:type owl:DatatypeProperty. ";
-		query += " FILTER(langMatches(lang(?label), 'EN'))} LIMIT 40";
+		query += " FILTER(langMatches(lang(?label), 'EN'))} LIMIT 70";
 		return query;
 	}
 	public String toString(){
