@@ -5,24 +5,25 @@ public class RDFClassProperty {
 
 	public String type;
 	public String label;
+	public Integer count;
 	public RDFClassPropertyRange range;
 	
 	public RDFClassProperty(String uri,  String type, String label){
 		this.uri = uri;
-
+		this.count = 0;
 		this.type = type;
 		this.label = label;
 	}
 	
 	public RDFClassProperty(String uri,  String type, String label, RDFClassPropertyRange range){
 		this.uri = uri;
-
+		this.count = 0;
 		this.type = type;
 		this.label = label;
 		this.range = range;
 	}
 	
 	public String toString(){
-		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : {"+this.range.toString()+"}";
+		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : {"+this.range.toString()+"}, count : "+this.count.toString();
 	}
 }

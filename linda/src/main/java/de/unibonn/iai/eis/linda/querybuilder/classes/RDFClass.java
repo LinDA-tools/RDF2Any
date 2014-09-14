@@ -32,6 +32,9 @@ public class RDFClass {
 		//Get dataType properties
 		ResultSet dataTypeProperties = SPARQLHandler.executeDBPediaQuery(getPropertiesSPARQLQuery("datatype"));
 		addRdfResultSetToProperties(dataTypeProperties,"datatype");
+		//Get object properties
+		ResultSet objectProperties = SPARQLHandler.executeDBPediaQuery(getPropertiesSPARQLQuery("object"));
+		addRdfResultSetToProperties(objectProperties,"object");
 	}
 	
 	//This method adds the ResultSet properties to the properties List 
