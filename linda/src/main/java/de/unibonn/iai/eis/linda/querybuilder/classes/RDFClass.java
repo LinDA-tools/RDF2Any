@@ -40,7 +40,7 @@ public class RDFClass {
 			QuerySolution row = resultSetProperties.next();
 			RDFNode propertyNode = row.get("property");
 			Literal propertyLabel = (Literal) row.get("label");
-			properties.add(new RDFClassProperty(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), ""));
+			properties.add(new RDFClassProperty(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), new RDFClassPropertyRange("", "")));
 			
 		}
 	}
