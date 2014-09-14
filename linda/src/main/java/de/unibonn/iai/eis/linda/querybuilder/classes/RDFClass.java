@@ -30,10 +30,10 @@ public class RDFClass {
 	//this method will generate properties for the object from SPARQL endpoint
 	public void generatePropertiesFromSPARQL(){
 		//Get dataType properties
-		ResultSet dataTypeProperties = SPARQLHandler.executeDBPediaQuery(getPropertiesSPARQLQuery("datatype"));
+		ResultSet dataTypeProperties = SPARQLHandler.executeQuery(this.dataset,getPropertiesSPARQLQuery("datatype"));
 		addRdfResultSetToProperties(dataTypeProperties,"datatype");
 		//Get object properties
-		ResultSet objectProperties = SPARQLHandler.executeDBPediaQuery(getPropertiesSPARQLQuery("object"));
+		ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,getPropertiesSPARQLQuery("object"));
 		addRdfResultSetToProperties(objectProperties,"object");
 	}
 	
@@ -43,7 +43,9 @@ public class RDFClass {
 			QuerySolution row = resultSetProperties.next();
 			RDFNode propertyNode = row.get("property");
 			Literal propertyLabel = (Literal) row.get("label");
-			properties.add(new RDFClassProperty(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), new RDFClassPropertyRange("", "")));
+			RDFClassProperty p = new RDFClassProperty(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), new RDFClassPropertyRange("", ""));
+			p.generateCountOfProperty(this.uri, this.dataset);
+			properties.add(p);
 			
 		}
 	}
