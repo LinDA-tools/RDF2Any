@@ -20,11 +20,11 @@ public class RDFClass {
 	 */
 	public String uri;
 	public String dataset;
-	public List<Property> properties;
+	public List<RDFClassProperty> properties;
 	public RDFClass(String dataset,String uri){
 		this.uri = uri;
 		this.dataset = dataset;
-		this.properties = new ArrayList<Property>();
+		this.properties = new ArrayList<RDFClassProperty>();
 	}
 	
 	//this method will generate properties for the object from SPARQL endpoint
@@ -37,11 +37,10 @@ public class RDFClass {
 	//This method adds the ResultSet properties to the properties List 
 	public void addRdfResultSetToProperties(ResultSet resultSetProperties, String type){
 		while(resultSetProperties.hasNext()){
-			System.out.println("inside result set..");
 			QuerySolution row = resultSetProperties.next();
 			RDFNode propertyNode = row.get("property");
 			Literal propertyLabel = (Literal) row.get("label");
-			properties.add(new Property(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), ""));
+			properties.add(new RDFClassProperty(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), ""));
 			
 		}
 	}
