@@ -13,7 +13,7 @@ public class RDFClassProperty {
 	public String label;
 	public Integer count;
 	public RDFClassPropertyRange range;
-	public Boolean multiplePropertiesForSameNode;
+	public Boolean multiplePropertiesForSameNode; //This variable determines if there are multiple properties like this. Its important as this determines how to Normalize in RDF conversions
 	
 	public RDFClassProperty(String uri,  String type, String label){
 		this.uri = uri;
