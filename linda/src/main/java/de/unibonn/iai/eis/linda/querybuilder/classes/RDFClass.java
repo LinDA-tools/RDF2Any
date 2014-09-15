@@ -36,15 +36,18 @@ public class RDFClass {
 		ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,getPropertiesSPARQLQuery("object"));
 		addRdfResultSetToProperties(objectProperties,"object");
 	}
-	
-	//This method adds the ResultSet properties to the properties List 
 	public void addRdfResultSetToProperties(ResultSet resultSetProperties, String type){
+		addRdfResultSetToProperties( resultSetProperties,  type, false);
+	}
+	//This method adds the ResultSet properties to the properties List 
+	public void addRdfResultSetToProperties(ResultSet resultSetProperties, String type, Boolean doStatisticalQueries){
 		while(resultSetProperties.hasNext()){
 			QuerySolution row = resultSetProperties.next();
 			RDFNode propertyNode = row.get("property");
 			Literal propertyLabel = (Literal) row.get("label");
 			RDFClassProperty p = new RDFClassProperty(propertyNode.toString(), type, SPARQLHandler.getLabelName(propertyLabel), new RDFClassPropertyRange("", ""));
-			p.generateCountOfProperty(this.uri, this.dataset);
+			if(doStatisticalQueries)
+				p.generateCountOfProperty(this.uri, this.dataset);
 			properties.add(p);
 			
 		}
