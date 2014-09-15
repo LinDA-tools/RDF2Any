@@ -36,16 +36,11 @@ public class RDFClassProperty {
 	
 	public void generateCountOfProperty(String classUri, String dataset){
 		String countQuery = SPARQLHandler.getPrefixes();
-		countQuery += " SELECT ?c ?d  where {?c rdf:type <"+classUri+">. ?c <"+this.uri+"> ?d} ";
+		countQuery += " SELECT DISTINCT ?c  where {?c rdf:type <"+classUri+">. ?c <"+this.uri+"> ?d} ";
 		ResultSet countResultSet = SPARQLHandler.executeQuery(dataset, countQuery);
 		this.count = 0;
-		String prevUri = "";
 		while(countResultSet.hasNext()){
-			QuerySolution row = countResultSet.next();
-			String currUri = row.get("g").toString();
-			if(prevUri.equals(currUri))
-				this.multiplePropertiesForSameNode = true;
-			prevUri = currUri;
+			countResultSet.next();
 			this.count++;
 		}
 		System.out.println("generated count for "+this.uri + " ("+this.count+")");
