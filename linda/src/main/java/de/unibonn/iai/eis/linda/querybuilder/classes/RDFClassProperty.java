@@ -1,6 +1,5 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
 
@@ -43,11 +42,24 @@ public class RDFClassProperty {
 			countResultSet.next();
 			this.count++;
 		}
-		System.out.println("generated count for "+this.uri + " ("+this.count+")");
+		this.multiplePropertiesForSameNode = hasMultiplePropertiesForSameNode(dataset, classUri);
+		System.out.println("generated count for "+this.uri + " ("+this.count+"), has multiple properties for the same node .. "+this.multiplePropertiesForSameNode.toString());
 		
 	}
 	
+	public Boolean hasMultiplePropertiesForSameNode(String dataset, String classUri){
+		Boolean result = false;
+		String q = SPARQLHandler.getPrefixes();
+		q += "SELECT DISTINCT ?c ?d ?e  where {?c rdf:type <"+classUri+">. ?c <"+this.uri+"> ?d. ?c <"+this.uri+"> ?e. FILTER(?e != ?d)}  LIMIT 1";
+		ResultSet checkResultSet = SPARQLHandler.executeQuery(dataset, q);
+		while(checkResultSet.hasNext()){
+			checkResultSet.next();
+			result = true;
+		}
+		return result;
+	}
+	
 	public String toString(){
-		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : {"+this.range.toString()+"}, count : "+this.count.toString();
+		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : {"+this.range.toString()+"}, count : "+this.count.toString()+", has multiple properties for the same node : "+this.multiplePropertiesForSameNode.toString();
 	}
 }
