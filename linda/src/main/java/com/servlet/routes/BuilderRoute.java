@@ -13,6 +13,8 @@ import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
 import de.unibonn.iai.eis.linda.querybuilder.ObjectSearch;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.output.ClassPropertyOutput;
 
 @Path("/v1.0/builder/")
 public class BuilderRoute {
@@ -49,5 +51,18 @@ public class BuilderRoute {
 		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
 		System.out.println("FINISH searching for objects ... ");
 		return converter.jsonOutput;
+	}
+	
+	//this route is for getting properties
+	@GET
+	@Path("properties")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClassPropertyOutput getProperties(@Context UriInfo uriInfo){
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		String dataset = queryParams.getFirst("dataset");
+		String classUri = queryParams.getFirst("class");
+		RDFClass rdfClass = new RDFClass(dataset, classUri);
+		rdfClass.generatePropertiesFromSPARQL();
+		return new ClassPropertyOutput(rdfClass);
 	}
 }
