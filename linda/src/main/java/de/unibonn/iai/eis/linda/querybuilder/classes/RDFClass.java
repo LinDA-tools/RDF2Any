@@ -1,19 +1,26 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.util.Version;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import de.unibonn.iai.eis.linda.helper.LuceneHelper;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
 public class RDFClass {
@@ -110,6 +117,20 @@ public class RDFClass {
 		return result;
 	}
 
+	//this method creates indexes in lucene for the properties
+	public void generateLuceneIndexes() throws IOException{
+		
+		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		File indexPath = new File(LuceneHelper.classPropertiesDir(this.dataset));
+		Directory index = new SimpleFSDirectory(indexPath);
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
+		
+	    IndexWriter w = new IndexWriter(index, config);
+	    for(RDFClassProperty property:this.properties){
+	    	addLuceneDoc(w, property);
+	    }
+	}
+	
 	//this method adds a doc for property in lucene index
 	public void addLuceneDoc(IndexWriter w, RDFClassProperty property) throws IOException{
 		Document d = new Document();
@@ -122,6 +143,7 @@ public class RDFClass {
 		d.add(new StringField("range_uri", property.range.uri, Field.Store.YES));
 		d.add(new StringField("range_label", property.range.label, Field.Store.YES));
 		w.addDocument(d);
+		System.out.println("Created index for "+property.toString());
 	}
 	
 	public String toString() {
