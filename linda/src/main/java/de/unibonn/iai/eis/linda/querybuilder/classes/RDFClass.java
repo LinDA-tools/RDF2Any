@@ -1,7 +1,13 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.IndexWriter;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -20,10 +26,12 @@ public class RDFClass {
 	 */
 	public String uri;
 	public String dataset;
+	public String label;
 	public List<RDFClassProperty> properties;
 
 	public RDFClass(String dataset, String uri) {
 		this.uri = uri;
+		this.label = SPARQLHandler.getLabelFromNode(dataset, uri, "EN");
 		this.dataset = dataset;
 		this.properties = new ArrayList<RDFClassProperty>();
 	}
@@ -102,6 +110,20 @@ public class RDFClass {
 		return result;
 	}
 
+	//this method adds a doc for property in lucene index
+	public void addLuceneDoc(IndexWriter w, RDFClassProperty property) throws IOException{
+		Document d = new Document();
+		d.add(new StringField("class_uri", this.uri, Field.Store.YES));
+		d.add(new StringField("uri", property.uri, Field.Store.YES));
+		d.add(new StringField("label", property.label, Field.Store.YES));
+		d.add(new StringField("count", property.count.toString(), Field.Store.YES));
+		d.add(new StringField("multiple_properties_for_same_node", property.multiplePropertiesForSameNode.toString(), Field.Store.YES));
+		d.add(new StringField("type", property.type, Field.Store.YES));
+		d.add(new StringField("range_uri", property.range.uri, Field.Store.YES));
+		d.add(new StringField("range_label", property.range.label, Field.Store.YES));
+		w.addDocument(d);
+	}
+	
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {
