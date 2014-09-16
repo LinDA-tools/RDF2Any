@@ -1,6 +1,8 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
@@ -31,8 +33,14 @@ public class RDFClassProperty {
 		this.multiplePropertiesForSameNode = false;
 	}
 	
-	//This method generates the count of the property
 	
+	
+	public void handleStatisticalInformation(String dataset, String classUri){
+		generateCountOfProperty(classUri, dataset);
+		generateRange(dataset);
+	}
+	
+	//This method generates the count of the property
 	public void generateCountOfProperty(String classUri, String dataset){
 		String countQuery = SPARQLHandler.getPrefixes();
 		countQuery += " SELECT DISTINCT ?c  where {?c rdf:type <"+classUri+">. ?c <"+this.uri+"> ?d} ";
@@ -57,6 +65,22 @@ public class RDFClassProperty {
 			result = true;
 		}
 		return result;
+	}
+	
+	//this method generates the range for the property
+	public void generateRange(String dataset){
+		ResultSet rangeResultSet = SPARQLHandler.executeQuery(dataset, getRangeSPARQLQuery());
+		if(rangeResultSet.hasNext()){
+			QuerySolution row = rangeResultSet.next();
+			RDFNode rangeUri = row.get("range");
+			this.range =new RDFClassPropertyRange(rangeUri.toString(),"");
+		}
+	}
+	
+	private String getRangeSPARQLQuery(){
+		String query = SPARQLHandler.getPrefixes();
+		query += "select distinct ?range where {<"+this.uri+"> rdfs:range ?range}";
+		return query;
 	}
 	
 	public String toString(){

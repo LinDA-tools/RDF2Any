@@ -63,6 +63,7 @@ public class RDFClass {
 						new RDFClassPropertyRange("", ""));
 				if (doStatisticalQueries)
 					p.generateCountOfProperty(this.uri, this.dataset);
+				p.generateRange(this.dataset);
 				properties.add(p);
 			}
 
