@@ -1,5 +1,7 @@
 package de.unibonn.iai.eis.linda.example;
 
+import java.util.regex.Pattern;
+
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 public class ClassPropertyExample {

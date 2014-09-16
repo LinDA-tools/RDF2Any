@@ -17,16 +17,16 @@ public class SPARQLHandler {
 
 	//This method executes a SPARQL query in DBPedia	
 	public static ResultSet executeDBPediaQuery(String queryString){
-		System.out.println("Executing query .... ");
-		System.out.println(queryString);
+		//System.out.println("Executing query .... ");
+		//System.out.println(queryString);
 		return executeQuery("http://dbpedia.org/sparql?timeout=60000",queryString);
 	}
 	
 	//This method executes a SPARQL query in a RDF triple store
 	public static ResultSet executeQuery(String uri, String queryString){
 		Query query = QueryFactory.create(queryString);
-		System.out.println("Executing query .... ");
-		System.out.println(queryString);
+		//System.out.println("Executing query .... ");
+		//System.out.println(queryString);
 		QueryExecution qexec = QueryExecutionFactory.sparqlService(uri, query);
 		try {
 		    ResultSet results = qexec.execSelect();
@@ -49,6 +49,23 @@ public class SPARQLHandler {
 	public static String getLabelName(RDFNode label){
 		Integer languageIdentifierPoint = label.toString().length()-3;
 		return label.toString().substring(0,languageIdentifierPoint);
+	}
+	public static String getLabelFromNode(String dataset, RDFNode node, String language){
+		return getLabelFromNode(dataset, node.toString(), language);
+	}
+	public static String getLabelFromNode(String dataset, String node, String language){
+		String label = "";
+		String query = getPrefixes();
+		query += "select distinct ?label where {<"+node+"> rdfs:label ?label. FILTER(langMatches(lang(?label), \""+language+"\"))} ";
+		ResultSet labelResultSet = executeQuery(dataset, query);
+		if(labelResultSet.hasNext()){
+			label =  getLabelName(labelResultSet.next().get("label"));
+		}
+		return label;
+	}
+	
+	public static String getXMLSchemaURI(){
+		return "http://www.w3.org/2001/XMLSchema";
 	}
 	
 

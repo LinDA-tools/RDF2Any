@@ -55,6 +55,7 @@ public class RDFClassProperty {
 		
 	}
 	
+	//This method finds out if the property/predicate has multiple objects for the same subject
 	public Boolean hasMultiplePropertiesForSameNode(String dataset, String classUri){
 		Boolean result = false;
 		String q = SPARQLHandler.getPrefixes();
@@ -73,9 +74,11 @@ public class RDFClassProperty {
 		if(rangeResultSet.hasNext()){
 			QuerySolution row = rangeResultSet.next();
 			RDFNode rangeUri = row.get("range");
-			this.range =new RDFClassPropertyRange(rangeUri.toString(),"");
+			this.range = new RDFClassPropertyRange(rangeUri.toString());
+			this.range.generateRangeLabel(dataset);
 		}
 	}
+	
 	
 	private String getRangeSPARQLQuery(){
 		String query = SPARQLHandler.getPrefixes();
