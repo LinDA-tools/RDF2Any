@@ -76,6 +76,13 @@ public class RDFClassProperty {
 			RDFNode rangeUri = row.get("range");
 			this.range = new RDFClassPropertyRange(rangeUri.toString());
 			this.range.generateRangeLabel(dataset);
+			//this section specifies the type of the property based on its range
+			if(SPARQLHandler.isDataTypeUri(this.range.uri)){
+				this.type = "data";
+			}
+			else{
+				this.type = "object";
+			}
 		}
 	}
 	

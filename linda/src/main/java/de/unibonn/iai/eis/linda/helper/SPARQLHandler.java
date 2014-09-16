@@ -1,6 +1,8 @@
 package de.unibonn.iai.eis.linda.helper;
 
 
+import java.util.regex.Pattern;
+
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -68,5 +70,8 @@ public class SPARQLHandler {
 		return "http://www.w3.org/2001/XMLSchema";
 	}
 	
+	public static Boolean isDataTypeUri(String uri){
+		return Pattern.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()), Pattern.CASE_INSENSITIVE).matcher(uri).find();
+	}
 
 }

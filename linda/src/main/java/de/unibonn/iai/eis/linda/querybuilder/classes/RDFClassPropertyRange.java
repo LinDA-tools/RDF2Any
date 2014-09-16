@@ -23,7 +23,7 @@ public class RDFClassPropertyRange {
 	}
 	
 	public void generateRangeLabel(String dataset){
-		if(Pattern.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()), Pattern.CASE_INSENSITIVE).matcher(this.uri).find()){
+		if(SPARQLHandler.isDataTypeUri(this.uri)){
 			//data type range
 			this.label = this.uri.replaceAll(SPARQLHandler.getXMLSchemaURI()+"#", "");
 		}
