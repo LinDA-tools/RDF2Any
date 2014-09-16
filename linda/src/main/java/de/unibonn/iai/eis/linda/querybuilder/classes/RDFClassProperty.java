@@ -33,6 +33,15 @@ public class RDFClassProperty {
 		this.multiplePropertiesForSameNode = false;
 	}
 	
+	public RDFClassProperty(String uri,  String type, String label, Integer count, Boolean multiplePropertiesForSameNode, RDFClassPropertyRange range){
+		this.uri = uri;
+		this.count = count;
+		this.type = type;
+		this.label = label;
+		this.range = range;
+		this.multiplePropertiesForSameNode = multiplePropertiesForSameNode;
+	}
+	
 	
 	
 	public void handleStatisticalInformation(String dataset, String classUri){

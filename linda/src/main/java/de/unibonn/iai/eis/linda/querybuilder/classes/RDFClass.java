@@ -9,8 +9,17 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
@@ -118,6 +127,7 @@ public class RDFClass {
 	}
 
 	//this method creates indexes in lucene for the properties
+	@SuppressWarnings("deprecation")
 	public void generateLuceneIndexes() throws IOException{
 		
 		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
@@ -129,12 +139,13 @@ public class RDFClass {
 	    for(RDFClassProperty property:this.properties){
 	    	addLuceneDoc(w, property);
 	    }
+	    w.close();
 	}
 	
 	//this method adds a doc for property in lucene index
 	public void addLuceneDoc(IndexWriter w, RDFClassProperty property) throws IOException{
 		Document d = new Document();
-		d.add(new StringField("class_uri", this.uri, Field.Store.YES));
+		d.add(new TextField("class_uri", this.uri, Field.Store.YES));
 		d.add(new StringField("uri", property.uri, Field.Store.YES));
 		d.add(new StringField("label", property.label, Field.Store.YES));
 		d.add(new StringField("count", property.count.toString(), Field.Store.YES));
@@ -146,6 +157,36 @@ public class RDFClass {
 		System.out.println("Created index for "+property.toString());
 	}
 	
+	
+	//this method searches for a matching class
+	
+	@SuppressWarnings("deprecation")
+	public static RDFClass searchRDFClass(String dataset, String classUri) throws IOException, ParseException{
+		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		File indexPath = new File(LuceneHelper.classPropertiesDir(dataset));
+		Directory index = new SimpleFSDirectory(indexPath);
+		Query q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer).parse(classUri);
+	    int hitsPerPage = 1000;
+	    IndexReader reader = DirectoryReader.open(index);
+	    IndexSearcher searcher = new IndexSearcher(reader);
+	    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+	    searcher.search(q, collector);
+	    ScoreDoc[] hits = collector.topDocs().scoreDocs;
+	    RDFClass resultClass = new RDFClass(dataset, classUri);
+	    if(hits.length > 0){
+	    	System.out.println("Found indexed properties for "+classUri);
+	    	//properties in lucene index
+		    for(int i=0;i<hits.length;++i) {
+			      int docId = hits[i].doc;
+			      Document d = searcher.doc(docId);
+			      resultClass.properties.add(new RDFClassProperty(d.get("uri"), d.get("type"), d.get("label"), Integer.parseInt(d.get("count")), Boolean.parseBoolean(d.get("multiple_properties_for_same_node")), new RDFClassPropertyRange(d.get("range_uri"), d.get("range_label"))));
+			    }
+	    }else{
+	    	//generating properties from SPARQL
+	    	resultClass.generatePropertiesFromSPARQL();
+	    }
+	    return resultClass;
+	}
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {

@@ -1,5 +1,7 @@
 package com.servlet.routes;
 
+import java.io.IOException;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -7,6 +9,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.lucene.queryparser.classic.ParseException;
 
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
@@ -57,12 +61,12 @@ public class BuilderRoute {
 	@GET
 	@Path("properties")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClassPropertyOutput getProperties(@Context UriInfo uriInfo){
+	public ClassPropertyOutput getProperties(@Context UriInfo uriInfo) throws IOException, ParseException{
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		String dataset = queryParams.getFirst("dataset");
 		String classUri = queryParams.getFirst("class");
-		RDFClass rdfClass = new RDFClass(dataset, classUri);
-		rdfClass.generatePropertiesFromSPARQL();
+		RDFClass rdfClass = RDFClass.searchRDFClass(dataset, classUri);
+		//rdfClass.generatePropertiesFromSPARQL();
 		return new ClassPropertyOutput(rdfClass);
 	}
 }
