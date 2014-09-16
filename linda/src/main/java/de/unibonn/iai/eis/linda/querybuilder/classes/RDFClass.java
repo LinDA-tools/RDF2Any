@@ -38,6 +38,9 @@ public class RDFClass {
 		ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("object"));
 		addRdfResultSetToProperties(objectProperties, "object");
+		ResultSet schemaProperties = SPARQLHandler.executeQuery(this.dataset,
+				getPropertiesSPARQLQuery("schema"));
+		addRdfResultSetToProperties(schemaProperties, "schema");
 	}
 
 	public void addRdfResultSetToProperties(ResultSet resultSetProperties,
@@ -52,12 +55,16 @@ public class RDFClass {
 			QuerySolution row = resultSetProperties.next();
 			RDFNode propertyNode = row.get("property");
 			Literal propertyLabel = (Literal) row.get("label");
-			RDFClassProperty p = new RDFClassProperty(propertyNode.toString(),
-					type, SPARQLHandler.getLabelName(propertyLabel),
-					new RDFClassPropertyRange("", ""));
-			if (doStatisticalQueries)
-				p.generateCountOfProperty(this.uri, this.dataset);
-			properties.add(p);
+			String propertyNodeUri = propertyNode.toString();
+			if (!type.equalsIgnoreCase("schema")
+					|| (type.equalsIgnoreCase("schema") && !isPropertyPresent(propertyNodeUri))) {
+				RDFClassProperty p = new RDFClassProperty(propertyNodeUri,
+						type, SPARQLHandler.getLabelName(propertyLabel),
+						new RDFClassPropertyRange("", ""));
+				if (doStatisticalQueries)
+					p.generateCountOfProperty(this.uri, this.dataset);
+				properties.add(p);
+			}
 
 		}
 	}
@@ -66,7 +73,9 @@ public class RDFClass {
 	public String getPropertiesSPARQLQuery(String propertyType) {
 		String query = SPARQLHandler.getPrefixes();
 		if (propertyType.equals("schema")) {
-			query += "SELECT DISTINCT ?property ?label WHERE { ?property rdfs:domain <"+this.uri+">. ?property rdfs:range ?range.  ?property rdfs:label ?label.";
+			query += "SELECT DISTINCT ?property ?label WHERE { ?property rdfs:domain <"
+					+ this.uri
+					+ ">. ?property rdfs:range ?range.  ?property rdfs:label ?label.";
 		} else {
 			query += "SELECT DISTINCT ?property ?label WHERE { ?concept rdf:type <"
 					+ this.uri
@@ -79,6 +88,17 @@ public class RDFClass {
 		}
 		query += " FILTER(langMatches(lang(?label), 'EN'))} LIMIT 50";
 		return query;
+	}
+
+	private Boolean isPropertyPresent(String propertyUri) {
+		Boolean result = false;
+		for (RDFClassProperty p : properties) {
+			if (p.uri.equalsIgnoreCase(propertyUri)) {
+				result = true;
+				break;
+			}
+		}
+		return result;
 	}
 
 	public String toString() {
