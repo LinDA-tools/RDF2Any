@@ -207,7 +207,7 @@ public class RDFClass {
 	//this method creates indexes for all the classes of a dataset
 	public static void generateIndexesForDataset(String dataset) throws IOException{
 		String classesQuery = SPARQLHandler.getPrefixes();
-		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class} ";
+		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))} ";
 		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset, classesQuery);
 		Integer classCounter = 0;
 
