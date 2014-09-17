@@ -27,7 +27,7 @@ public class ClassPropertyExample {
 		//rdfClass.generateLuceneIndexes();
 		//RDFClass.generateIndexesForDataset("http://dbpedia.org/sparql");
 		
-		RDFClass s = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
+		RDFClass s = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Actor");
 		//RDFClass s = new RDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
 		//System.out.println(s.uri.hashCode());
 		//s.addLuceneValidatorDoc();

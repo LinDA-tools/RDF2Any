@@ -159,6 +159,7 @@ public class RDFClass {
 	// this method creates indexes in lucene for the properties
 	@SuppressWarnings("deprecation")
 	public void generateLuceneIndexes() throws IOException {
+		deleteIndexes();
 		System.out.println("Creating indexes for class .. " + this.label + " <"
 				+ this.uri + ">");
 		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
@@ -207,8 +208,6 @@ public class RDFClass {
 			List<Document> hits = resultClass.getPropertyIndexDocuments();
 		
 			if (hits.size() > 0) {
-				System.out.println("Found indexed properties for "
-						+ classUri);
 				// properties in lucene index
 				for (int i = 0; i < hits.size(); ++i) {
 					Document d = hits.get(i);
@@ -251,9 +250,11 @@ public class RDFClass {
 		}
 		return resultClass;
 	}
-
+	public static void generateIndexesForDataset(String dataset) throws IOException{
+		generateIndexesForDataset(dataset,false);
+	}
 	// this method creates indexes for all the classes of a dataset
-	public static void generateIndexesForDataset(String dataset)
+	public static void generateIndexesForDataset(String dataset, Boolean forceNew)
 			throws IOException {
 		String classesQuery = SPARQLHandler.getPrefixes();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))} ";
@@ -289,8 +290,8 @@ public class RDFClass {
 		return result;
 	}
 
-	// this method writes a doc which confirms that indexes have been created
-	// for the clas
+	// this method writes a doc which confirms that indexes have been created for the class
+
 	public void addLuceneValidatorDoc() throws IOException {
 		StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
 		File indexPath = new File(
@@ -325,7 +326,7 @@ public class RDFClass {
 
 			// Query q = new QueryParser(Version.LUCENE_42, "uri",
 			// analyzer).parse(q.toString());
-			System.out.println(q);
+			
 			int hitsPerPage = 150;
 			IndexReader reader;
 			reader = DirectoryReader.open(index);
@@ -334,7 +335,7 @@ public class RDFClass {
 					hitsPerPage, true);
 			searcher.search(q, collector);
 			ScoreDoc[] hits = collector.topDocs().scoreDocs;
-			System.out.println(hits.length);
+			
 			if (hits.length > 0) {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
@@ -403,6 +404,7 @@ public class RDFClass {
 		return docs;
 	}
 
+	//This method deletes existing indexes
 	public void deleteIndexes() {
 		System.out.println("Deleting indexes of "+this.uri);
 		if(isIndexCreated()){
