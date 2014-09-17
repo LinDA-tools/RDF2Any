@@ -15,6 +15,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
+import de.unibonn.iai.eis.linda.helper.output.ResultOK;
 import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
 import de.unibonn.iai.eis.linda.querybuilder.ObjectSearch;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
@@ -69,4 +70,18 @@ public class BuilderRoute {
 		//rdfClass.generatePropertiesFromSPARQL();
 		return new ClassPropertyOutput(rdfClass);
 	}
+	
+	//this route is for getting properties
+	@GET
+	@Path("properties/indexes/create")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ResultOK getPropertiesIndexesCreate(@Context UriInfo uriInfo) throws IOException, ParseException{
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		String dataset = queryParams.getFirst("dataset");
+		RDFClass.generateIndexesForDataset(dataset);
+		//rdfClass.generatePropertiesFromSPARQL();
+		return new ResultOK();
+	}
+	
+	
 }

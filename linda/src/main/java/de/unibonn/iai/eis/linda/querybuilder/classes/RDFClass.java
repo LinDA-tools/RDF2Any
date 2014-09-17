@@ -214,6 +214,7 @@ public class RDFClass {
 		while(classesResultSet.hasNext()){
 			QuerySolution row = classesResultSet.next();
 			RDFClass classNode = new RDFClass(dataset, row.get("class").toString());
+			System.out.println("Evaluating properties of "+classNode.label+" <"+classNode.uri+">");
 			classNode.generatePropertiesFromSPARQL(true);
 			classNode.generateLuceneIndexes();
 			classCounter++;
