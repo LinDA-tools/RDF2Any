@@ -53,18 +53,22 @@ public class RDFClass {
 	}
 
 	// this method will generate properties for the object from SPARQL endpoint
+	
 	public void generatePropertiesFromSPARQL() {
+		generatePropertiesFromSPARQL(false);
+	}
+	public void generatePropertiesFromSPARQL(Boolean doStatisticalQueries) {
 		// Get dataType properties
 		ResultSet dataTypeProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("datatype"));
-		addRdfResultSetToProperties(dataTypeProperties, "datatype");
+		addRdfResultSetToProperties(dataTypeProperties, "datatype",doStatisticalQueries);
 		// Get object properties
 		ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("object"));
-		addRdfResultSetToProperties(objectProperties, "object");
+		addRdfResultSetToProperties(objectProperties, "object",doStatisticalQueries);
 		ResultSet schemaProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("schema"));
-		addRdfResultSetToProperties(schemaProperties, "schema");
+		addRdfResultSetToProperties(schemaProperties, "schema",doStatisticalQueries);
 	}
 
 	public void addRdfResultSetToProperties(ResultSet resultSetProperties,
@@ -210,7 +214,7 @@ public class RDFClass {
 		while(classesResultSet.hasNext()){
 			QuerySolution row = classesResultSet.next();
 			RDFClass classNode = new RDFClass(dataset, row.get("class").toString());
-			classNode.generatePropertiesFromSPARQL();
+			classNode.generatePropertiesFromSPARQL(true);
 			classNode.generateLuceneIndexes();
 			classCounter++;
 		}
