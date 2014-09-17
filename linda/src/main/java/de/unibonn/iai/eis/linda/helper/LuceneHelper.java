@@ -8,6 +8,14 @@ public class LuceneHelper {
 	}
 	
 	public static String classPropertiesDir(String dataset){
-		return homeDir() + "/class_properties/" + dataset.hashCode();
+		return homeDir() + "/class_properties/properties/" + dataset.hashCode();
+	}
+	
+	public static String classPropertiesValidatorDir(String dataset){
+		return homeDir() + "/class_properties/classes/" + dataset.hashCode();
+	}
+	
+	public static String getUriFromIndexEntry(String entry){
+		return entry.substring(0, entry.length()-3);
 	}
 }

@@ -232,7 +232,7 @@ public class RDFClass {
 												.get("range_label"))));
 						hitFound = true;
 					}
-					if(!hitFound)
+					if (!hitFound)
 						getFromSPARQL = true;
 				}
 			} else {
@@ -268,7 +268,9 @@ public class RDFClass {
 
 		while (classesResultSet.hasNext()) {
 			classCounter++;
-			System.out.println(classCounter.toString()+". ################################################################");
+			System.out
+					.println(classCounter.toString()
+							+ ". ################################################################");
 			QuerySolution row = classesResultSet.next();
 			RDFClass classNode = new RDFClass(dataset, row.get("class")
 					.toString());
@@ -276,11 +278,57 @@ public class RDFClass {
 					+ " <" + classNode.uri + ">");
 			classNode.generatePropertiesFromSPARQL(true);
 			classNode.generateLuceneIndexes();
-			
+
 		}
 
 		System.out.println("Finished creating indexes for "
 				+ classCounter.toString() + " classes ... ");
+	}
+
+	public Boolean isIndexCreated() {
+		Boolean result = false;
+		Document d = getValidatorIndex();
+		if(d != null){
+			result = true;
+		}
+		return result;
+	}
+
+	private Document getValidatorIndex() {
+		Document resultD = null;
+		try {
+			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+			File indexPath = new File(
+					LuceneHelper.classPropertiesValidatorDir(dataset));
+			Directory index = new SimpleFSDirectory(indexPath);
+			Query q;
+
+			q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer)
+					.parse(this.uri + "@@@");
+			int hitsPerPage = 150;
+			IndexReader reader;
+
+			reader = DirectoryReader.open(index);
+			IndexSearcher searcher = new IndexSearcher(reader);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(
+					hitsPerPage, true);
+			searcher.search(q, collector);
+			ScoreDoc[] hits = collector.topDocs().scoreDocs;
+			if (hits.length > 0) {
+				for (int i = 0; i < hits.length; ++i) {
+					int docId = hits[i].doc;
+					Document d = searcher.doc(docId);
+					if(LuceneHelper.getUriFromIndexEntry(d.get("uri")).equalsIgnoreCase(this.uri)){
+						resultD = d;
+						break;
+					}
+				}
+			}
+		} catch (ParseException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return resultD;
 	}
 
 	public String toString() {
