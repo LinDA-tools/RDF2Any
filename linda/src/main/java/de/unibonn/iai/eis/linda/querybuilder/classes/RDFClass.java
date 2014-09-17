@@ -260,6 +260,7 @@ public class RDFClass {
 	public static void generateIndexesForDataset(String dataset,
 			Boolean forceNew) throws IOException {
 		String classesQuery = SPARQLHandler.getPrefixes();
+		List<String> failedClasses = new ArrayList<String>();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))} ";
 		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset,
 				classesQuery);
@@ -274,10 +275,15 @@ public class RDFClass {
 			RDFClass classNode = new RDFClass(dataset, row.get("class")
 					.toString());
 			if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
+				try{
 				System.out.println("Evaluating properties of "
 						+ classNode.label + " <" + classNode.uri + ">");
 				classNode.generatePropertiesFromSPARQL(true);
 				classNode.generateLuceneIndexes();
+				}catch(Exception e){
+					System.out.println("Failed to create index for the class "+classNode.label+" <"+classNode.uri+">");
+					failedClasses.add(classNode.uri);
+				}
 			} else {
 				System.out.println("Index already created for "
 						+ classNode.label + " <" + classNode.uri
@@ -287,6 +293,12 @@ public class RDFClass {
 
 		System.out.println("Finished creating indexes for "
 				+ classCounter.toString() + " classes ... ");
+		System.out.println("Failed classes : "+failedClasses.size());
+		if(failedClasses.size() > 0){
+			for(String c:failedClasses){
+				System.out.println("Failed to create indexes for : "+c);
+			}
+		}
 	}
 
 	public Boolean isIndexCreated() {
