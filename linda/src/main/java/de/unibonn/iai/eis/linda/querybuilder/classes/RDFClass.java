@@ -129,7 +129,7 @@ public class RDFClass {
 	//this method creates indexes in lucene for the properties
 	@SuppressWarnings("deprecation")
 	public void generateLuceneIndexes() throws IOException{
-		
+		System.out.println("Creating indexes for class .. "+this.label+" <"+this.uri+">");
 		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 		File indexPath = new File(LuceneHelper.classPropertiesDir(this.dataset));
 		Directory index = new SimpleFSDirectory(indexPath);
@@ -162,11 +162,12 @@ public class RDFClass {
 	
 	@SuppressWarnings("deprecation")
 	public static RDFClass searchRDFClass(String dataset, String classUri) throws IOException, ParseException{
+		System.out.println("looking for properties of "+classUri+" in dataset "+dataset);
 		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 		File indexPath = new File(LuceneHelper.classPropertiesDir(dataset));
 		Directory index = new SimpleFSDirectory(indexPath);
 		Query q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer).parse(classUri);
-	    int hitsPerPage = 1000;
+	    int hitsPerPage = 150;
 	    IndexReader reader = DirectoryReader.open(index);
 	    IndexSearcher searcher = new IndexSearcher(reader);
 	    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
@@ -186,6 +187,25 @@ public class RDFClass {
 	    	resultClass.generatePropertiesFromSPARQL();
 	    }
 	    return resultClass;
+	}
+	//this method creates indexes for all the classes of a dataset
+	public static void generateIndexesForDataset(String dataset){
+		String classesQuery = SPARQLHandler.getPrefixes();
+		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class} ";
+		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset, classesQuery);
+		Integer classCounter = 0;
+		while(classesResultSet.hasNext()){
+			QuerySolution row = classesResultSet.next();
+			RDFClass classNode = new RDFClass(dataset, row.get("class").toString());
+			try {
+				classNode.generateLuceneIndexes();
+				classCounter++;
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		System.out.println("Finished creating indexes for "+classCounter.toString()+" classes ... ");
 	}
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;

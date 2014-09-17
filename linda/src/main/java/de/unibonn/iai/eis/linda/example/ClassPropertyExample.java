@@ -17,14 +17,15 @@ public class ClassPropertyExample {
 	public static void main(String[] args) throws IOException, ParseException {
 		// TODO Auto-generated method stub
 		//http://dbpedia.org/ontology/Person
-		System.out.println("Starting ... ");
+		//System.out.println("Starting ... ");
 		//RDFClass rdfClass = new RDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Actor");
 		//rdfClass.generatePropertiesFromSPARQL();
 		
-		RDFClass rdfClass = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Actor");
-		System.out.println(rdfClass.toString());
-		System.out.println("Ended ... ");
+		//RDFClass rdfClass = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Actor");
+		//System.out.println(rdfClass.toString());
+		//System.out.println("Ended ... ");
 		//rdfClass.generateLuceneIndexes();
+		RDFClass.generateIndexesForDataset("http://dbpedia.org/sparql");
 	}
 
 }
