@@ -108,7 +108,7 @@ public class RDFClass {
 
 	// this method returns the query to get properties of a class
 	public String getPropertiesSPARQLQuery(String propertyType) {
-		return getPropertiesSPARQLQuery(propertyType, 5);
+		return getPropertiesSPARQLQuery(propertyType, 25);
 	}
 
 	public String getPropertiesSPARQLQuery(String propertyType, Integer limit) {
@@ -206,14 +206,13 @@ public class RDFClass {
 		Boolean getFromSPARQL = false;
 		if (resultClass.isIndexCreated()) {
 			List<Document> hits = resultClass.getPropertyIndexDocuments();
-		
+
 			if (hits.size() > 0) {
 				// properties in lucene index
 				for (int i = 0; i < hits.size(); ++i) {
 					Document d = hits.get(i);
-					if (LuceneHelper.getUriFromIndexEntry(
-							d.get("class_uri")).equalsIgnoreCase(
-							classUri.hashCode() + "")) {
+					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri"))
+							.equalsIgnoreCase(classUri.hashCode() + "")) {
 						resultClass.properties
 								.add(new RDFClassProperty(
 										d.get("uri"),
@@ -225,7 +224,7 @@ public class RDFClass {
 										new RDFClassPropertyRange(d
 												.get("range_uri"), d
 												.get("range_label"))));
-						
+
 					}
 
 				}
@@ -250,12 +249,15 @@ public class RDFClass {
 		}
 		return resultClass;
 	}
-	public static void generateIndexesForDataset(String dataset) throws IOException{
-		generateIndexesForDataset(dataset,false);
-	}
-	// this method creates indexes for all the classes of a dataset
-	public static void generateIndexesForDataset(String dataset, Boolean forceNew)
+
+	public static void generateIndexesForDataset(String dataset)
 			throws IOException {
+		generateIndexesForDataset(dataset, false);
+	}
+
+	// this method creates indexes for all the classes of a dataset
+	public static void generateIndexesForDataset(String dataset,
+			Boolean forceNew) throws IOException {
 		String classesQuery = SPARQLHandler.getPrefixes();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))} ";
 		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset,
@@ -270,11 +272,14 @@ public class RDFClass {
 			QuerySolution row = classesResultSet.next();
 			RDFClass classNode = new RDFClass(dataset, row.get("class")
 					.toString());
-			System.out.println("Evaluating properties of " + classNode.label
-					+ " <" + classNode.uri + ">");
-			classNode.generatePropertiesFromSPARQL(true);
-			classNode.generateLuceneIndexes();
-
+			if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
+				System.out.println("Evaluating properties of "
+						+ classNode.label + " <" + classNode.uri + ">");
+				classNode.generatePropertiesFromSPARQL(true);
+				classNode.generateLuceneIndexes();
+			}else{
+				System.out.println("Index already created for "+classNode.label+" <"+classNode.uri+">. Moving to the next class ...");
+			}
 		}
 
 		System.out.println("Finished creating indexes for "
@@ -290,15 +295,17 @@ public class RDFClass {
 		return result;
 	}
 
-	// this method writes a doc which confirms that indexes have been created for the class
+	// this method writes a doc which confirms that indexes have been created
+	// for the class
 
 	public void addLuceneValidatorDoc() throws IOException {
-		StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
+		StandardAnalyzer analyzer = new StandardAnalyzer(
+				LuceneHelper.LUCENE_VERSION);
 		File indexPath = new File(
 				LuceneHelper.classPropertiesValidatorDir(this.dataset));
 		Directory index = new SimpleFSDirectory(indexPath);
-		IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,
-				analyzer);
+		IndexWriterConfig config = new IndexWriterConfig(
+				LuceneHelper.LUCENE_VERSION, analyzer);
 		IndexWriter w = new IndexWriter(index, config);
 		Document d = new Document();
 		d.add(new TextField("uri", "s" + this.uri.hashCode() + "e",
@@ -310,23 +317,15 @@ public class RDFClass {
 	public Document getValidatorIndexDocument() {
 		Document resultD = null;
 		try {
-			StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
+			StandardAnalyzer analyzer = new StandardAnalyzer(
+					LuceneHelper.LUCENE_VERSION);
 			File indexPath = new File(
 					LuceneHelper.classPropertiesValidatorDir(this.dataset));
 			Directory index = new SimpleFSDirectory(indexPath);
 			Query q;
 
-			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri", analyzer).parse("s"
-					+ this.uri.hashCode() + "e");
-			// BooleanQuery qry = new BooleanQuery();
-			// qry.add(new TermQuery(new Term("uri", this.uri.hashCode()+"")),
-			// BooleanClause.Occur.MUST);
-			// Great! You have a termQuery added to the parent BooleanQuery
-			// which should find your keyword just fine!
-
-			// Query q = new QueryParser(Version.LUCENE_42, "uri",
-			// analyzer).parse(q.toString());
-			
+			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri", analyzer)
+					.parse("s" + this.uri.hashCode() + "e");
 			int hitsPerPage = 150;
 			IndexReader reader;
 			reader = DirectoryReader.open(index);
@@ -335,7 +334,7 @@ public class RDFClass {
 					hitsPerPage, true);
 			searcher.search(q, collector);
 			ScoreDoc[] hits = collector.topDocs().scoreDocs;
-			
+
 			if (hits.length > 0) {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
@@ -404,18 +403,19 @@ public class RDFClass {
 		return docs;
 	}
 
-	//This method deletes existing indexes
+	// This method deletes existing indexes
 	public void deleteIndexes() {
-		System.out.println("Deleting indexes of "+this.uri);
-		if(isIndexCreated()){
+		System.out.println("Deleting indexes of " + this.uri);
+		if (isIndexCreated()) {
 			try {
-				StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
+				StandardAnalyzer analyzer = new StandardAnalyzer(
+						LuceneHelper.LUCENE_VERSION);
 				File indexPath = new File(
 						LuceneHelper.classPropertiesValidatorDir(dataset));
 				Directory index = new SimpleFSDirectory(indexPath);
-				IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,
-						analyzer);
-				IndexWriter vWriter = new IndexWriter(index, config);	
+				IndexWriterConfig config = new IndexWriterConfig(
+						LuceneHelper.LUCENE_VERSION, analyzer);
+				IndexWriter vWriter = new IndexWriter(index, config);
 				Query q;
 
 				q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri",
@@ -432,14 +432,14 @@ public class RDFClass {
 		}
 
 		try {
-			StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
-			File indexPath2 = new File(
-					LuceneHelper.classPropertiesDir(dataset));
+			StandardAnalyzer analyzer = new StandardAnalyzer(
+					LuceneHelper.LUCENE_VERSION);
+			File indexPath2 = new File(LuceneHelper.classPropertiesDir(dataset));
 			Directory index;
 			index = new SimpleFSDirectory(indexPath2);
-			IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,
-					analyzer);
-			IndexWriter pWriter = new IndexWriter(index, config);	
+			IndexWriterConfig config = new IndexWriterConfig(
+					LuceneHelper.LUCENE_VERSION, analyzer);
+			IndexWriter pWriter = new IndexWriter(index, config);
 			Query q;
 
 			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "class_uri",
