@@ -317,7 +317,7 @@ public class RDFClass {
 		w.close();
 	}
 
-	public Document getValidatorIndexDocument() {
+	private Document getValidatorIndexDocument() {
 		Document resultD = null;
 		try {
 			StandardAnalyzer analyzer = new StandardAnalyzer(
@@ -362,7 +362,7 @@ public class RDFClass {
 	}
 
 	@SuppressWarnings("deprecation")
-	public List<Document> getPropertyIndexDocuments() {
+	private List<Document> getPropertyIndexDocuments() {
 		List<Document> docs = new ArrayList<Document>();
 		try {
 			StandardAnalyzer analyzer = LuceneHelper.getAnalyzer();
