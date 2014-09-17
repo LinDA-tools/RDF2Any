@@ -127,8 +127,9 @@ public class RDFClass {
 			else if (propertyType.equals("datatype"))
 				query += " ?property rdf:type owl:DatatypeProperty. ";
 		}
-		query += " FILTER(langMatches(lang(?label), 'EN'))} LIMIT "
-				+ limit.toString();
+		query += " FILTER(langMatches(lang(?label), 'EN'))} ";
+		if (!propertyType.equalsIgnoreCase("schema"))
+			query += "LIMIT " + limit.toString();
 		return query;
 	}
 
@@ -277,8 +278,10 @@ public class RDFClass {
 						+ classNode.label + " <" + classNode.uri + ">");
 				classNode.generatePropertiesFromSPARQL(true);
 				classNode.generateLuceneIndexes();
-			}else{
-				System.out.println("Index already created for "+classNode.label+" <"+classNode.uri+">. Moving to the next class ...");
+			} else {
+				System.out.println("Index already created for "
+						+ classNode.label + " <" + classNode.uri
+						+ ">. Moving to the next class ...");
 			}
 		}
 
