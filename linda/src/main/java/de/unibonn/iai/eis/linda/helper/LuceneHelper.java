@@ -7,6 +7,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
@@ -55,4 +56,26 @@ public class LuceneHelper {
 		reader = DirectoryReader.open(index);
 		return reader;
 	}
+
+	public static IndexWriter getClassPropertiesValidatorIndexWriter(String dataset) throws IOException{
+		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
+		File indexPath = new File(
+				LuceneHelper.classPropertiesValidatorDir(dataset));
+		Directory index = new SimpleFSDirectory(indexPath);
+		IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION,
+				analyzer);
+		return new IndexWriter(index, config);	
+	}
+	
+	public static IndexWriter getClassPropertiesIndexWriter(String dataset) throws IOException{
+		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
+		File indexPath = new File(
+				LuceneHelper.classPropertiesDir(dataset));
+		Directory index = new SimpleFSDirectory(indexPath);
+		IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION,
+				analyzer);
+		return new IndexWriter(index, config);	
+	}
+	
+	
 }

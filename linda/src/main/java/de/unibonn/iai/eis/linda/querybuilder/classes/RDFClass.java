@@ -292,11 +292,11 @@ public class RDFClass {
 	// this method writes a doc which confirms that indexes have been created
 	// for the clas
 	public void addLuceneValidatorDoc() throws IOException {
-		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
 		File indexPath = new File(
 				LuceneHelper.classPropertiesValidatorDir(this.dataset));
 		Directory index = new SimpleFSDirectory(indexPath);
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40,
+		IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,
 				analyzer);
 		IndexWriter w = new IndexWriter(index, config);
 		Document d = new Document();
@@ -309,13 +309,13 @@ public class RDFClass {
 	public Document getValidatorIndexDocument() {
 		Document resultD = null;
 		try {
-			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+			StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
 			File indexPath = new File(
 					LuceneHelper.classPropertiesValidatorDir(this.dataset));
 			Directory index = new SimpleFSDirectory(indexPath);
 			Query q;
 
-			q = new QueryParser(Version.LUCENE_40, "uri", analyzer).parse("s"
+			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri", analyzer).parse("s"
 					+ this.uri.hashCode() + "e");
 			// BooleanQuery qry = new BooleanQuery();
 			// qry.add(new TermQuery(new Term("uri", this.uri.hashCode()+"")),
@@ -404,6 +404,53 @@ public class RDFClass {
 	}
 
 	public void deleteIndexes() {
+		System.out.println("Deleting indexes of "+this.uri);
+		if(isIndexCreated()){
+			try {
+				StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
+				File indexPath = new File(
+						LuceneHelper.classPropertiesValidatorDir(dataset));
+				Directory index = new SimpleFSDirectory(indexPath);
+				IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,
+						analyzer);
+				IndexWriter vWriter = new IndexWriter(index, config);	
+				Query q;
+
+				q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri",
+						analyzer).parse("s" + this.uri.hashCode() + "e");
+				vWriter.deleteDocuments(q);
+				vWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		try {
+			StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
+			File indexPath2 = new File(
+					LuceneHelper.classPropertiesDir(dataset));
+			Directory index;
+			index = new SimpleFSDirectory(indexPath2);
+			IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,
+					analyzer);
+			IndexWriter pWriter = new IndexWriter(index, config);	
+			Query q;
+
+			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "class_uri",
+					analyzer).parse("s" + this.uri.hashCode() + "e");
+			pWriter.deleteDocuments(q);
+			pWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
