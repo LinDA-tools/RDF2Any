@@ -347,7 +347,7 @@ public class RDFClass {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
-					if(LuceneHelper.getUriFromIndexEntry(d.get("uri")).equalsIgnoreCase(this.uri)){
+					if(LuceneHelper.getUriFromIndexEntry(d.get("uri")).equalsIgnoreCase(this.uri.hashCode()+"")){
 						
 						resultD = d;
 						break;
