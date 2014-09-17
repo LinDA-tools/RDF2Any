@@ -126,6 +126,18 @@ public class RDFClass {
 		return result;
 	}
 
+	public void generateLuceneIndexes(IndexWriter w){
+		System.out.println("Creating indexes for class .. "+this.label+" <"+this.uri+">");
+	    for(RDFClassProperty property:this.properties){
+	    	try {
+				addLuceneDoc(w, property);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	}
+	
 	//this method creates indexes in lucene for the properties
 	@SuppressWarnings("deprecation")
 	public void generateLuceneIndexes() throws IOException{
@@ -154,7 +166,7 @@ public class RDFClass {
 		d.add(new StringField("range_uri", property.range.uri, Field.Store.YES));
 		d.add(new StringField("range_label", property.range.label, Field.Store.YES));
 		w.addDocument(d);
-		System.out.println("Created index for "+property.toString());
+		//System.out.println("Created index for "+property.toString());
 	}
 	
 	
@@ -189,22 +201,20 @@ public class RDFClass {
 	    return resultClass;
 	}
 	//this method creates indexes for all the classes of a dataset
-	public static void generateIndexesForDataset(String dataset){
+	public static void generateIndexesForDataset(String dataset) throws IOException{
 		String classesQuery = SPARQLHandler.getPrefixes();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class} ";
 		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset, classesQuery);
 		Integer classCounter = 0;
+
 		while(classesResultSet.hasNext()){
 			QuerySolution row = classesResultSet.next();
 			RDFClass classNode = new RDFClass(dataset, row.get("class").toString());
-			try {
-				classNode.generateLuceneIndexes();
-				classCounter++;
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}
+			classNode.generatePropertiesFromSPARQL();
+			classNode.generateLuceneIndexes();
+			classCounter++;
 		}
+
 		System.out.println("Finished creating indexes for "+classCounter.toString()+" classes ... ");
 	}
 	public String toString() {
