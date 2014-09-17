@@ -73,5 +73,9 @@ public class SPARQLHandler {
 	public static Boolean isDataTypeUri(String uri){
 		return Pattern.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()), Pattern.CASE_INSENSITIVE).matcher(uri).find();
 	}
+	
+	public static Integer getIntegerValueOfLiteral(RDFNode n){
+		return Integer.parseInt(n.toString().replaceAll("http://www.w3.org/2001/XMLSchema#integer", "").substring(0,n.toString().replaceAll("http://www.w3.org/2001/XMLSchema#integer", "").length()-2));
+	}
 
 }

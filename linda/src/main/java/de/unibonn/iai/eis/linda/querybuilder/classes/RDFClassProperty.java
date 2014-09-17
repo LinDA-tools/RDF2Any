@@ -2,6 +2,7 @@ package de.unibonn.iai.eis.linda.querybuilder.classes;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 
@@ -52,12 +53,12 @@ public class RDFClassProperty {
 	//This method generates the count of the property
 	public void generateCountOfProperty(String classUri, String dataset){
 		String countQuery = SPARQLHandler.getPrefixes();
-		countQuery += " SELECT DISTINCT ?c  where {?c rdf:type <"+classUri+">. ?c <"+this.uri+"> ?d} ";
+		countQuery += " SELECT  (count(DISTINCT ?d) AS ?totalcount)  where {?c rdf:type <"+classUri+">. ?c <"+this.uri+"> ?d} ";
 		ResultSet countResultSet = SPARQLHandler.executeQuery(dataset, countQuery);
 		this.count = 0;
-		while(countResultSet.hasNext()){
-			countResultSet.next();
-			this.count++;
+		if(countResultSet.hasNext()){
+			QuerySolution row = countResultSet.next();
+			this.count = SPARQLHandler.getIntegerValueOfLiteral(row.get("totalcount"));
 		}
 		this.multiplePropertiesForSameNode = hasMultiplePropertiesForSameNode(dataset, classUri);
 		//System.out.println("generated count for "+this.uri + " ("+this.count+"), has multiple properties for the same node .. "+this.multiplePropertiesForSameNode.toString());
