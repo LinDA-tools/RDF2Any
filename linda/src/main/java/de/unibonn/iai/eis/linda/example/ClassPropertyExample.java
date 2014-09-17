@@ -31,6 +31,7 @@ public class ClassPropertyExample {
 		//RDFClass s = new RDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
 		//System.out.println(s.uri.hashCode());
 		//s.addLuceneValidatorDoc();
+		
 		System.out.println(s);
 	}
 

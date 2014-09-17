@@ -203,63 +203,38 @@ public class RDFClass {
 			throws ParseException {
 		RDFClass resultClass = new RDFClass(dataset, classUri);
 		Boolean getFromSPARQL = false;
-		try {
-			System.out.println("looking for properties of " + classUri
-					+ " in dataset " + dataset);
-			if (resultClass.isIndexCreated()) {
-				StandardAnalyzer analyzer = new StandardAnalyzer(
-						Version.LUCENE_40);
-				File indexPath = new File(
-						LuceneHelper.classPropertiesDir(dataset));
-				Directory index = new SimpleFSDirectory(indexPath);
-				Query q;
-
-				q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer)
-						.parse("s" + classUri.hashCode() + "e");
-				int hitsPerPage = 150;
-				IndexReader reader;
-
-				reader = DirectoryReader.open(index);
-				IndexSearcher searcher = new IndexSearcher(reader);
-				TopScoreDocCollector collector = TopScoreDocCollector.create(
-						hitsPerPage, true);
-				searcher.search(q, collector);
-				ScoreDoc[] hits = collector.topDocs().scoreDocs;
-				Boolean hitFound = false;
-				if (hits.length > 0) {
-					System.out.println("Found indexed properties for "
-							+ classUri);
-					// properties in lucene index
-					for (int i = 0; i < hits.length; ++i) {
-						int docId = hits[i].doc;
-						Document d = searcher.doc(docId);
-						if (LuceneHelper.getUriFromIndexEntry(
-								d.get("class_uri")).equalsIgnoreCase(
-								classUri.hashCode() + "")) {
-							resultClass.properties
-									.add(new RDFClassProperty(
-											d.get("uri"),
-											d.get("type"),
-											d.get("label"),
-											Integer.parseInt(d.get("count")),
-											Boolean.parseBoolean(d
-													.get("multiple_properties_for_same_node")),
-											new RDFClassPropertyRange(d
-													.get("range_uri"), d
-													.get("range_label"))));
-							hitFound = true;
-						}
-						if (!hitFound)
-							getFromSPARQL = true;
+		if (resultClass.isIndexCreated()) {
+			List<Document> hits = resultClass.getPropertyIndexDocuments();
+		
+			if (hits.size() > 0) {
+				System.out.println("Found indexed properties for "
+						+ classUri);
+				// properties in lucene index
+				for (int i = 0; i < hits.size(); ++i) {
+					Document d = hits.get(i);
+					if (LuceneHelper.getUriFromIndexEntry(
+							d.get("class_uri")).equalsIgnoreCase(
+							classUri.hashCode() + "")) {
+						resultClass.properties
+								.add(new RDFClassProperty(
+										d.get("uri"),
+										d.get("type"),
+										d.get("label"),
+										Integer.parseInt(d.get("count")),
+										Boolean.parseBoolean(d
+												.get("multiple_properties_for_same_node")),
+										new RDFClassPropertyRange(d
+												.get("range_uri"), d
+												.get("range_label"))));
+						
 					}
-				} else {
-					getFromSPARQL = true;
+
 				}
+
 			} else {
 				getFromSPARQL = true;
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} else {
 			getFromSPARQL = true;
 		}
 		if (getFromSPARQL) {
@@ -307,7 +282,7 @@ public class RDFClass {
 
 	public Boolean isIndexCreated() {
 		Boolean result = false;
-		Document d = getValidatorIndex();
+		Document d = getValidatorIndexDocument();
 		if (d != null) {
 			result = true;
 		}
@@ -331,7 +306,7 @@ public class RDFClass {
 		w.close();
 	}
 
-	public Document getValidatorIndex() {
+	public Document getValidatorIndexDocument() {
 		Document resultD = null;
 		try {
 			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
@@ -372,6 +347,7 @@ public class RDFClass {
 					}
 				}
 			}
+			reader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -380,6 +356,55 @@ public class RDFClass {
 			e.printStackTrace();
 		}
 		return resultD;
+	}
+
+	@SuppressWarnings("deprecation")
+	public List<Document> getPropertyIndexDocuments() {
+		List<Document> docs = new ArrayList<Document>();
+		try {
+			StandardAnalyzer analyzer = LuceneHelper.getAnalyzer();
+			File indexPath = new File(LuceneHelper.classPropertiesDir(dataset));
+			Directory index = new SimpleFSDirectory(indexPath);
+			Query q;
+
+			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "class_uri",
+					analyzer).parse("s" + this.uri.hashCode() + "e");
+
+			int hitsPerPage = 300;
+			IndexReader reader;
+
+			reader = DirectoryReader.open(index);
+			IndexSearcher searcher = new IndexSearcher(reader);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(
+					hitsPerPage, true);
+			searcher.search(q, collector);
+			ScoreDoc[] hits = collector.topDocs().scoreDocs;
+
+			if (hits.length > 0) {
+				System.out.println("Found indexed properties for " + this.uri);
+				for (int i = 0; i < hits.length; ++i) {
+					int docId = hits[i].doc;
+					Document d = searcher.doc(docId);
+					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri"))
+							.equalsIgnoreCase(this.uri.hashCode() + "")) {
+						docs.add(d);
+					}
+
+				}
+			}
+			reader.close();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return docs;
+	}
+
+	public void deleteIndexes() {
+
 	}
 
 	public String toString() {
