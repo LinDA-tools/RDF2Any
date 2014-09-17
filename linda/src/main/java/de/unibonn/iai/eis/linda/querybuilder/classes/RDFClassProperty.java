@@ -61,7 +61,7 @@ public class RDFClassProperty {
 			this.count = SPARQLHandler.getIntegerValueOfLiteral(row.get("totalcount"));
 		}
 		this.multiplePropertiesForSameNode = hasMultiplePropertiesForSameNode(dataset, classUri);
-		//System.out.println("generated count for "+this.uri + " ("+this.count+"), has multiple properties for the same node .. "+this.multiplePropertiesForSameNode.toString());
+		System.out.println("generated count for "+this.uri + " ("+this.count+"), has multiple properties for the same node .. "+this.multiplePropertiesForSameNode.toString());
 		
 	}
 	

@@ -53,22 +53,26 @@ public class RDFClass {
 	}
 
 	// this method will generate properties for the object from SPARQL endpoint
-	
+
 	public void generatePropertiesFromSPARQL() {
 		generatePropertiesFromSPARQL(false);
 	}
+
 	public void generatePropertiesFromSPARQL(Boolean doStatisticalQueries) {
 		// Get dataType properties
 		ResultSet dataTypeProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("datatype"));
-		addRdfResultSetToProperties(dataTypeProperties, "datatype",doStatisticalQueries);
+		addRdfResultSetToProperties(dataTypeProperties, "datatype",
+				doStatisticalQueries);
 		// Get object properties
 		ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("object"));
-		addRdfResultSetToProperties(objectProperties, "object",doStatisticalQueries);
+		addRdfResultSetToProperties(objectProperties, "object",
+				doStatisticalQueries);
 		ResultSet schemaProperties = SPARQLHandler.executeQuery(this.dataset,
 				getPropertiesSPARQLQuery("schema"));
-		addRdfResultSetToProperties(schemaProperties, "schema",doStatisticalQueries);
+		addRdfResultSetToProperties(schemaProperties, "schema",
+				doStatisticalQueries);
 	}
 
 	public void addRdfResultSetToProperties(ResultSet resultSetProperties,
@@ -130,98 +134,155 @@ public class RDFClass {
 		return result;
 	}
 
-	public void generateLuceneIndexes(IndexWriter w){
-		System.out.println("Creating indexes for class .. "+this.label+" <"+this.uri+">");
-	    for(RDFClassProperty property:this.properties){
-	    	try {
+	public void generateLuceneIndexes(IndexWriter w) {
+		System.out.println("Creating indexes for class .. " + this.label + " <"
+				+ this.uri + ">");
+		for (RDFClassProperty property : this.properties) {
+			try {
 				addLuceneDoc(w, property);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    }
+		}
 	}
-	
-	//this method creates indexes in lucene for the properties
+
+	// this method creates indexes in lucene for the properties
 	@SuppressWarnings("deprecation")
-	public void generateLuceneIndexes() throws IOException{
-		System.out.println("Creating indexes for class .. "+this.label+" <"+this.uri+">");
+	public void generateLuceneIndexes() throws IOException {
+		System.out.println("Creating indexes for class .. " + this.label + " <"
+				+ this.uri + ">");
 		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 		File indexPath = new File(LuceneHelper.classPropertiesDir(this.dataset));
 		Directory index = new SimpleFSDirectory(indexPath);
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
-		
-	    IndexWriter w = new IndexWriter(index, config);
-	    for(RDFClassProperty property:this.properties){
-	    	addLuceneDoc(w, property);
-	    }
-	    w.close();
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40,
+				analyzer);
+
+		IndexWriter w = new IndexWriter(index, config);
+		for (RDFClassProperty property : this.properties) {
+			addLuceneDoc(w, property);
+		}
+		w.close();
 	}
-	
-	//this method adds a doc for property in lucene index
-	public void addLuceneDoc(IndexWriter w, RDFClassProperty property) throws IOException{
+
+	// this method adds a doc for property in lucene index
+	public void addLuceneDoc(IndexWriter w, RDFClassProperty property)
+			throws IOException {
 		Document d = new Document();
 		d.add(new TextField("class_uri", this.uri, Field.Store.YES));
 		d.add(new StringField("uri", property.uri, Field.Store.YES));
 		d.add(new StringField("label", property.label, Field.Store.YES));
-		d.add(new StringField("count", property.count.toString(), Field.Store.YES));
-		d.add(new StringField("multiple_properties_for_same_node", property.multiplePropertiesForSameNode.toString(), Field.Store.YES));
+		d.add(new StringField("count", property.count.toString(),
+				Field.Store.YES));
+		d.add(new StringField("multiple_properties_for_same_node",
+				property.multiplePropertiesForSameNode.toString(),
+				Field.Store.YES));
 		d.add(new StringField("type", property.type, Field.Store.YES));
 		d.add(new StringField("range_uri", property.range.uri, Field.Store.YES));
-		d.add(new StringField("range_label", property.range.label, Field.Store.YES));
+		d.add(new StringField("range_label", property.range.label,
+				Field.Store.YES));
 		w.addDocument(d);
-		//System.out.println("Created index for "+property.toString());
+		// System.out.println("Created index for "+property.toString());
 	}
-	
-	
-	//this method searches for a matching class
-	
+
+	// this method searches for a matching class
+
 	@SuppressWarnings("deprecation")
-	public static RDFClass searchRDFClass(String dataset, String classUri) throws IOException, ParseException{
-		System.out.println("looking for properties of "+classUri+" in dataset "+dataset);
-		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
-		File indexPath = new File(LuceneHelper.classPropertiesDir(dataset));
-		Directory index = new SimpleFSDirectory(indexPath);
-		Query q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer).parse(classUri);
-	    int hitsPerPage = 150;
-	    IndexReader reader = DirectoryReader.open(index);
-	    IndexSearcher searcher = new IndexSearcher(reader);
-	    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
-	    searcher.search(q, collector);
-	    ScoreDoc[] hits = collector.topDocs().scoreDocs;
-	    RDFClass resultClass = new RDFClass(dataset, classUri);
-	    if(hits.length > 0){
-	    	System.out.println("Found indexed properties for "+classUri);
-	    	//properties in lucene index
-		    for(int i=0;i<hits.length;++i) {
-			      int docId = hits[i].doc;
-			      Document d = searcher.doc(docId);
-			      resultClass.properties.add(new RDFClassProperty(d.get("uri"), d.get("type"), d.get("label"), Integer.parseInt(d.get("count")), Boolean.parseBoolean(d.get("multiple_properties_for_same_node")), new RDFClassPropertyRange(d.get("range_uri"), d.get("range_label"))));
-			    }
-	    }else{
-	    	//generating properties from SPARQL
-	    	resultClass.generatePropertiesFromSPARQL();
-	    }
-	    return resultClass;
+	public static RDFClass searchRDFClass(String dataset, String classUri)
+			throws ParseException {
+		RDFClass resultClass = new RDFClass(dataset, classUri);
+		Boolean getFromSPARQL = false;
+		try {
+			System.out.println("looking for properties of " + classUri
+					+ " in dataset " + dataset);
+			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+			File indexPath = new File(LuceneHelper.classPropertiesDir(dataset));
+			Directory index = new SimpleFSDirectory(indexPath);
+			Query q;
+
+			q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer)
+					.parse(classUri);
+			int hitsPerPage = 150;
+			IndexReader reader;
+
+			reader = DirectoryReader.open(index);
+			IndexSearcher searcher = new IndexSearcher(reader);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(
+					hitsPerPage, true);
+			searcher.search(q, collector);
+			ScoreDoc[] hits = collector.topDocs().scoreDocs;
+			Boolean hitFound = false;
+			if (hits.length > 0) {
+				System.out.println("Found indexed properties for " + classUri);
+				// properties in lucene index
+				for (int i = 0; i < hits.length; ++i) {
+					int docId = hits[i].doc;
+					Document d = searcher.doc(docId);
+					if (d.get("class_uri").equalsIgnoreCase(classUri)) {
+						resultClass.properties
+								.add(new RDFClassProperty(
+										d.get("uri"),
+										d.get("type"),
+										d.get("label"),
+										Integer.parseInt(d.get("count")),
+										Boolean.parseBoolean(d
+												.get("multiple_properties_for_same_node")),
+										new RDFClassPropertyRange(d
+												.get("range_uri"), d
+												.get("range_label"))));
+						hitFound = true;
+					}
+					if(!hitFound)
+						getFromSPARQL = true;
+				}
+			} else {
+				getFromSPARQL = true;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			getFromSPARQL = true;
+		}
+		if (getFromSPARQL) {
+			// generating properties from SPARQL
+			System.out.println("No indexed entry found for " + classUri
+					+ ". Will create indexes now ...");
+			resultClass.generatePropertiesFromSPARQL(true);
+			try {
+				resultClass.generateLuceneIndexes();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return resultClass;
 	}
-	//this method creates indexes for all the classes of a dataset
-	public static void generateIndexesForDataset(String dataset) throws IOException{
+
+	// this method creates indexes for all the classes of a dataset
+	public static void generateIndexesForDataset(String dataset)
+			throws IOException {
 		String classesQuery = SPARQLHandler.getPrefixes();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))} ";
-		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset, classesQuery);
+		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset,
+				classesQuery);
 		Integer classCounter = 0;
 
-		while(classesResultSet.hasNext()){
+		while (classesResultSet.hasNext()) {
+			classCounter++;
+			System.out.println(classCounter.toString()+". ################################################################");
 			QuerySolution row = classesResultSet.next();
-			RDFClass classNode = new RDFClass(dataset, row.get("class").toString());
-			System.out.println("Evaluating properties of "+classNode.label+" <"+classNode.uri+">");
+			RDFClass classNode = new RDFClass(dataset, row.get("class")
+					.toString());
+			System.out.println("Evaluating properties of " + classNode.label
+					+ " <" + classNode.uri + ">");
 			classNode.generatePropertiesFromSPARQL(true);
 			classNode.generateLuceneIndexes();
-			classCounter++;
+			
 		}
 
-		System.out.println("Finished creating indexes for "+classCounter.toString()+" classes ... ");
+		System.out.println("Finished creating indexes for "
+				+ classCounter.toString() + " classes ... ");
 	}
+
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {
