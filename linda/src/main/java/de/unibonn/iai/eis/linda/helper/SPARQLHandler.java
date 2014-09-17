@@ -27,8 +27,8 @@ public class SPARQLHandler {
 	//This method executes a SPARQL query in a RDF triple store
 	public static ResultSet executeQuery(String uri, String queryString){
 		Query query = QueryFactory.create(queryString);
-		//System.out.println("Executing query .... ");
-		//System.out.println(queryString);
+		System.out.println("Executing query .... ");
+		System.out.println(queryString);
 		QueryExecution qexec = QueryExecutionFactory.sparqlService(uri, query);
 		try {
 		    ResultSet results = qexec.execSelect();

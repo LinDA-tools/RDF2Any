@@ -16,6 +16,6 @@ public class LuceneHelper {
 	}
 	
 	public static String getUriFromIndexEntry(String entry){
-		return entry.substring(0, entry.length()-3);
+		return entry.substring(1, entry.length()-1);
 	}
 }

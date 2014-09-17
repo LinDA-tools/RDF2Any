@@ -14,11 +14,15 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
@@ -104,6 +108,9 @@ public class RDFClass {
 
 	// this method returns the query to get properties of a class
 	public String getPropertiesSPARQLQuery(String propertyType) {
+		return getPropertiesSPARQLQuery(propertyType,5);
+	}
+	public String getPropertiesSPARQLQuery(String propertyType, Integer limit) {
 		String query = SPARQLHandler.getPrefixes();
 		if (propertyType.equals("schema")) {
 			query += "SELECT DISTINCT ?property ?label WHERE { ?property rdfs:domain <"
@@ -119,7 +126,7 @@ public class RDFClass {
 			else if (propertyType.equals("datatype"))
 				query += " ?property rdf:type owl:DatatypeProperty. ";
 		}
-		query += " FILTER(langMatches(lang(?label), 'EN'))} LIMIT 50";
+		query += " FILTER(langMatches(lang(?label), 'EN'))} LIMIT "+limit.toString();
 		return query;
 	}
 
@@ -139,7 +146,7 @@ public class RDFClass {
 				+ this.uri + ">");
 		for (RDFClassProperty property : this.properties) {
 			try {
-				addLuceneDoc(w, property);
+				addLucenePropertyDoc(w, property);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -160,16 +167,17 @@ public class RDFClass {
 
 		IndexWriter w = new IndexWriter(index, config);
 		for (RDFClassProperty property : this.properties) {
-			addLuceneDoc(w, property);
+			addLucenePropertyDoc(w, property);
 		}
 		w.close();
+		addLuceneValidatorDoc();
 	}
 
 	// this method adds a doc for property in lucene index
-	public void addLuceneDoc(IndexWriter w, RDFClassProperty property)
+	public void addLucenePropertyDoc(IndexWriter w, RDFClassProperty property)
 			throws IOException {
 		Document d = new Document();
-		d.add(new TextField("class_uri", this.uri, Field.Store.YES));
+		d.add(new TextField("@@@"+"class_uri", this.uri+"@@@", Field.Store.YES));
 		d.add(new StringField("uri", property.uri, Field.Store.YES));
 		d.add(new StringField("label", property.label, Field.Store.YES));
 		d.add(new StringField("count", property.count.toString(),
@@ -184,6 +192,8 @@ public class RDFClass {
 		w.addDocument(d);
 		// System.out.println("Created index for "+property.toString());
 	}
+	
+
 
 	// this method searches for a matching class
 
@@ -218,7 +228,7 @@ public class RDFClass {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
-					if (d.get("class_uri").equalsIgnoreCase(classUri)) {
+					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri")).equalsIgnoreCase(classUri)) {
 						resultClass.properties
 								.add(new RDFClassProperty(
 										d.get("uri"),
@@ -293,38 +303,61 @@ public class RDFClass {
 		}
 		return result;
 	}
+	// this method writes a doc which confirms that indexes have been created for the clas
+	public void addLuceneValidatorDoc() throws IOException{
+		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		File indexPath = new File(LuceneHelper.classPropertiesValidatorDir(this.dataset));
+		Directory index = new SimpleFSDirectory(indexPath);
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40,
+				analyzer);
+		IndexWriter w = new IndexWriter(index, config);
+		Document d = new Document();
+		d.add(new TextField("uri", "s"+this.uri.hashCode()+"e", Field.Store.YES));
+		w.addDocument(d);
+		w.close();
+	}
 
-	private Document getValidatorIndex() {
+	public Document getValidatorIndex() {
 		Document resultD = null;
 		try {
 			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 			File indexPath = new File(
-					LuceneHelper.classPropertiesValidatorDir(dataset));
+					LuceneHelper.classPropertiesValidatorDir(this.dataset));
 			Directory index = new SimpleFSDirectory(indexPath);
 			Query q;
 
-			q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer)
-					.parse(this.uri + "@@@");
+			q = new QueryParser(Version.LUCENE_40, "uri", analyzer)
+					.parse("s"+this.uri.hashCode() + "e");
+			//BooleanQuery qry = new BooleanQuery();
+			//qry.add(new TermQuery(new Term("uri", this.uri.hashCode()+"")), BooleanClause.Occur.MUST);
+			//Great! You have a termQuery added to the parent BooleanQuery which should find your keyword just fine!
+
+			//Query q = new QueryParser(Version.LUCENE_42, "uri", analyzer).parse(q.toString());
+			System.out.println(q);
 			int hitsPerPage = 150;
 			IndexReader reader;
-
 			reader = DirectoryReader.open(index);
 			IndexSearcher searcher = new IndexSearcher(reader);
 			TopScoreDocCollector collector = TopScoreDocCollector.create(
 					hitsPerPage, true);
 			searcher.search(q, collector);
 			ScoreDoc[] hits = collector.topDocs().scoreDocs;
+			System.out.println(hits.length);
 			if (hits.length > 0) {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
 					if(LuceneHelper.getUriFromIndexEntry(d.get("uri")).equalsIgnoreCase(this.uri)){
+						
 						resultD = d;
 						break;
 					}
 				}
 			}
-		} catch (ParseException | IOException e) {
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
