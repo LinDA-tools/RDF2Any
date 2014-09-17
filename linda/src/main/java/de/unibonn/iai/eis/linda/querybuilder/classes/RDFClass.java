@@ -177,7 +177,7 @@ public class RDFClass {
 	public void addLucenePropertyDoc(IndexWriter w, RDFClassProperty property)
 			throws IOException {
 		Document d = new Document();
-		d.add(new TextField("@@@"+"class_uri", this.uri+"@@@", Field.Store.YES));
+		d.add(new TextField("class_uri", "s"+this.uri.hashCode()+"e", Field.Store.YES));
 		d.add(new StringField("uri", property.uri, Field.Store.YES));
 		d.add(new StringField("label", property.label, Field.Store.YES));
 		d.add(new StringField("count", property.count.toString(),
@@ -211,7 +211,7 @@ public class RDFClass {
 			Query q;
 
 			q = new QueryParser(Version.LUCENE_40, "class_uri", analyzer)
-					.parse(classUri);
+					.parse("s"+classUri.hashCode()+"e");
 			int hitsPerPage = 150;
 			IndexReader reader;
 
@@ -228,7 +228,7 @@ public class RDFClass {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
-					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri")).equalsIgnoreCase(classUri)) {
+					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri")).equalsIgnoreCase(classUri.hashCode() + "")) {
 						resultClass.properties
 								.add(new RDFClassProperty(
 										d.get("uri"),

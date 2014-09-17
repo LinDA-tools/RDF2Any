@@ -27,11 +27,11 @@ public class ClassPropertyExample {
 		//rdfClass.generateLuceneIndexes();
 		//RDFClass.generateIndexesForDataset("http://dbpedia.org/sparql");
 		
-		//RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
-		RDFClass s = new RDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
-		System.out.println(s.uri.hashCode());
-		s.addLuceneValidatorDoc();
-		System.out.println(s.getValidatorIndex());
+		RDFClass s = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
+		//RDFClass s = new RDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/City");
+		//System.out.println(s.uri.hashCode());
+		//s.addLuceneValidatorDoc();
+		System.out.println(s);
 	}
 
 }
