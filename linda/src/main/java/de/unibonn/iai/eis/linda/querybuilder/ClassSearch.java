@@ -2,6 +2,8 @@ package de.unibonn.iai.eis.linda.querybuilder;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 /*
+ * @author gsingharoy
+ * 
  * This class provides queries to search for classes in a dataset
  * */
 public class ClassSearch {
