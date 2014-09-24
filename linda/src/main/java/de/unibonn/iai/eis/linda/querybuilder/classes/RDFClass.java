@@ -200,9 +200,14 @@ public class RDFClass {
 
 	// this method searches for a matching class
 
-	@SuppressWarnings("deprecation")
 	public static RDFClass searchRDFClass(String dataset, String classUri)
 			throws ParseException {
+		return searchRDFClass(dataset, classUri, true);
+	}
+
+	@SuppressWarnings("deprecation")
+	public static RDFClass searchRDFClass(String dataset, String classUri,
+			Boolean forceIndexCreation) throws ParseException {
 		RDFClass resultClass = new RDFClass(dataset, classUri);
 		Boolean getFromSPARQL = false;
 		if (resultClass.isIndexCreated()) {
@@ -240,12 +245,16 @@ public class RDFClass {
 			// generating properties from SPARQL
 			System.out.println("No indexed entry found for " + classUri
 					+ ". Will create indexes now ...");
-			resultClass.generatePropertiesFromSPARQL(true);
-			try {
-				resultClass.generateLuceneIndexes();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (forceIndexCreation) {
+				resultClass.generatePropertiesFromSPARQL(true);
+				try {
+					resultClass.generateLuceneIndexes();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				resultClass.generatePropertiesFromSPARQL(false);
 			}
 		}
 		return resultClass;
@@ -275,13 +284,14 @@ public class RDFClass {
 			RDFClass classNode = new RDFClass(dataset, row.get("class")
 					.toString());
 			if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
-				try{
-				System.out.println("Evaluating properties of "
-						+ classNode.label + " <" + classNode.uri + ">");
-				classNode.generatePropertiesFromSPARQL(true);
-				classNode.generateLuceneIndexes();
-				}catch(Exception e){
-					System.out.println("Failed to create index for the class "+classNode.label+" <"+classNode.uri+">");
+				try {
+					System.out.println("Evaluating properties of "
+							+ classNode.label + " <" + classNode.uri + ">");
+					classNode.generatePropertiesFromSPARQL(true);
+					classNode.generateLuceneIndexes();
+				} catch (Exception e) {
+					System.out.println("Failed to create index for the class "
+							+ classNode.label + " <" + classNode.uri + ">");
 					failedClasses.add(classNode.uri);
 				}
 			} else {
@@ -293,10 +303,10 @@ public class RDFClass {
 
 		System.out.println("Finished creating indexes for "
 				+ classCounter.toString() + " classes ... ");
-		System.out.println("Failed classes : "+failedClasses.size());
-		if(failedClasses.size() > 0){
-			for(String c:failedClasses){
-				System.out.println("Failed to create indexes for : "+c);
+		System.out.println("Failed classes : " + failedClasses.size());
+		if (failedClasses.size() > 0) {
+			for (String c : failedClasses) {
+				System.out.println("Failed to create indexes for : " + c);
 			}
 		}
 	}
