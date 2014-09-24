@@ -38,9 +38,9 @@ public class ClassPropertyExample {
 		//System.out.println(s);
 		
 		//System.out.println(CommonHelper.decode("c2VsZWN0IGRpc3RpbmN0ID9Db25jZXB0IHdoZXJlIHtbXSBhID9Db25jZXB0fSBMSU1JVCAxMDA"));
-		RDFClass animal = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Animal");
-		RDFObject goldenMonkey = new RDFObject(animal, "http://dbpedia.org/page/Golden_monkey" );
-		System.out.println(goldenMonkey);
+		RDFClass athlete = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Athlete");
+		RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
+		System.out.println(alexTait);
 	}
 
 }
