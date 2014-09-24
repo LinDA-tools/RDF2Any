@@ -31,4 +31,8 @@ public class RDFObject {
 	public String getName(RDFClass hasClass, String uri){
 		return SPARQLHandler.getLabelFromNode(hasClass.dataset, uri, "EN");
 	}
+	
+	public String toString(){
+		return "uri : "+this.uri+", name : "+this.name + ", has class : "+this.hasClass.label;
+	}
 }

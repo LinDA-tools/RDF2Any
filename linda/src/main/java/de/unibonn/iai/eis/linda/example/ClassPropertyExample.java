@@ -8,6 +8,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
 
 public class ClassPropertyExample {
 
@@ -36,7 +37,10 @@ public class ClassPropertyExample {
 		
 		//System.out.println(s);
 		
-		System.out.println(CommonHelper.decode("c2VsZWN0IGRpc3RpbmN0ID9Db25jZXB0IHdoZXJlIHtbXSBhID9Db25jZXB0fSBMSU1JVCAxMDA"));
+		//System.out.println(CommonHelper.decode("c2VsZWN0IGRpc3RpbmN0ID9Db25jZXB0IHdoZXJlIHtbXSBhID9Db25jZXB0fSBMSU1JVCAxMDA"));
+		RDFClass animal = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Animal");
+		RDFObject goldenMonkey = new RDFObject(animal, "http://dbpedia.org/page/Golden_monkey" );
+		System.out.println(goldenMonkey);
 	}
 
 }
