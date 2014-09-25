@@ -1,5 +1,7 @@
 package de.unibonn.iai.eis.linda.querybuilder.objects;
 
+import java.util.List;
+
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
@@ -12,6 +14,8 @@ public class RDFObject {
 	public RDFClass hasClass;
 	public String name;
 	public String uri;
+	public List<RDFObjectProperty> properties;
+	
 	public RDFObject(RDFClass hasClass, String uri){
 		this.hasClass = hasClass;
 		this.uri = uri;

@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
+
+
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
