@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
 
 /**
  * @author gsingharoy
@@ -34,6 +35,20 @@ public class RDFObject {
 	}
 	public String getName(RDFClass hasClass, String uri){
 		return SPARQLHandler.getLabelFromNode(hasClass.dataset, uri, "EN");
+	}
+	
+	public String propertiesSPARQLQuery(){
+		String query = SPARQLHandler.getPrefixes();
+		query += " SELECT DISTINCT ?predicate ?object WHERE { <"+this.uri+"> ?predicate ?object. FILTER(";
+		Boolean firstProperty = true;
+		for(RDFClassProperty property:this.hasClass.properties){
+			if(!firstProperty)
+				query+= " || ";
+			query += " ?predicate = <"+property.uri+"> ";
+			firstProperty = false;
+		}
+		query +=")} ORDER BY ?predicate";
+		return query;
 	}
 	
 	public String toString(){
