@@ -13,4 +13,8 @@ public class RDFObjectPropertyValue {
 		this.value = value;
 		this.additionalValue = additionalValue;
 	}
+	
+	public String toString(){
+		return this.value;
+	}
 }

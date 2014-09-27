@@ -481,6 +481,18 @@ public class RDFClass {
 
 	}
 
+	//This method returns the RDFClassProperty by looking up the properties in the class through String uri
+	public RDFClassProperty getPropertyFromStringUri(String propertyUri){
+		RDFClassProperty foundProp = null;
+		for(RDFClassProperty prop: this.properties){
+			if(prop.uri.equalsIgnoreCase(propertyUri)){
+				foundProp = prop;
+				break;
+			}
+		}
+		return foundProp;
+	}
+	
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {

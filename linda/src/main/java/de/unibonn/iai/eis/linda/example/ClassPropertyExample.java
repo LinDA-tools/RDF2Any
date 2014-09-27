@@ -43,8 +43,8 @@ public class ClassPropertyExample {
 		RDFClass athlete = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Athlete");
 		//System.out.println(athlete);
 		RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
-		System.out.println(alexTait.propertiesSPARQLQuery());
 		alexTait.generateProperties();
+		System.out.println(alexTait);
 	}
 
 }
