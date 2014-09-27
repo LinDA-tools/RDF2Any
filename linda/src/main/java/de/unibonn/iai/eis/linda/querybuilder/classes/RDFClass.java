@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -493,6 +493,16 @@ public class RDFClass {
 		return foundProp;
 	}
 	
+	public String getVariableName()
+	{
+		String result = "thing";
+		if(this.label != null && !this.label.equals(""))
+		{
+			result = WordUtils.capitalizeFully(this.label);
+			result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
+		}
+		return result;
+	}
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {
