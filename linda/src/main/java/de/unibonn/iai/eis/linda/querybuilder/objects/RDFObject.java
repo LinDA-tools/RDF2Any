@@ -2,6 +2,9 @@ package de.unibonn.iai.eis.linda.querybuilder.objects;
 
 import java.util.List;
 
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
@@ -30,11 +33,22 @@ public class RDFObject {
 		this.name = name;
 	}
 	
-	public String getName(){
+	private String getName(){
 		return SPARQLHandler.getLabelFromNode(this.hasClass.dataset, this.uri, "EN");
 	}
-	public String getName(RDFClass hasClass, String uri){
+	private String getName(RDFClass hasClass, String uri){
 		return SPARQLHandler.getLabelFromNode(hasClass.dataset, uri, "EN");
+	}
+	
+	//this method generates the properties required from the RDFClass properties
+	public void generateProperties(){
+		ResultSet propertiesResultSet = SPARQLHandler.executeQuery(this.hasClass.dataset, propertiesSPARQLQuery());
+		Integer i=0;
+		while(propertiesResultSet.hasNext()){
+			QuerySolution row = propertiesResultSet.next();
+			System.out.println(i);
+			i++;
+		}
 	}
 	
 	public String propertiesSPARQLQuery(){

@@ -44,6 +44,7 @@ public class ClassPropertyExample {
 		//System.out.println(athlete);
 		RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
 		System.out.println(alexTait.propertiesSPARQLQuery());
+		alexTait.generateProperties();
 	}
 
 }

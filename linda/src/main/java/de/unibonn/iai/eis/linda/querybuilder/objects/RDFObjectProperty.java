@@ -11,5 +11,9 @@ import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
  **/
 public class RDFObjectProperty {
 	public RDFClassProperty predicate;
-	public List<String> objects;
+	public List<RDFObjectPropertyValue> objects;
+	
+	public RDFObjectProperty(RDFClassProperty predicate){
+		this.predicate = predicate;
+	}
 }
