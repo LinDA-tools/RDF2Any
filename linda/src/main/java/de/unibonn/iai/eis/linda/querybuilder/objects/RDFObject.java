@@ -27,13 +27,14 @@ public class RDFObject {
 		this.hasClass = hasClass;
 		this.uri = uri;
 		this.name = getName();
-
+		this.properties = new ArrayList<RDFObjectProperty>();
 	}
 
 	public RDFObject(RDFClass hasClass, String uri, String name) {
 		this.hasClass = hasClass;
 		this.uri = uri;
 		this.name = name;
+		this.properties = new ArrayList<RDFObjectProperty>();
 	}
 
 	private String getName() {
@@ -58,6 +59,8 @@ public class RDFObject {
 			RDFNode predicate = row.get("predicate");
 			String strPredicate = predicate.toString();
 			if (!strPredicate.equals(prevUri)) {
+				if(oProperty != null)
+					this.properties.add(oProperty);
 				oProperty = new RDFObjectProperty(
 						this.hasClass.getPropertyFromStringUri(strPredicate));
 			}
@@ -66,6 +69,8 @@ public class RDFObject {
 			oProperty.objects.add(new RDFObjectPropertyValue(strObject));
 			i++;
 		}
+		if(oProperty != null)
+			this.properties.add(oProperty);
 		System.out.println(i + " properties found for " + this.uri);
 	}
 
