@@ -19,23 +19,25 @@ public class RDFObjectPropertyValue {
 	}
 	
 	public  RDFObjectPropertyValue(RDFObjectProperty predicate, RDFNode object){
-		this.additionalValue = null;
+		this.additionalValue = "";
 		if(object.isLiteral()){		
 			if(predicate.predicate.range.isLanguageLiteral()){
 				this.value = SPARQLHandler.getLabelName(object);
 				this.additionalValue = SPARQLHandler.getLabelLanguage(object);
 			}
+			else{
+				this.value = object.toString().replace("^^"+predicate.predicate.range.uri, "");
+			}
 		}
 		else{
 			this.value = object.toString();
-			this.additionalValue = "";
 		}
 
 	}
 	
 	public String toString(){
 		String result = this.value;
-		if(this.additionalValue != null)
+		if(this.additionalValue != null && !this.additionalValue.equals(""))
 			result += " ["+this.additionalValue+"]";
 		return result;
 	}
