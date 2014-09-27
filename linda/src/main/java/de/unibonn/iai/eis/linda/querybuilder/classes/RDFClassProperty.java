@@ -103,6 +103,7 @@ public class RDFClassProperty {
 		return query;
 	}
 	
+	
 	public String toString(){
 		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : {"+this.range.toString()+"}, count : "+this.count.toString()+", has multiple properties for the same node : "+this.multiplePropertiesForSameNode.toString();
 	}

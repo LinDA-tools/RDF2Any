@@ -78,4 +78,9 @@ public class SPARQLHandler {
 		return Integer.parseInt(n.toString().replaceAll("http://www.w3.org/2001/XMLSchema#integer", "").substring(0,n.toString().replaceAll("http://www.w3.org/2001/XMLSchema#integer", "").length()-2));
 	}
 
+	public static String getLabelLanguage(RDFNode label) {
+		Integer languageIdentifierPoint = label.toString().length()-2;
+		return label.toString().substring(languageIdentifierPoint,label.toString().length());
+	}
+
 }

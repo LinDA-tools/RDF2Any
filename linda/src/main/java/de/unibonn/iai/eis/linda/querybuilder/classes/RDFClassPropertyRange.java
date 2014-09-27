@@ -33,6 +33,14 @@ public class RDFClassPropertyRange {
 		}
 	}
 	
+	//returns true if range is a language literal
+	public Boolean isLanguageLiteral(){
+		Boolean result = false;
+		if(this.uri.equalsIgnoreCase("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"))
+			result = true;
+		return result;
+	}
+	
 	public String toString(){
 		return "uri : "+this.uri+", label:"+this.label;
 	}

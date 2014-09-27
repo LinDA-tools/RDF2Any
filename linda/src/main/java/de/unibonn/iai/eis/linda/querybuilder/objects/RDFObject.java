@@ -65,8 +65,7 @@ public class RDFObject {
 						this.hasClass.getPropertyFromStringUri(strPredicate));
 			}
 			RDFNode object = row.get("object");
-			String strObject = object.toString();
-			oProperty.objects.add(new RDFObjectPropertyValue(strObject));
+			oProperty.objects.add(new RDFObjectPropertyValue(oProperty, object));
 			i++;
 		}
 		if(oProperty != null)
