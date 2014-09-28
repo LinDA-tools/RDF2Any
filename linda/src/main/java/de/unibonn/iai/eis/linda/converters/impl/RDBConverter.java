@@ -16,6 +16,7 @@ import de.unibonn.iai.eis.linda.helper.RDBHelper;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
+import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObjectProperty;
 
 /**
  * @author gsingharoy
@@ -76,15 +77,16 @@ public class RDBConverter extends MainConverter implements Converter {
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
 		// TODO Auto-generated method stub
-		output.write((forClass.getTableCreationScript(true)+"\n\n").getBytes(
-				Charset.forName("UTF-8")));
+		output.write((forClass.getTableCreationScript(true) + "\n\n")
+				.getBytes(Charset.forName("UTF-8")));
 		List<String> tableNames = forClass.getTableNames();
 		Integer mainTableCounter = 0;
 		String mainTableName = forClass.getTableName();
 		while (rdfResults.hasNext()) {
 			mainTableCounter++;
 			QuerySolution row = rdfResults.next();
-			System.out.println(mainTableCounter+".##################################");
+			System.out.println(mainTableCounter
+					+ ".##################################");
 			try {
 				RDFNode object = row.get("concept");
 				if (object != null) {
@@ -96,10 +98,45 @@ public class RDBConverter extends MainConverter implements Converter {
 					} else {
 						rdfObject = new RDFObject(forClass, object.toString());
 					}
-					output.write(("\nINSERT INTO "+mainTableName+" (ID, uri, name) VALUES ("+mainTableCounter+", '"+RDBHelper.getSQLReadyEntry(rdfObject.uri)+"','"+RDBHelper.getSQLReadyEntry(rdfObject.name)+"');").getBytes(
-							Charset.forName("UTF-8")));
-					//rdfObject.generateProperties();
-					
+					output.write(("\n\nINSERT INTO " + mainTableName
+							+ " (ID, uri, name) VALUES (" + mainTableCounter
+							+ ", '" + RDBHelper.getSQLReadyEntry(rdfObject.uri)
+							+ "','"
+							+ RDBHelper.getSQLReadyEntry(rdfObject.name) + "');")
+							.getBytes(Charset.forName("UTF-8")));
+					rdfObject.generateProperties();
+					for (RDFObjectProperty objectProperty : rdfObject.properties) {
+						if (!objectProperty.predicate.multiplePropertiesForSameNode) {
+							if (objectProperty.predicate.type.equals("data")) {
+								if (objectProperty.predicate
+										.getTableAttributeType().equals("int"))
+									output.write(("\nUPDATE "
+											+ mainTableName
+											+ " SET "
+											+ objectProperty.predicate
+													.getTableAttributeName()
+											+ " = "
+											+ RDBHelper
+													.getSQLReadyEntry(objectProperty.objects
+															.get(0).value)
+											+ " WHERE ID=" + mainTableCounter+";")
+											.getBytes(Charset.forName("UTF-8")));
+								else
+									output.write(("\nUPDATE "
+											+ mainTableName
+											+ " SET "
+											+ objectProperty.predicate
+													.getTableAttributeName()
+											+ " = '"
+											+ RDBHelper
+													.getSQLReadyEntry(objectProperty.objects
+															.get(0).value)
+											+ "' WHERE ID=" + mainTableCounter+";")
+											.getBytes(Charset.forName("UTF-8")));
+							}
+						}
+					}
+
 				}
 			} catch (Exception e) {
 				System.out.println("Error happened for one object ... ");
