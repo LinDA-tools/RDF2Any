@@ -24,6 +24,7 @@ public class CommonHelper {
 		if(title != null && !title.equals(""))
 		{
 			result = WordUtils.capitalizeFully(title);
+			result = result.replaceAll(" ", "");
 			if(firstCharSmall)
 				result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
 		}

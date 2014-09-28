@@ -506,14 +506,41 @@ public class RDFClass {
 	//This method returns the create table script for this class
 	public String getTableCreationScript(Boolean allProperties){
 		String result = "CREATE TABLE "+getTableName()+"\n(\nID int,\nuri varchar(300),\nname varchar(300),";
+		Boolean existsForeignKey = false;
 		if(allProperties){
 			for(RDFClassProperty property: this.properties){
 				if(!property.multiplePropertiesForSameNode){
 					result += "\n"+property.getTableAttributeName()+" "+property.getTableAttributeType()+",";
+					if(property.type.equalsIgnoreCase("object"))
+						existsForeignKey = true;
 				}
 			}
 		}
-		result += "\nPRIMARY KEY ID\n)";
+		
+		result += "\nPRIMARY KEY ID";
+		if(existsForeignKey)
+			result+=",";
+		//Section to reference foreign keys
+		if(allProperties){
+			for(RDFClassProperty property: this.properties){
+				if(!property.multiplePropertiesForSameNode && property.type.equalsIgnoreCase("object")){
+					result += "\nFOREIGN KEY "+property.getTableAttributeName()+" REFERENCES "+CommonHelper.getVariableName(property.range.label, "thing")+"s(ID),";
+				}
+			}
+		}
+		result += "\n)";
+		//Section to create tables for normalizations
+		if(allProperties){
+			String classVariableName = getVariableName();
+			for(RDFClassProperty property: this.properties){
+				if(property.multiplePropertiesForSameNode){
+					result += "\n\nCREATE TABLE "+classVariableName+CommonHelper.getVariableName(property.label, "",false)+"s\n(ID int,";
+					result += "\n"+classVariableName+"ID int,";
+					result += "\n"+property.getTableAttributeName()+" "+property.getTableAttributeType()+",";
+					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "+classVariableName+"ID REFERENCES "+getTableName()+"(ID)\n)";
+				}
+			}
+		}
 		return result;
 	}
 	
