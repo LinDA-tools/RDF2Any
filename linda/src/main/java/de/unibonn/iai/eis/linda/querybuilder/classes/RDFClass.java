@@ -278,7 +278,7 @@ public class RDFClass {
 			Boolean forceNew) throws IOException {
 		String classesQuery = SPARQLHandler.getPrefixes();
 		List<String> failedClasses = new ArrayList<String>();
-		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))} ";
+		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))}";
 		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset,
 				classesQuery);
 		Integer classCounter = 0;

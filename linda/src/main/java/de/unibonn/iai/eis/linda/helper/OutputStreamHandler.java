@@ -9,6 +9,7 @@ import javax.ws.rs.core.StreamingOutput;
 import com.hp.hpl.jena.query.ResultSet;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
+import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 
 /**
  * @author gsingharoy
@@ -26,6 +27,24 @@ public class OutputStreamHandler {
 					
 					ResultSet results = SPARQLHandler.executeQuery(dataset, queryString);
 					converter.convert(output, results);
+				}catch(Exception e){
+					throw new WebApplicationException(e);
+				}
+
+			}
+
+		};
+	}
+
+	public static StreamingOutput getConverterStreamingOutput(final Converter converter, final String dataset, final String queryString, final String forClass){
+		return new StreamingOutput(){
+
+			public void write(OutputStream output) throws IOException,
+			WebApplicationException {
+				try{
+					
+					ResultSet results = SPARQLHandler.executeQuery(dataset, queryString);
+					converter.convert(output, results,forClass);
 				}catch(Exception e){
 					throw new WebApplicationException(e);
 				}

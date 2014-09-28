@@ -40,7 +40,10 @@ public class ClassPropertyExample {
 		//System.out.println(s);
 		
 		//System.out.println(CommonHelper.decode("c2VsZWN0IGRpc3RpbmN0ID9Db25jZXB0IHdoZXJlIHtbXSBhID9Db25jZXB0fSBMSU1JVCAxMDA"));
-		RDFClass athlete = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Athlete");
+		//RDFClass athlete = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Athlete");
+		RDFClass athlete = new RDFClass("http://dbpedia.org/sparql","http://dbpedia.org/ontology/Athlete");
+		athlete.generatePropertiesFromSPARQL(true);
+		athlete.generateLuceneIndexes();
 		//System.out.println(athlete);
 		RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
 		alexTait.generateProperties();

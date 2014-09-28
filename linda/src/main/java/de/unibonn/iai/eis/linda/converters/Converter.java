@@ -21,5 +21,6 @@ public interface Converter {
 	 */
 	
 	void convert(OutputStream output,ResultSet rdfResults) throws IOException;
+	void convert(OutputStream output,ResultSet rdfResults, String forClass) throws IOException;
 
 }

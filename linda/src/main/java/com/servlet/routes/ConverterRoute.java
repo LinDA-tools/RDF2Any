@@ -23,41 +23,59 @@ import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 public class ConverterRoute {
 	@GET
 	@Path("csv-converter.csv")
-	@Produces({"application/csv"})
+	@Produces({ "application/csv" })
 	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) {
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
-		System.out.println("START CSV conversion for query in dataset "+dataset+" \n"+query);
-		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),dataset,query );
+		System.out.println("START CSV conversion for query in dataset "
+				+ dataset + " \n" + query);
+		return OutputStreamHandler.getConverterStreamingOutput(
+				new CSVConverter(), dataset, query);
 
 	}
 
 	@GET
 	@Path("rdb-converter.sql")
-	@Produces({"application/sql"})
+	@Produces({ "application/sql" })
 	public StreamingOutput getRDBConverter(@Context UriInfo uriInfo) {
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
-		System.out.println("START RDV conversion for query in dataset "+dataset+" \n"+query);
-		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), dataset, query);
+		String forClass = queryParams.getFirst("for_class");
+		if (forClass != null) {
+			System.out.println("START RDB conversion for query of class ("
+					+ forClass + ") in dataset " + dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new RDBConverter(), dataset, query,forClass);
+		} else {
+			System.out.println("START RDB conversion for query in dataset "
+					+ dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new RDBConverter(), dataset, query);
+		}
+		
 
 	}
-	
-	
+
 	@GET
 	@Path("json")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONOutput getJSONConverter(@Context UriInfo uriInfo){
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
+	public JSONOutput getJSONConverter(@Context UriInfo uriInfo) {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
-		Double startMilliseconds = (double) System.currentTimeMillis( );
-		System.out.println("START JSON conversion for query in dataset "+dataset+" \n"+query);
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, query));
-		Double endMilliseconds = (double) System.currentTimeMillis( );
-		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
+		Double startMilliseconds = (double) System.currentTimeMillis();
+		System.out.println("START JSON conversion for query in dataset "
+				+ dataset + " \n" + query);
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
+				dataset, query));
+		Double endMilliseconds = (double) System.currentTimeMillis();
+		converter.jsonOutput
+				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH JSON conversion ... ");
 		return converter.jsonOutput;
 	}

@@ -50,5 +50,11 @@ public class CSVConverter extends MainConverter implements Converter {
 		}
 
 	}
+	@Override
+	public void convert(OutputStream output, ResultSet rdfResults,
+			String forClass) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
