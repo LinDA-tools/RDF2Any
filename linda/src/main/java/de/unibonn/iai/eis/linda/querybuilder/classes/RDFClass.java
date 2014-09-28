@@ -544,7 +544,7 @@ public class RDFClass {
 				}
 			}
 		}
-		result += "\n)";
+		result += "\n);";
 		// Section to create tables for normalizations
 		if (allProperties) {
 			String classVariableName = getVariableName();
@@ -565,7 +565,7 @@ public class RDFClass {
 								+ CommonHelper.getVariableName(
 										property.range.label, "thing")
 								+ "s(ID)";
-					result += "\n)";
+					result += "\n);";
 				}
 			}
 
