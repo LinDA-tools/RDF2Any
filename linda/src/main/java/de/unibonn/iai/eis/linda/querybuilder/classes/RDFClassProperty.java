@@ -143,6 +143,9 @@ public class RDFClassProperty {
 			return CommonHelper.getVariableName(this.label, "");
 	}
 
+	public String getTableName(RDFClass rdfClass){
+		return rdfClass.getTableName()+CommonHelper.getVariableName(this.label, "thing",false)+"s";
+	}
 	/*
 	 * END RDB methods
 	 */

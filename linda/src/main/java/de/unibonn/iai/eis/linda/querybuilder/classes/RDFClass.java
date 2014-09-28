@@ -551,9 +551,7 @@ public class RDFClass {
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
 					result += "\n\nCREATE TABLE "
-							+ classVariableName
-							+ CommonHelper.getVariableName(property.label, "",
-									false) + "s\n(ID int,";
+							+ property.getTableName(this) + "\n(ID int,";
 					result += "\n" + classVariableName + "ID int,";
 					result += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() + ",";
