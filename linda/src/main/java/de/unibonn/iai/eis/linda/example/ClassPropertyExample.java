@@ -45,7 +45,7 @@ public class ClassPropertyExample {
 		RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
 		alexTait.generateProperties();
 		System.out.println(alexTait);
-		System.out.println(athlete.getVariableName());
+		System.out.println(athlete.getTableCreationScript());
 	}
 
 }

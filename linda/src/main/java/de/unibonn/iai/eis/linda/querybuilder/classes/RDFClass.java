@@ -503,7 +503,28 @@ public class RDFClass {
 	/*
 	 * START RDB related methods
 	 */
+	//This method returns the create table script for this class
+	public String getTableCreationScript(Boolean allProperties){
+		String result = "CREATE TABLE "+getTableName()+"\n(\nID int,\nuri varchar(300),\nname varchar(300),";
+		if(allProperties){
+			for(RDFClassProperty property: this.properties){
+				if(!property.multiplePropertiesForSameNode){
+					result += "\n"+property.getTableAttributeName()+" "+property.getTableAttributeType()+",";
+				}
+			}
+		}
+		result += "\nPRIMARY KEY ID\n)";
+		return result;
+	}
 	
+	
+	public String getTableCreationScript(){
+		return getTableCreationScript(false);
+	}
+	
+	public String getTableName(){
+		return getVariableName()+"s";
+	}
 	
 	
 	/*

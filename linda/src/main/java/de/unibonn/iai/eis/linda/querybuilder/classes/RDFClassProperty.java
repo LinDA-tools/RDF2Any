@@ -6,6 +6,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 
+import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
 public class RDFClassProperty {
@@ -103,6 +104,24 @@ public class RDFClassProperty {
 		return query;
 	}
 	
+	/*
+	 * START RDB methods
+	 * */
+	public String getTableAttributeType(){
+		if(this.range.label.equalsIgnoreCase("integer"))
+			return "int";
+		else
+			return "varchar(1000)";
+	}
+	
+	public String getTableAttributeName(){
+		if(this.type.equalsIgnoreCase("object"))
+			return CommonHelper.getVariableName(this.label, "")+"ID";
+		else
+			return CommonHelper.getVariableName(this.label, "");
+	}
+	/* END RDB methods
+	 * */
 	
 	public String toString(){
 		return "uri : "+this.uri+", type : "+this.type+", label : "+this.label+", range : {"+this.range.toString()+"}, count : "+this.count.toString()+", has multiple properties for the same node : "+this.multiplePropertiesForSameNode.toString();
