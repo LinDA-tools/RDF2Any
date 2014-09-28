@@ -57,6 +57,13 @@ public class RDFClass {
 		this.properties = new ArrayList<RDFClassProperty>();
 	}
 
+	public RDFClass(String dataset, String uri, String label) {
+		this.uri = uri;
+		this.label = label;
+		this.dataset = dataset;
+		this.properties = new ArrayList<RDFClassProperty>();
+	}
+
 	// this method will generate properties for the object from SPARQL endpoint
 
 	public void generatePropertiesFromSPARQL() {
@@ -482,86 +489,119 @@ public class RDFClass {
 
 	}
 
-	//This method returns the RDFClassProperty by looking up the properties in the class through String uri
-	public RDFClassProperty getPropertyFromStringUri(String propertyUri){
+	// This method returns the RDFClassProperty by looking up the properties in
+	// the class through String uri
+	public RDFClassProperty getPropertyFromStringUri(String propertyUri) {
 		RDFClassProperty foundProp = null;
-		for(RDFClassProperty prop: this.properties){
-			if(prop.uri.equalsIgnoreCase(propertyUri)){
+		for (RDFClassProperty prop : this.properties) {
+			if (prop.uri.equalsIgnoreCase(propertyUri)) {
 				foundProp = prop;
 				break;
 			}
 		}
 		return foundProp;
 	}
-	
-	public String getVariableName()
-	{
+
+	public String getVariableName() {
 		return CommonHelper.getVariableName(this.label, "thing");
 	}
-	
-	
+
 	/*
 	 * START RDB related methods
 	 */
-	//This method returns the create table script for this class
-	public String getTableCreationScript(Boolean allProperties){
-		String result = "CREATE TABLE "+getTableName()+"\n(\nID int,\nuri varchar(300),\nname varchar(300),";
+	// This method returns the create table script for this class
+	public String getTableCreationScript(Boolean allProperties) {
 		Boolean existsForeignKey = false;
-		if(allProperties){
-			for(RDFClassProperty property: this.properties){
-				if(!property.multiplePropertiesForSameNode){
-					result += "\n"+property.getTableAttributeName()+" "+property.getTableAttributeType()+",";
-					if(property.type.equalsIgnoreCase("object"))
+		List<String> tablesCreated = new ArrayList<String>();
+		tablesCreated.add(getTableName());
+		String result = "CREATE TABLE " + getTableName()
+				+ "\n(\nID int,\nuri varchar(300),\nname varchar(300),";
+
+		if (allProperties) {
+			for (RDFClassProperty property : this.properties) {
+				if (!property.multiplePropertiesForSameNode) {
+					result += "\n" + property.getTableAttributeName() + " "
+							+ property.getTableAttributeType() + ",";
+					if (property.type.equalsIgnoreCase("object"))
 						existsForeignKey = true;
 				}
 			}
 		}
-		
+
 		result += "\nPRIMARY KEY ID";
-		if(existsForeignKey)
-			result+=",";
-		//Section to reference foreign keys
-		if(allProperties){
-			for(RDFClassProperty property: this.properties){
-				if(!property.multiplePropertiesForSameNode && property.type.equalsIgnoreCase("object")){
-					result += "\nFOREIGN KEY "+property.getTableAttributeName()+" REFERENCES "+CommonHelper.getVariableName(property.range.label, "thing")+"s(ID),";
+		if (existsForeignKey)
+			result += ",";
+		// Section to reference foreign keys
+		if (allProperties) {
+			for (RDFClassProperty property : this.properties) {
+				if (!property.multiplePropertiesForSameNode
+						&& property.type.equalsIgnoreCase("object")) {
+					result += "\nFOREIGN KEY "
+							+ property.getTableAttributeName()
+							+ " REFERENCES "
+							+ CommonHelper.getVariableName(
+									property.range.label, "thing") + "s(ID),";
 				}
 			}
 		}
 		result += "\n)";
-		//Section to create tables for normalizations
-		if(allProperties){
+		// Section to create tables for normalizations
+		if (allProperties) {
 			String classVariableName = getVariableName();
-			for(RDFClassProperty property: this.properties){
-				if(property.multiplePropertiesForSameNode){
-					result += "\n\nCREATE TABLE "+classVariableName+CommonHelper.getVariableName(property.label, "",false)+"s\n(ID int,";
-					result += "\n"+classVariableName+"ID int,";
-					result += "\n"+property.getTableAttributeName()+" "+property.getTableAttributeType()+",";
-					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "+classVariableName+"ID REFERENCES "+getTableName()+"(ID)";
-					if(property.type.equalsIgnoreCase("object"))
-						result += "\nFOREIGN KEY "+property.getTableAttributeName()+" REFERENCES "+CommonHelper.getVariableName(property.range.label, "thing")+"s(ID)";
+			for (RDFClassProperty property : this.properties) {
+				if (property.multiplePropertiesForSameNode) {
+					result += "\n\nCREATE TABLE "
+							+ classVariableName
+							+ CommonHelper.getVariableName(property.label, "",
+									false) + "s\n(ID int,";
+					result += "\n" + classVariableName + "ID int,";
+					result += "\n" + property.getTableAttributeName() + " "
+							+ property.getTableAttributeType() + ",";
+					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "
+							+ classVariableName + "ID REFERENCES "
+							+ getTableName() + "(ID)";
+					if (property.type.equalsIgnoreCase("object"))
+						result += "\nFOREIGN KEY "
+								+ property.getTableAttributeName()
+								+ " REFERENCES "
+								+ CommonHelper.getVariableName(
+										property.range.label, "thing")
+								+ "s(ID)";
 					result += "\n)";
 				}
 			}
+
+			// Section to get all related tables
+			for (RDFClassProperty property : this.properties) {
+				if (property.type.equalsIgnoreCase("object")
+						&& !property.range.label.equalsIgnoreCase("")) {
+					RDFClass propertyRangeClass = new RDFClass(this.dataset,
+							property.range.uri, property.range.label);
+					if (!tablesCreated.contains(propertyRangeClass
+							.getTableName())) {
+						result += "\n\n\n"
+								+ propertyRangeClass.getTableCreationScript();
+						tablesCreated.add(propertyRangeClass.getTableName());
+					}
+				}
+			}
 		}
+
 		return result;
 	}
-	
-	
-	public String getTableCreationScript(){
+
+	public String getTableCreationScript() {
 		return getTableCreationScript(false);
 	}
-	
-	public String getTableName(){
-		return getVariableName()+"s";
+
+	public String getTableName() {
+		return getVariableName() + "s";
 	}
-	
-	
+
 	/*
 	 * END RDB related methods
-	 * */
-	
-	
+	 */
+
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {
