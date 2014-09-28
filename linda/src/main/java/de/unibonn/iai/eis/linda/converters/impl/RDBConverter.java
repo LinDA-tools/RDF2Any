@@ -12,6 +12,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import de.unibonn.iai.eis.linda.converters.Converter;
 import de.unibonn.iai.eis.linda.helper.CSVHelper;
 import de.unibonn.iai.eis.linda.helper.RDBHelper;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
  * @author gsingharoy
@@ -58,6 +59,13 @@ public class RDBConverter extends MainConverter implements Converter{
 			output.write(generateFileResultRow(row,counter).getBytes(Charset.forName("UTF-8")));
 			counter++;
 		}
+		
+	}
+
+	@Override
+	public void convert(OutputStream output, ResultSet rdfResults,
+			RDFClass forClass) throws IOException {
+		// TODO Auto-generated method stub
 		
 	}
 

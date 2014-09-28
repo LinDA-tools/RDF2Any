@@ -10,6 +10,7 @@ import com.hp.hpl.jena.query.ResultSet;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
  * @author gsingharoy
@@ -44,7 +45,11 @@ public class OutputStreamHandler {
 				try{
 					
 					ResultSet results = SPARQLHandler.executeQuery(dataset, queryString);
-					converter.convert(output, results,forClass);
+					RDFClass rdfClass = RDFClass.searchRDFClass(dataset, forClass);
+					if(rdfClass != null)
+						converter.convert(output, results,rdfClass);
+					else
+						converter.convert(output, results);
 				}catch(Exception e){
 					throw new WebApplicationException(e);
 				}

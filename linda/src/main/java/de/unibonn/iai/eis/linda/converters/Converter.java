@@ -8,6 +8,8 @@ import java.io.OutputStream;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+
 /**
  * @author jattard
  *
@@ -21,6 +23,6 @@ public interface Converter {
 	 */
 	
 	void convert(OutputStream output,ResultSet rdfResults) throws IOException;
-	void convert(OutputStream output,ResultSet rdfResults, String forClass) throws IOException;
+	void convert(OutputStream output,ResultSet rdfResults, RDFClass forClass) throws IOException;
 
 }
