@@ -498,6 +498,19 @@ public class RDFClass {
 	{
 		return CommonHelper.getVariableName(this.label, "thing");
 	}
+	
+	
+	/*
+	 * START RDB related methods
+	 */
+	
+	
+	
+	/*
+	 * END RDB related methods
+	 * */
+	
+	
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {

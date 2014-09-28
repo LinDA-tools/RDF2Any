@@ -19,13 +19,18 @@ public class CommonHelper {
 	}
 	
 	//This method returns a camel cased  variable name from the title
-	public static String getVariableName(String title, String defaultName){
+	public static String getVariableName(String title, String defaultName, Boolean firstCharSmall){
 		String result = defaultName;
 		if(title != null && !title.equals(""))
 		{
 			result = WordUtils.capitalizeFully(title);
-			result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
+			if(firstCharSmall)
+				result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
 		}
 		return result;
+	}
+	
+	public static String getVariableName(String title, String defaultName){
+		return CommonHelper.getVariableName(title, defaultName,true);
 	}
 }
