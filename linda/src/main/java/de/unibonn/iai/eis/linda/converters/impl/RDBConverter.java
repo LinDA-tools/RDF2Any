@@ -66,7 +66,7 @@ public class RDBConverter extends MainConverter implements Converter{
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
 		// TODO Auto-generated method stub
-		
+		output.write(forClass.getTableCreationScript(true).getBytes(Charset.forName("UTF-8")));
 	}
 
 }
