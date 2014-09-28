@@ -595,6 +595,24 @@ public class RDFClass {
 	public String getTableName() {
 		return getVariableName() + "s";
 	}
+	
+	//This method returns a list of tablenames needed to have this class
+	public List<String> getTableNames(){
+		List<String> tables = new ArrayList<String>();
+		//adding the table for this class
+		tables.add(getTableName());
+		//adding related tables
+		for(RDFClassProperty property:this.properties){
+			if(property.type.equalsIgnoreCase("object") && property.hasValidRange()){
+				if(property.multiplePropertiesForSameNode){
+					tables.add(property.getTableName(this));
+				}else{
+					tables.add(new RDFClass(this.dataset,property.range.uri,property.range.uri).getTableName());
+				}
+			}
+		}
+		return tables;
+	}
 
 	/*
 	 * END RDB related methods

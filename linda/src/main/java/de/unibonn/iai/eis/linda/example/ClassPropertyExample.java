@@ -41,14 +41,17 @@ public class ClassPropertyExample {
 		
 		//System.out.println(CommonHelper.decode("c2VsZWN0IGRpc3RpbmN0ID9Db25jZXB0IHdoZXJlIHtbXSBhID9Db25jZXB0fSBMSU1JVCAxMDA"));
 		//RDFClass athlete = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/Athlete");
-		RDFClass athlete = new RDFClass("http://dbpedia.org/sparql","http://dbpedia.org/ontology/Athlete");
-		athlete.generatePropertiesFromSPARQL(true);
-		athlete.generateLuceneIndexes();
+		//RDFClass athlete = new RDFClass("http://dbpedia.org/sparql","http://dbpedia.org/ontology/Athlete");
+		//athlete.generatePropertiesFromSPARQL(true);
+		//athlete.generateLuceneIndexes();
 		//System.out.println(athlete);
-		RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
-		alexTait.generateProperties();
-		System.out.println(alexTait);
-		System.out.println(athlete.getTableCreationScript(true));
+		//RDFObject alexTait = new RDFObject(athlete, "http://dbpedia.org/resource/Alex_Tait_(cricketer)" );
+		//alexTait.generateProperties();
+		//System.out.println(alexTait);
+		//System.out.println(athlete.getTableCreationScript(true));
+		
+		RDFClass cricketTeam = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/CricketTeam");
+		System.out.println(cricketTeam.getTableNames());
 	}
 
 }

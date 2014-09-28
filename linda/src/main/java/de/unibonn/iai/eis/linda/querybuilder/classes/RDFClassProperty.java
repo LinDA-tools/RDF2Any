@@ -122,6 +122,17 @@ public class RDFClassProperty {
 		return query;
 	}
 
+	public Boolean hasValidRange() {
+		Boolean result = true;
+		if (this.type.equals("object")) {
+			if (this.range == null)
+				result = false;
+			else if (this.range.label == null || this.range.label.equals(""))
+				result = false;
+		}
+		return result;
+	}
+
 	/*
 	 * START RDB methods
 	 */
@@ -143,9 +154,12 @@ public class RDFClassProperty {
 			return CommonHelper.getVariableName(this.label, "");
 	}
 
-	public String getTableName(RDFClass rdfClass){
-		return rdfClass.getTableName()+CommonHelper.getVariableName(this.label, "thing",false)+"s";
+	public String getTableName(RDFClass rdfClass) {
+		return rdfClass.getTableName()
+				+ CommonHelper.getVariableName(this.label, "thing", false)
+				+ "s";
 	}
+
 	/*
 	 * END RDB methods
 	 */

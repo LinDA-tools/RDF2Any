@@ -62,6 +62,7 @@ public class RDBConverter extends MainConverter implements Converter{
 		
 	}
 
+	//This convert implementation is when a class is queried from the query builder
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
