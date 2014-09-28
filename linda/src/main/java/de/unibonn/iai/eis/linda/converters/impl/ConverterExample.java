@@ -14,6 +14,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
  * @author jattard
@@ -32,9 +33,11 @@ public class ConverterExample implements Converter {
 		
 	}
 
+
+
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
-			String forClass) throws IOException {
+			RDFClass forClass) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

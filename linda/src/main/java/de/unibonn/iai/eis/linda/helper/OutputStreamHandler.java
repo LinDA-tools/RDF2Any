@@ -9,7 +9,7 @@ import javax.ws.rs.core.StreamingOutput;
 import com.hp.hpl.jena.query.ResultSet;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
-import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
+
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
