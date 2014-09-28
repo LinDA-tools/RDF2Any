@@ -33,6 +33,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.LuceneHelper;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
@@ -495,13 +496,7 @@ public class RDFClass {
 	
 	public String getVariableName()
 	{
-		String result = "thing";
-		if(this.label != null && !this.label.equals(""))
-		{
-			result = WordUtils.capitalizeFully(this.label);
-			result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
-		}
-		return result;
+		return CommonHelper.getVariableName(this.label, "thing");
 	}
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
