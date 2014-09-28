@@ -71,7 +71,20 @@ public class SPARQLHandler {
 	}
 	
 	public static Boolean isDataTypeUri(String uri){
-		return Pattern.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()), Pattern.CASE_INSENSITIVE).matcher(uri).find();
+		 if(Pattern.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()), Pattern.CASE_INSENSITIVE).matcher(uri).find())
+			 return true;
+		 else{
+			 if(SPARQLHandler.isLangLiteralUri(uri)){
+				 return true;
+			 }
+			 else{
+				 return false;
+			 }
+		 }
+	}
+	
+	public static Boolean isLangLiteralUri(String uri){
+		return uri.equalsIgnoreCase("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString");
 	}
 	
 	public static Integer getIntegerValueOfLiteral(RDFNode n){
