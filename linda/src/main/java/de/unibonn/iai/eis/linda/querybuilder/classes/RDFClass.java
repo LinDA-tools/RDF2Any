@@ -537,7 +537,10 @@ public class RDFClass {
 					result += "\n\nCREATE TABLE "+classVariableName+CommonHelper.getVariableName(property.label, "",false)+"s\n(ID int,";
 					result += "\n"+classVariableName+"ID int,";
 					result += "\n"+property.getTableAttributeName()+" "+property.getTableAttributeType()+",";
-					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "+classVariableName+"ID REFERENCES "+getTableName()+"(ID)\n)";
+					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "+classVariableName+"ID REFERENCES "+getTableName()+"(ID)";
+					if(property.type.equalsIgnoreCase("object"))
+						result += "\nFOREIGN KEY "+property.getTableAttributeName()+" REFERENCES "+CommonHelper.getVariableName(property.range.label, "thing")+"s(ID)";
+					result += "\n)";
 				}
 			}
 		}
