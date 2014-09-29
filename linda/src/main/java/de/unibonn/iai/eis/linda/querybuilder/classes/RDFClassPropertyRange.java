@@ -25,7 +25,14 @@ public class RDFClassPropertyRange {
 	public void generateRangeLabel(String dataset){
 		if(SPARQLHandler.isDataTypeUri(this.uri)){
 			//data type range
-			this.label = this.uri.replaceAll(SPARQLHandler.getXMLSchemaURI()+"#", "");
+			//this.label = this.uri.replaceAll(SPARQLHandler.getXMLSchemaURI()+"#", "");
+			if(this.uri.contains("#")){
+				this.label = this.uri.split("\\#")[1];
+			}
+			else
+			{
+				this.label = this.uri ;
+			}
 		}
 		else{
 			//object type range
