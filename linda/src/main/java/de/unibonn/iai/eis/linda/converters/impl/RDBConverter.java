@@ -290,6 +290,7 @@ public class RDBConverter extends MainConverter implements Converter {
 			}
 
 		}
+		System.out.println("Finished RDB Conversion ...... ");
 	}
 
 }
