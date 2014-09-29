@@ -140,7 +140,7 @@ public class RDFClassProperty {
 		if (this.type.equalsIgnoreCase("object"))
 			return "int";
 		else {
-			if (this.range.label.equalsIgnoreCase("integer"))
+			if (this.range.label.equalsIgnoreCase("integer") || this.range.label.equalsIgnoreCase("nonnegativeinteger"))
 				return "int";
 			else
 				return "varchar(1000)";
