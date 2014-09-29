@@ -230,6 +230,56 @@ public class RDBConverter extends MainConverter implements Converter {
 														.forName("UTF-8")));
 
 								}
+							}else{
+								if(objectProperty.predicate.hasValidRange()){
+									String objectPropertyTableName = objectProperty.predicate
+											.getRangeTableName();
+									for (RDFObjectPropertyValue objectPropertyValue : objectProperty.objects) {
+										Integer foreignKey = uriPrimaryKeyLookup
+												.get(objectPropertyValue.value
+														.toLowerCase());
+										if (foreignKey == null) {
+											foreignKey = tableCounters
+													.get(objectPropertyTableName) + 1;
+											tableCounters.put(
+													objectPropertyTableName,
+													foreignKey);
+											output.write(("\nINSERT INTO "
+													+ objectPropertyTableName
+													+ "(ID,uri) VALUES ("
+													+ foreignKey
+													+ ", '"
+													+ RDBHelper
+															.getSQLReadyEntry(objectPropertyValue.value) + "');")
+													.getBytes(Charset
+															.forName("UTF-8")));
+											uriPrimaryKeyLookup
+													.put(objectPropertyValue.value
+															.toLowerCase(),
+															foreignKey);
+										}
+										Integer objectPropertyPrimaryKey = tableCounters
+												.get(objectPropertyTableName) + 1;
+										tableCounters.put(objectPropertyTableName,
+												objectPropertyPrimaryKey);
+										output.write(("\nINSERT INTO "
+												+ objectProperty.predicate.getTableName(forClass)
+												+ "(ID,"
+												+ forClass.getVariableName()
+												+ "ID,"
+												+ objectProperty.predicate
+														.getTableAttributeName()
+												+ ") VALUES("
+												+ objectPropertyPrimaryKey
+												+ ", "
+												+ mainTableCounter
+												+ ", "
+												+ foreignKey + ");")
+												.getBytes(Charset
+														.forName("UTF-8")));
+										
+									}
+								}
 							}
 						}
 					}

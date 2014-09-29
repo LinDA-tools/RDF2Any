@@ -163,7 +163,7 @@ public class RDFClassProperty {
 	}
 	
 	public String getTableName(RDFClass rdfClass) {
-		return rdfClass.getTableName()
+		return rdfClass.getVariableName()
 				+ CommonHelper.getVariableName(this.label, "thing", false)
 				+ "s";
 	}

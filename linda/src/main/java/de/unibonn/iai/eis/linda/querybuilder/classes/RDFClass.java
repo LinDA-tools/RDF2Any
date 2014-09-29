@@ -606,12 +606,16 @@ public class RDFClass {
 		for (RDFClassProperty property : this.properties) {
 
 			if (property.multiplePropertiesForSameNode) {
-					tables.add(property.getTableName(this));
+				tables.add(property.getTableName(this));
+				if (property.type.equalsIgnoreCase("object")
+						&& property.hasValidRange())
+					tables.add(new RDFClass(this.dataset, property.range.uri,
+							property.range.label).getTableName());
 			} else {
 				if (property.type.equalsIgnoreCase("object")
 						&& property.hasValidRange())
 					tables.add(new RDFClass(this.dataset, property.range.uri,
-						property.range.label).getTableName());
+							property.range.label).getTableName());
 			}
 
 		}
