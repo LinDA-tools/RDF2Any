@@ -129,18 +129,44 @@ public class RDBConverter extends MainConverter implements Converter {
 															.get(0).value)
 											+ " WHERE ID=" + mainTableCounter + ";")
 											.getBytes(Charset.forName("UTF-8")));
-								else
-									output.write(("\nUPDATE "
-											+ mainTableName
-											+ " SET "
-											+ objectProperty.predicate
-													.getTableAttributeName()
-											+ " = '"
-											+ RDBHelper
-													.getSQLReadyEntry(objectProperty.objects
-															.get(0).value)
-											+ "' WHERE ID=" + mainTableCounter + ";")
-											.getBytes(Charset.forName("UTF-8")));
+								else {
+									if (objectProperty.predicate.range
+											.isLanguageLiteral())
+										output.write(("\nUPDATE "
+												+ mainTableName
+												+ " SET "
+												+ objectProperty.predicate
+														.getTableAttributeName()
+												+ " = '"
+												+ RDBHelper
+														.getSQLReadyEntry(objectProperty.objects
+																.get(0).value)
+												+ "', "
+												+ objectProperty.predicate
+														.getTableAttributeName()
+												+ "Lang = '"
+												+ objectProperty.objects.get(0).additionalValue
+														.toUpperCase()
+												+ "' WHERE ID="
+												+ mainTableCounter + ";")
+												.getBytes(Charset
+														.forName("UTF-8")));
+									else
+										output.write(("\nUPDATE "
+												+ mainTableName
+												+ " SET "
+												+ objectProperty.predicate
+														.getTableAttributeName()
+												+ " = '"
+												+ RDBHelper
+														.getSQLReadyEntry(objectProperty.objects
+																.get(0).value)
+												+ "' WHERE ID="
+												+ mainTableCounter + ";")
+												.getBytes(Charset
+														.forName("UTF-8")));
+
+								}
 							} else {
 								if (objectProperty.predicate.hasValidRange()) {
 									Integer foreignKey = uriPrimaryKeyLookup
@@ -211,27 +237,56 @@ public class RDBConverter extends MainConverter implements Converter {
 														.getSQLReadyEntry(objectPropertyValue.value) + ");")
 												.getBytes(Charset
 														.forName("UTF-8")));
-									else
-										output.write(("\nINSERT INTO "
-												+ objectPropertyTableName
-												+ "(ID,"
-												+ forClass.getVariableName()
-												+ "ID,"
-												+ objectProperty.predicate
-														.getTableAttributeName()
-												+ ") VALUES("
-												+ objectPropertyPrimaryKey
-												+ ", "
-												+ mainTableCounter
-												+ ", '"
-												+ RDBHelper
-														.getSQLReadyEntry(objectPropertyValue.value) + "');")
-												.getBytes(Charset
-														.forName("UTF-8")));
+									else {
+										if (objectProperty.predicate.range
+												.isLanguageLiteral())
+											output.write(("\nINSERT INTO "
+													+ objectPropertyTableName
+													+ "(ID,"
+													+ forClass
+															.getVariableName()
+													+ "ID,"
+													+ objectProperty.predicate
+															.getTableAttributeName()
+													+ ", "
+													+ objectProperty.predicate
+															.getTableAttributeName()
+													+ "Lang) VALUES("
+													+ objectPropertyPrimaryKey
+													+ ", "
+													+ mainTableCounter
+													+ ", '"
+													+ RDBHelper
+															.getSQLReadyEntry(objectPropertyValue.value)
+													+ "', '"
+													+ RDBHelper
+															.getSQLReadyEntry(objectPropertyValue.additionalValue
+																	.toUpperCase()) + "');")
+													.getBytes(Charset
+															.forName("UTF-8")));
+										else
+											output.write(("\nINSERT INTO "
+													+ objectPropertyTableName
+													+ "(ID,"
+													+ forClass
+															.getVariableName()
+													+ "ID,"
+													+ objectProperty.predicate
+															.getTableAttributeName()
+													+ ") VALUES("
+													+ objectPropertyPrimaryKey
+													+ ", "
+													+ mainTableCounter
+													+ ", '"
+													+ RDBHelper
+															.getSQLReadyEntry(objectPropertyValue.value) + "');")
+													.getBytes(Charset
+															.forName("UTF-8")));
+									}
 
 								}
-							}else{
-								if(objectProperty.predicate.hasValidRange()){
+							} else {
+								if (objectProperty.predicate.hasValidRange()) {
 									String objectPropertyTableName = objectProperty.predicate
 											.getRangeTableName();
 									for (RDFObjectPropertyValue objectPropertyValue : objectProperty.objects) {
@@ -253,17 +308,19 @@ public class RDBConverter extends MainConverter implements Converter {
 															.getSQLReadyEntry(objectPropertyValue.value) + "');")
 													.getBytes(Charset
 															.forName("UTF-8")));
-											uriPrimaryKeyLookup
-													.put(objectPropertyValue.value
+											uriPrimaryKeyLookup.put(
+													objectPropertyValue.value
 															.toLowerCase(),
-															foreignKey);
+													foreignKey);
 										}
 										Integer objectPropertyPrimaryKey = tableCounters
 												.get(objectPropertyTableName) + 1;
-										tableCounters.put(objectPropertyTableName,
+										tableCounters.put(
+												objectPropertyTableName,
 												objectPropertyPrimaryKey);
 										output.write(("\nINSERT INTO "
-												+ objectProperty.predicate.getTableName(forClass)
+												+ objectProperty.predicate
+														.getTableName(forClass)
 												+ "(ID,"
 												+ forClass.getVariableName()
 												+ "ID,"
@@ -271,13 +328,11 @@ public class RDBConverter extends MainConverter implements Converter {
 														.getTableAttributeName()
 												+ ") VALUES("
 												+ objectPropertyPrimaryKey
-												+ ", "
-												+ mainTableCounter
-												+ ", "
-												+ foreignKey + ");")
+												+ ", " + mainTableCounter
+												+ ", " + foreignKey + ");")
 												.getBytes(Charset
 														.forName("UTF-8")));
-										
+
 									}
 								}
 							}
