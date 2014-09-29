@@ -183,12 +183,20 @@ public class RDBConverter extends MainConverter implements Converter {
 										output.write(("\nINSERT INTO "
 												+ objectProperty.predicate
 														.getRangeTableName()
-												+ "(ID,uri) VALUES ("
+												+ "(ID, uri , name) VALUES ("
 												+ foreignKey
 												+ ", '"
 												+ RDBHelper
 														.getSQLReadyEntry(objectProperty.objects
-																.get(0).value) + "');")
+																.get(0).value)
+												+ "', '"
+												+ RDBHelper
+														.getSQLReadyEntry(SPARQLHandler
+																.getLabelFromNode(
+																		forClass.dataset,
+																		objectProperty.objects
+																				.get(0).value,
+																		"EN")) + "');")
 												.getBytes(Charset
 														.forName("UTF-8")));
 										uriPrimaryKeyLookup
@@ -301,11 +309,18 @@ public class RDBConverter extends MainConverter implements Converter {
 													foreignKey);
 											output.write(("\nINSERT INTO "
 													+ objectPropertyTableName
-													+ "(ID,uri) VALUES ("
+													+ "(ID, uri, name) VALUES ("
 													+ foreignKey
 													+ ", '"
 													+ RDBHelper
-															.getSQLReadyEntry(objectPropertyValue.value) + "');")
+															.getSQLReadyEntry(objectPropertyValue.value)
+													+ "', '"
+													+ RDBHelper
+															.getSQLReadyEntry(SPARQLHandler
+																	.getLabelFromNode(
+																			forClass.dataset,
+																			objectPropertyValue.value,
+																			"EN")) + "');")
 													.getBytes(Charset
 															.forName("UTF-8")));
 											uriPrimaryKeyLookup.put(
