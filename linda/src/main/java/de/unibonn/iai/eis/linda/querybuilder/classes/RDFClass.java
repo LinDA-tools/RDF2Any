@@ -35,6 +35,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.LuceneHelper;
+import de.unibonn.iai.eis.linda.helper.RDBHelper;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
 public class RDFClass {
@@ -613,6 +614,7 @@ public class RDFClass {
 		}
 		return tables;
 	}
+	
 
 	/*
 	 * END RDB related methods

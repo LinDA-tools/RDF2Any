@@ -7,6 +7,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import de.unibonn.iai.eis.linda.helper.RDBHelper;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
@@ -88,6 +89,15 @@ public class RDFObject {
 		return query;
 	}
 
+	public String getInsertTableNameScript(Integer id){
+		return "INSERT INTO " + hasClass.getTableName()
+		+ " (ID, uri, name) VALUES (" + id
+		+ ", '" + RDBHelper.getSQLReadyEntry(this.uri)
+		+ "','"
+		+ RDBHelper.getSQLReadyEntry(this.name) + "');";
+	}
+
+	
 	public String toString() {
 		String result = "uri : " + this.uri + ", name : " + this.name + ", has class : "
 				+ this.hasClass.label+"\nProperties : ";
