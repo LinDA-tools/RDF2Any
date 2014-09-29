@@ -28,6 +28,7 @@ public class RDFObjectPropertyValue {
 				this.value = object.toString().replace(
 						"^^" + predicate.predicate.range.uri, "");
 				this.additionalValue = "";
+				/*
 				if (predicate.predicate.type.equals("data")
 						&& predicate.predicate.range.label
 								.equalsIgnoreCase("integer")
@@ -41,8 +42,12 @@ public class RDFObjectPropertyValue {
 						else if(predicate.predicate.range.label
 								.equalsIgnoreCase("nonnegativeinteger"))
 							this.value = object.toString().replace("^^"+SPARQLHandler.getXMLSchemaURI()+"#integer","");
-
+						else
+							this.value = object.toString().split("\\^\\^")[0];
 					}
+				}*/
+				if (predicate.predicate.type.equals("data") && this.value.equals(object.toString())){
+					this.value = object.toString().split("\\^\\^")[0];
 				}
 			}
 		} else {
