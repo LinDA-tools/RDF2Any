@@ -98,6 +98,7 @@ public class RDBConverter extends MainConverter implements Converter {
 			System.out.println(mainTableCounter
 					+ ".##################################");
 			try {
+				output.write(("\n\n--"+mainTableCounter+". ########################################").getBytes(Charset.forName("UTF-8")));
 				RDFNode object = row.get("concept");
 				if (object != null) {
 					RDFNode objectName = row.get("label");
@@ -108,7 +109,7 @@ public class RDBConverter extends MainConverter implements Converter {
 					} else {
 						rdfObject = new RDFObject(forClass, object.toString());
 					}
-					output.write(("\n\n" + rdfObject
+					output.write(("\n" + rdfObject
 							.getInsertRowScript(mainTableCounter))
 							.getBytes(Charset.forName("UTF-8")));
 					rdfObject.generateProperties();

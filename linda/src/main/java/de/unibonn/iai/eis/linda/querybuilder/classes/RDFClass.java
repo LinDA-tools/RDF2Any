@@ -518,7 +518,10 @@ public class RDFClass {
 		String result1 = "";
 		String result2 = "";
 		String result3 = "";
-		result1 = "\n\n\nDROP IF EXISTS "+getTableName()+";\nCREATE TABLE " + getTableName()
+		
+		if(allProperties)
+			result1 += "\n\n\n-- START Table creation section for main class table";
+		result1 += "\n\n\nDROP IF EXISTS "+getTableName()+";\nCREATE TABLE " + getTableName()
 				+ "\n(\nID int,\nuri varchar(300),\nname varchar(300),";
 
 		if (allProperties) {
@@ -551,8 +554,11 @@ public class RDFClass {
 			}
 		}
 		result1 += "\n);";
+		if(allProperties)
+			result1 += "\n\n\n-- END Table creation section for main class table";
 		// Section to create tables for normalizations
 		if (allProperties) {
+			result2 += "\n\n\n-- START table creation scripts for normalized property tables";
 			String classVariableName = getVariableName();
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
@@ -576,8 +582,10 @@ public class RDFClass {
 					result2 += "\n);";
 				}
 			}
+			result2 += "\n\n\n-- END table creation scripts for normalized property tables";
 
 			// Section to get all related tables
+			result3 += "\n\n\n-- START table creation scripts properties pointing to other classes";
 			for (RDFClassProperty property : this.properties) {
 				if (property.type.equalsIgnoreCase("object")
 						&& !property.range.label.equalsIgnoreCase("")) {
@@ -590,9 +598,10 @@ public class RDFClass {
 					}
 				}
 			}
+			result3 += "\n\n\n-- END table creation scripts properties pointing to other classes";
 		}
 
-		return result3 + result2 + result1;
+		return result3 + result1 + result2;
 	}
 
 	public String getTableCreationScript() {
