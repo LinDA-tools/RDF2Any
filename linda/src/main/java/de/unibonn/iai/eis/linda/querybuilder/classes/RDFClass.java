@@ -551,8 +551,8 @@ public class RDFClass {
 			String classVariableName = getVariableName();
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
-					result += "\n\nCREATE TABLE "
-							+ property.getTableName(this) + "\n(ID int,";
+					result += "\n\nCREATE TABLE " + property.getTableName(this)
+							+ "\n(ID int,";
 					result += "\n" + classVariableName + "ID int,";
 					result += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() + ",";
@@ -596,25 +596,27 @@ public class RDFClass {
 	public String getTableName() {
 		return getVariableName() + "s";
 	}
-	
-	//This method returns a list of tablenames needed to have this class
-	public List<String> getTableNames(){
+
+	// This method returns a list of tablenames needed to have this class
+	public List<String> getTableNames() {
 		List<String> tables = new ArrayList<String>();
-		//adding the table for this class
+		// adding the table for this class
 		tables.add(getTableName());
-		//adding related tables
-		for(RDFClassProperty property:this.properties){
-			if(property.type.equalsIgnoreCase("object") && property.hasValidRange()){
-				if(property.multiplePropertiesForSameNode){
+		// adding related tables
+		for (RDFClassProperty property : this.properties) {
+
+			if (property.multiplePropertiesForSameNode) {
 					tables.add(property.getTableName(this));
-				}else{
-					tables.add(new RDFClass(this.dataset,property.range.uri,property.range.label).getTableName());
-				}
+			} else {
+				if (property.type.equalsIgnoreCase("object")
+						&& property.hasValidRange())
+					tables.add(new RDFClass(this.dataset, property.range.uri,
+						property.range.label).getTableName());
 			}
+
 		}
 		return tables;
 	}
-	
 
 	/*
 	 * END RDB related methods

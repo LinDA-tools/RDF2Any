@@ -21,6 +21,7 @@ import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
 import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObjectProperty;
+import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObjectPropertyValue;
 
 /**
  * @author gsingharoy
@@ -164,8 +165,11 @@ public class RDBConverter extends MainConverter implements Converter {
 																.get(0).value) + "');")
 												.getBytes(Charset
 														.forName("UTF-8")));
-										uriPrimaryKeyLookup.put(objectProperty.objects.get(0).value
-													.toLowerCase(), foreignKey);
+										uriPrimaryKeyLookup
+												.put(objectProperty.objects
+														.get(0).value
+														.toLowerCase(),
+														foreignKey);
 									}
 									output.write(("\nUPDATE "
 											+ mainTableName
@@ -180,6 +184,53 @@ public class RDBConverter extends MainConverter implements Converter {
 							}
 						} else {
 							// section for multiple objects of the same property
+							if (objectProperty.predicate.type.equals("data")) {
+								String objectPropertyTableName = objectProperty.predicate
+										.getTableName(forClass);
+								for (RDFObjectPropertyValue objectPropertyValue : objectProperty.objects) {
+									Integer objectPropertyPrimaryKey = tableCounters
+											.get(objectPropertyTableName) + 1;
+									tableCounters.put(objectPropertyTableName,
+											objectPropertyPrimaryKey);
+									if (objectProperty.predicate
+											.getTableAttributeType().equals(
+													"int"))
+										output.write(("\nINSERT INTO "
+												+ objectPropertyTableName
+												+ "(ID,"
+												+ forClass.getVariableName()
+												+ "ID,"
+												+ objectProperty.predicate
+														.getTableAttributeName()
+												+ ") VALUES("
+												+ objectPropertyPrimaryKey
+												+ ", "
+												+ mainTableCounter
+												+ ", "
+												+ RDBHelper
+														.getSQLReadyEntry(objectPropertyValue.value) + ");")
+												.getBytes(Charset
+														.forName("UTF-8")));
+									else
+										output.write(("\nINSERT INTO "
+												+ objectPropertyTableName
+												+ "(ID,"
+												+ forClass.getVariableName()
+												+ "ID,"
+												+ objectProperty.predicate
+														.getTableAttributeName()
+												+ ") VALUES("
+												+ objectPropertyPrimaryKey
+												+ ", "
+												+ mainTableCounter
+												+ ", '"
+												+ RDBHelper
+														.getSQLReadyEntry(objectPropertyValue.value) + "');")
+												.getBytes(Charset
+														.forName("UTF-8")));
+
+								}
+							}
 						}
 					}
 
