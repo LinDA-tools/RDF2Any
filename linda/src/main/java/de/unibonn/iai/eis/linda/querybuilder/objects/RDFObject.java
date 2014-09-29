@@ -89,7 +89,7 @@ public class RDFObject {
 		return query;
 	}
 
-	public String getInsertTableNameScript(Integer id){
+	public String getInsertRowScript(Integer id){
 		return "INSERT INTO " + hasClass.getTableName()
 		+ " (ID, uri, name) VALUES (" + id
 		+ ", '" + RDBHelper.getSQLReadyEntry(this.uri)

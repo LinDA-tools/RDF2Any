@@ -98,7 +98,7 @@ public class RDBConverter extends MainConverter implements Converter {
 					} else {
 						rdfObject = new RDFObject(forClass, object.toString());
 					}
-					output.write(("\n\n"+rdfObject.getInsertTableNameScript(mainTableCounter))
+					output.write(("\n\n"+rdfObject.getInsertRowScript(mainTableCounter))
 							.getBytes(Charset.forName("UTF-8")));
 					rdfObject.generateProperties();
 					for (RDFObjectProperty objectProperty : rdfObject.properties) {
