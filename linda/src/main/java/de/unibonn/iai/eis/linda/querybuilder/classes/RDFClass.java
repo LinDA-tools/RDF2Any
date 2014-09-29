@@ -515,31 +515,34 @@ public class RDFClass {
 		Boolean existsForeignKey = false;
 		List<String> tablesCreated = new ArrayList<String>();
 		tablesCreated.add(getTableName());
-		String result = "CREATE TABLE " + getTableName()
+		String result1 = "";
+		String result2 = "";
+		String result3 = "";
+		result1 = "\n\n\nDROP IF EXISTS "+getTableName()+";\nCREATE TABLE " + getTableName()
 				+ "\n(\nID int,\nuri varchar(300),\nname varchar(300),";
 
 		if (allProperties) {
 			for (RDFClassProperty property : this.properties) {
 				if (!property.multiplePropertiesForSameNode) {
-					result += "\n" + property.getTableAttributeName() + " "
+					result1 += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() + ",";
 					if(property.range.isLanguageLiteral())
-						result += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
+						result1 += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
 					if (property.type.equalsIgnoreCase("object"))
 						existsForeignKey = true;
 				}
 			}
 		}
 
-		result += "\nPRIMARY KEY ID";
+		result1 += "\nPRIMARY KEY ID";
 		if (existsForeignKey)
-			result += ",";
+			result1 += ",";
 		// Section to reference foreign keys
 		if (allProperties) {
 			for (RDFClassProperty property : this.properties) {
 				if (!property.multiplePropertiesForSameNode
 						&& property.type.equalsIgnoreCase("object")) {
-					result += "\nFOREIGN KEY "
+					result1 += "\nFOREIGN KEY "
 							+ property.getTableAttributeName()
 							+ " REFERENCES "
 							+ CommonHelper.getVariableName(
@@ -547,30 +550,30 @@ public class RDFClass {
 				}
 			}
 		}
-		result += "\n);";
+		result1 += "\n);";
 		// Section to create tables for normalizations
 		if (allProperties) {
 			String classVariableName = getVariableName();
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
-					result += "\n\nCREATE TABLE " + property.getTableName(this)
+					result2 += "\n\nDROP IF EXISTS "+property.getTableName(this)+";\nCREATE TABLE " + property.getTableName(this)
 							+ "\n(ID int,";
-					result += "\n" + classVariableName + "ID int,";
-					result += "\n" + property.getTableAttributeName() + " "
+					result2 += "\n" + classVariableName + "ID int,";
+					result2 += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() + ",";
 					if(property.range.isLanguageLiteral())
-						result += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
-					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "
+						result2 += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
+					result2 += "\nPRIMARY KEY ID,\nFOREIGN KEY "
 							+ classVariableName + "ID REFERENCES "
 							+ getTableName() + "(ID)";
 					if (property.type.equalsIgnoreCase("object"))
-						result += "\nFOREIGN KEY "
+						result2 += "\nFOREIGN KEY "
 								+ property.getTableAttributeName()
 								+ " REFERENCES "
 								+ CommonHelper.getVariableName(
 										property.range.label, "thing")
 								+ "s(ID)";
-					result += "\n);";
+					result2 += "\n);";
 				}
 			}
 
@@ -582,15 +585,14 @@ public class RDFClass {
 							property.range.uri, property.range.label);
 					if (!tablesCreated.contains(propertyRangeClass
 							.getTableName())) {
-						result += "\n\n\n"
-								+ propertyRangeClass.getTableCreationScript();
+						result3 += propertyRangeClass.getTableCreationScript();
 						tablesCreated.add(propertyRangeClass.getTableName());
 					}
 				}
 			}
 		}
 
-		return result;
+		return result3 + result2 + result1;
 	}
 
 	public String getTableCreationScript() {

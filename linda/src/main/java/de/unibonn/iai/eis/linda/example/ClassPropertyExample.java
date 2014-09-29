@@ -51,7 +51,7 @@ public class ClassPropertyExample {
 		//System.out.println(athlete.getTableCreationScript(true));
 		
 		RDFClass cricketTeam = RDFClass.searchRDFClass("http://dbpedia.org/sparql", "http://dbpedia.org/ontology/CricketTeam");
-		System.out.println(cricketTeam.getTableNames());
+		System.out.println(cricketTeam.getTableCreationScript(true));
 	}
 
 }
