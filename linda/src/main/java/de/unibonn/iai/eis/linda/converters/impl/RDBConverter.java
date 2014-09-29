@@ -3,7 +3,11 @@ package de.unibonn.iai.eis.linda.converters.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.glassfish.jersey.message.internal.UriProvider;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -80,6 +84,11 @@ public class RDBConverter extends MainConverter implements Converter {
 		output.write((forClass.getTableCreationScript(true) + "\n\n")
 				.getBytes(Charset.forName("UTF-8")));
 		List<String> tableNames = forClass.getTableNames();
+		Map<String, Integer> tableCounters = new HashMap<String, Integer>();
+		for (String tableName : tableNames) {
+			tableCounters.put(tableName, 0);
+		}
+		Map<String, Integer> uriPrimaryKeyLookup = new HashMap<String, Integer>();
 		Integer mainTableCounter = 0;
 		String mainTableName = forClass.getTableName();
 		while (rdfResults.hasNext()) {
@@ -98,11 +107,13 @@ public class RDBConverter extends MainConverter implements Converter {
 					} else {
 						rdfObject = new RDFObject(forClass, object.toString());
 					}
-					output.write(("\n\n"+rdfObject.getInsertRowScript(mainTableCounter))
+					output.write(("\n\n" + rdfObject
+							.getInsertRowScript(mainTableCounter))
 							.getBytes(Charset.forName("UTF-8")));
 					rdfObject.generateProperties();
 					for (RDFObjectProperty objectProperty : rdfObject.properties) {
 						if (!objectProperty.predicate.multiplePropertiesForSameNode) {
+							// section for one object of the same property
 							if (objectProperty.predicate.type.equals("data")) {
 								if (objectProperty.predicate
 										.getTableAttributeType().equals("int"))
@@ -115,7 +126,7 @@ public class RDBConverter extends MainConverter implements Converter {
 											+ RDBHelper
 													.getSQLReadyEntry(objectProperty.objects
 															.get(0).value)
-											+ " WHERE ID=" + mainTableCounter+";")
+											+ " WHERE ID=" + mainTableCounter + ";")
 											.getBytes(Charset.forName("UTF-8")));
 								else
 									output.write(("\nUPDATE "
@@ -127,9 +138,48 @@ public class RDBConverter extends MainConverter implements Converter {
 											+ RDBHelper
 													.getSQLReadyEntry(objectProperty.objects
 															.get(0).value)
-											+ "' WHERE ID=" + mainTableCounter+";")
+											+ "' WHERE ID=" + mainTableCounter + ";")
 											.getBytes(Charset.forName("UTF-8")));
+							} else {
+								if (objectProperty.predicate.hasValidRange()) {
+									Integer foreignKey = uriPrimaryKeyLookup
+											.get(objectProperty.objects.get(0).value
+													.toLowerCase());
+									if (foreignKey == null) {
+										foreignKey = tableCounters
+												.get(objectProperty.predicate
+														.getRangeTableName()) + 1;
+										tableCounters.put(
+												objectProperty.predicate
+														.getRangeTableName(),
+												foreignKey);
+										output.write(("\nINSERT INTO "
+												+ objectProperty.predicate
+														.getRangeTableName()
+												+ "(ID,uri) VALUES ("
+												+ foreignKey
+												+ ", '"
+												+ RDBHelper
+														.getSQLReadyEntry(objectProperty.objects
+																.get(0).value) + "');")
+												.getBytes(Charset
+														.forName("UTF-8")));
+										uriPrimaryKeyLookup.put(objectProperty.objects.get(0).value
+													.toLowerCase(), foreignKey);
+									}
+									output.write(("\nUPDATE "
+											+ mainTableName
+											+ " SET "
+											+ objectProperty.predicate
+													.getTableAttributeName()
+											+ " = " + foreignKey + " WHERE ID="
+											+ mainTableCounter + ";")
+											.getBytes(Charset.forName("UTF-8")));
+
+								}
 							}
+						} else {
+							// section for multiple objects of the same property
 						}
 					}
 

@@ -608,7 +608,7 @@ public class RDFClass {
 				if(property.multiplePropertiesForSameNode){
 					tables.add(property.getTableName(this));
 				}else{
-					tables.add(new RDFClass(this.dataset,property.range.uri,property.range.uri).getTableName());
+					tables.add(new RDFClass(this.dataset,property.range.uri,property.range.label).getTableName());
 				}
 			}
 		}

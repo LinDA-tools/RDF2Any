@@ -154,6 +154,14 @@ public class RDFClassProperty {
 			return CommonHelper.getVariableName(this.label, "");
 	}
 
+	public String getRangeTableName(){
+		String result = "";
+		if(this.type.equals("object")){
+			result = CommonHelper.getVariableName(range.label, "thing")+"s";
+		}
+		return result;
+	}
+	
 	public String getTableName(RDFClass rdfClass) {
 		return rdfClass.getTableName()
 				+ CommonHelper.getVariableName(this.label, "thing", false)
