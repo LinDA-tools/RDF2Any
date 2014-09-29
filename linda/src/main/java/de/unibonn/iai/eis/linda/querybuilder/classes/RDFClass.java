@@ -523,6 +523,8 @@ public class RDFClass {
 				if (!property.multiplePropertiesForSameNode) {
 					result += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() + ",";
+					if(property.range.isLanguageLiteral())
+						result += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
 					if (property.type.equalsIgnoreCase("object"))
 						existsForeignKey = true;
 				}
@@ -556,6 +558,8 @@ public class RDFClass {
 					result += "\n" + classVariableName + "ID int,";
 					result += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() + ",";
+					if(property.range.isLanguageLiteral())
+						result += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
 					result += "\nPRIMARY KEY ID,\nFOREIGN KEY "
 							+ classVariableName + "ID REFERENCES "
 							+ getTableName() + "(ID)";
