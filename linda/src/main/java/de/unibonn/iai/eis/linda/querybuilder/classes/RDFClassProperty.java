@@ -143,13 +143,13 @@ public class RDFClassProperty {
 			if (this.range.label.equalsIgnoreCase("integer") || this.range.label.equalsIgnoreCase("nonnegativeinteger"))
 				return "int";
 			else
-				return "varchar(1000)";
+				return "text";
 		}
 	}
 
 	public String getTableAttributeName() {
 		if (this.type.equalsIgnoreCase("object"))
-			return CommonHelper.getVariableName(this.label, "") + "ID";
+			return CommonHelper.getVariableName(this.label, "") + "_id";
 		else
 			return CommonHelper.getVariableName(this.label, "");
 	}

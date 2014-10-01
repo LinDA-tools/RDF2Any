@@ -17,7 +17,7 @@ public class RDBHelper {
 		for(int i=0;i<str.length();i++){
 			if((int)str.charAt(i) == 39){
 				//Check for single quotes '
-				resultString +="'+char(39)+'";
+				resultString +="''";
 			}
 			else{
 				resultString += str.charAt(i);

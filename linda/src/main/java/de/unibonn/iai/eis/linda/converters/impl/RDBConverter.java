@@ -128,7 +128,7 @@ public class RDBConverter extends MainConverter implements Converter {
 											+ RDBHelper
 													.getSQLReadyEntry(objectProperty.objects
 															.get(0).value)
-											+ " WHERE ID=" + mainTableCounter + ";")
+											+ " WHERE id=" + mainTableCounter + ";")
 											.getBytes(Charset.forName("UTF-8")));
 								else {
 									if (objectProperty.predicate.range
@@ -148,7 +148,7 @@ public class RDBConverter extends MainConverter implements Converter {
 												+ "Lang = '"
 												+ objectProperty.objects.get(0).additionalValue
 														.toUpperCase()
-												+ "' WHERE ID="
+												+ "' WHERE id="
 												+ mainTableCounter + ";")
 												.getBytes(Charset
 														.forName("UTF-8")));
@@ -162,7 +162,7 @@ public class RDBConverter extends MainConverter implements Converter {
 												+ RDBHelper
 														.getSQLReadyEntry(objectProperty.objects
 																.get(0).value)
-												+ "' WHERE ID="
+												+ "' WHERE id="
 												+ mainTableCounter + ";")
 												.getBytes(Charset
 														.forName("UTF-8")));
@@ -184,7 +184,7 @@ public class RDBConverter extends MainConverter implements Converter {
 										output.write(("\nINSERT INTO "
 												+ objectProperty.predicate
 														.getRangeTableName()
-												+ "(ID, uri , name) VALUES ("
+												+ "(id, uri , name) VALUES ("
 												+ foreignKey
 												+ ", '"
 												+ RDBHelper
@@ -211,7 +211,7 @@ public class RDBConverter extends MainConverter implements Converter {
 											+ " SET "
 											+ objectProperty.predicate
 													.getTableAttributeName()
-											+ " = " + foreignKey + " WHERE ID="
+											+ " = " + foreignKey + " WHERE id="
 											+ mainTableCounter + ";")
 											.getBytes(Charset.forName("UTF-8")));
 
@@ -232,9 +232,9 @@ public class RDBConverter extends MainConverter implements Converter {
 													"int"))
 										output.write(("\nINSERT INTO "
 												+ objectPropertyTableName
-												+ "(ID,"
+												+ "(id,"
 												+ forClass.getVariableName()
-												+ "ID,"
+												+ "_id,"
 												+ objectProperty.predicate
 														.getTableAttributeName()
 												+ ") VALUES("
@@ -251,10 +251,10 @@ public class RDBConverter extends MainConverter implements Converter {
 												.isLanguageLiteral())
 											output.write(("\nINSERT INTO "
 													+ objectPropertyTableName
-													+ "(ID,"
+													+ "(id,"
 													+ forClass
 															.getVariableName()
-													+ "ID,"
+													+ "_id,"
 													+ objectProperty.predicate
 															.getTableAttributeName()
 													+ ", "
@@ -276,10 +276,10 @@ public class RDBConverter extends MainConverter implements Converter {
 										else
 											output.write(("\nINSERT INTO "
 													+ objectPropertyTableName
-													+ "(ID,"
+													+ "(id,"
 													+ forClass
 															.getVariableName()
-													+ "ID,"
+													+ "_id,"
 													+ objectProperty.predicate
 															.getTableAttributeName()
 													+ ") VALUES("
@@ -310,7 +310,7 @@ public class RDBConverter extends MainConverter implements Converter {
 													foreignKey);
 											output.write(("\nINSERT INTO "
 													+ objectPropertyTableName
-													+ "(ID, uri, name) VALUES ("
+													+ "(id, uri, name) VALUES ("
 													+ foreignKey
 													+ ", '"
 													+ RDBHelper
@@ -337,9 +337,9 @@ public class RDBConverter extends MainConverter implements Converter {
 										output.write(("\nINSERT INTO "
 												+ objectProperty.predicate
 														.getTableName(forClass)
-												+ "(ID,"
+												+ "(id,"
 												+ forClass.getVariableName()
-												+ "ID,"
+												+ "_id,"
 												+ objectProperty.predicate
 														.getTableAttributeName()
 												+ ") VALUES("

@@ -518,29 +518,33 @@ public class RDFClass {
 		String result1 = "";
 		String result2 = "";
 		String result3 = "";
-		
-		if(allProperties)
+
+		if (allProperties)
 			result1 += "\n\n\n-- START Table creation section for main class table";
-		result1 += "\n\n\nDROP IF EXISTS "+getTableName()+";\nCREATE TABLE " + getTableName()
-				+ "\n(\nID int,\nuri varchar(300),\nname varchar(300),";
+		result1 += "\n\n\nDROP TABLE IF EXISTS "
+				+ getTableName()
+				+ ";\nCREATE TABLE "
+				+ getTableName()
+				+ "\n(\nid int PRIMARY KEY,\nuri varchar(300),\nname text";
 
 		if (allProperties) {
 			for (RDFClassProperty property : this.properties) {
 				if (!property.multiplePropertiesForSameNode) {
-					result1 += "\n" + property.getTableAttributeName() + " "
-							+ property.getTableAttributeType() + ",";
-					if(property.range.isLanguageLiteral())
-						result1 += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
+					result1 += ",\n" + property.getTableAttributeName() + " "
+							+ property.getTableAttributeType() ;
+					if (property.range.isLanguageLiteral())
+						result1 += ",\n" + property.getTableAttributeName()
+								+ "Lang varchar(6)";
 					if (property.type.equalsIgnoreCase("object"))
 						existsForeignKey = true;
 				}
 			}
 		}
-
-		result1 += "\nPRIMARY KEY ID";
-		if (existsForeignKey)
-			result1 += ",";
+		/*
+		 * result1 += "\nPRIMARY KEY ID"; if (existsForeignKey) result1 += ",";
+		 */
 		// Section to reference foreign keys
+		/*
 		if (allProperties) {
 			for (RDFClassProperty property : this.properties) {
 				if (!property.multiplePropertiesForSameNode
@@ -552,9 +556,9 @@ public class RDFClass {
 									property.range.label, "thing") + "s(ID),";
 				}
 			}
-		}
+		}*/
 		result1 += "\n);";
-		if(allProperties)
+		if (allProperties)
 			result1 += "\n\n\n-- END Table creation section for main class table";
 		// Section to create tables for normalizations
 		if (allProperties) {
@@ -562,13 +566,16 @@ public class RDFClass {
 			String classVariableName = getVariableName();
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
-					result2 += "\n\nDROP IF EXISTS "+property.getTableName(this)+";\nCREATE TABLE " + property.getTableName(this)
-							+ "\n(ID int,";
-					result2 += "\n" + classVariableName + "ID int,";
+					result2 += "\n\nDROP TABLE IF EXISTS "
+							+ property.getTableName(this) + ";\nCREATE TABLE "
+							+ property.getTableName(this) + "\n(id int PRIMARY KEY,";
+					result2 += "\n" + classVariableName + "_id int,";
 					result2 += "\n" + property.getTableAttributeName() + " "
-							+ property.getTableAttributeType() + ",";
-					if(property.range.isLanguageLiteral())
-						result2 += "\n" + property.getTableAttributeName()+"Lang varchar(6),";
+							+ property.getTableAttributeType() ;
+					if (property.range.isLanguageLiteral())
+						result2 += ",\n" + property.getTableAttributeName()
+								+ "Lang varchar(6)";
+					/*
 					result2 += "\nPRIMARY KEY ID,\nFOREIGN KEY "
 							+ classVariableName + "ID REFERENCES "
 							+ getTableName() + "(ID)";
@@ -579,6 +586,7 @@ public class RDFClass {
 								+ CommonHelper.getVariableName(
 										property.range.label, "thing")
 								+ "s(ID)";
+					*/
 					result2 += "\n);";
 				}
 			}

@@ -28,7 +28,7 @@ public class CommonHelper {
 			if(firstCharSmall)
 				result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
 		}
-		return result;
+		return result.toLowerCase();
 	}
 	
 	public static String getVariableName(String title, String defaultName){
