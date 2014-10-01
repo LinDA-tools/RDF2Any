@@ -14,21 +14,24 @@ import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
  * @author gsingharoy
- *
- *This class handles output Stream of a SPARQL query
- *
+ * 
+ *         This class handles output Stream of a SPARQL query
+ * 
  **/
 public class OutputStreamHandler {
-	public static StreamingOutput getConverterStreamingOutput(final Converter converter, final String dataset, final String queryString){
-		return new StreamingOutput(){
+	public static StreamingOutput getConverterStreamingOutput(
+			final Converter converter, final String dataset,
+			final String queryString) {
+		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				try{
-					
-					ResultSet results = SPARQLHandler.executeQuery(dataset, queryString);
+					WebApplicationException {
+				try {
+
+					ResultSet results = SPARQLHandler.executeQuery(dataset,
+							queryString);
 					converter.convert(output, results);
-				}catch(Exception e){
+				} catch (Exception e) {
 					throw new WebApplicationException(e);
 				}
 
@@ -37,20 +40,34 @@ public class OutputStreamHandler {
 		};
 	}
 
-	public static StreamingOutput getConverterStreamingOutput(final Converter converter, final String dataset, final String queryString, final String forClass){
-		return new StreamingOutput(){
+	public static StreamingOutput getConverterStreamingOutput(
+			final Converter converter, final String dataset,
+			final String queryString, final String forClass,
+			final String properties) {
+		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				try{
-					
-					ResultSet results = SPARQLHandler.executeQuery(dataset, queryString);
-					RDFClass rdfClass = RDFClass.searchRDFClass(dataset, forClass);
-					if(rdfClass != null)
-						converter.convert(output, results,rdfClass);
-					else
+					WebApplicationException {
+				try {
+
+					ResultSet results = SPARQLHandler.executeQuery(dataset,
+							queryString);
+					RDFClass rdfClass = RDFClass.searchRDFClass(dataset,
+							forClass);
+
+					if (rdfClass != null) {
+
+						if (properties != null) {
+							String decodedProperties = CommonHelper
+									.decode(properties);
+							System.out.println(decodedProperties);
+							rdfClass.filterProperties(decodedProperties);
+						}
+
+						converter.convert(output, results, rdfClass);
+					} else
 						converter.convert(output, results);
-				}catch(Exception e){
+				} catch (Exception e) {
 					throw new WebApplicationException(e);
 				}
 

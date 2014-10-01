@@ -3,6 +3,8 @@ package de.unibonn.iai.eis.linda.querybuilder.classes;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -625,7 +627,21 @@ public class RDFClass {
 	/*
 	 * END RDB related methods
 	 */
-
+	
+	//this method removes the properties which are not present in the comma separated properties string
+	//if "all" is passed,then does not filter
+	public void filterProperties(String properties) {
+		if(properties != null && !properties.equalsIgnoreCase("all")){
+			String[] propertiesArr = properties.split(",");
+			Iterator<RDFClassProperty> prop = this.properties.iterator();
+			while(prop.hasNext()){
+				if(!Arrays.asList(propertiesArr).contains(prop.next().uri)){
+					prop.remove();
+				}
+			}
+		}
+		
+	}
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {
@@ -635,5 +651,7 @@ public class RDFClass {
 		return result;
 
 	}
+
+
 
 }

@@ -45,11 +45,12 @@ public class ConverterRoute {
 		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
+		String properties = queryParams.getFirst("properties");
 		if (forClass != null) {
 			System.out.println("START RDB conversion for query of class ("
 					+ forClass + ") in dataset " + dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDBConverter(), dataset, query,forClass);
+					new RDBConverter(), dataset, query,forClass, properties);
 		} else {
 			System.out.println("START RDB conversion for query in dataset "
 					+ dataset + " \n" + query);
