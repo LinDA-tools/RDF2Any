@@ -523,7 +523,7 @@ public class RDFClass {
 			result1 += "\n\n\n-- START Table creation section for main class table";
 		result1 += "\n\n\nDROP TABLE IF EXISTS "
 				+ getTableName()
-				+ ";\nCREATE TABLE "
+				+ " CASCADE;\nCREATE TABLE "
 				+ getTableName()
 				+ "\n(\nid int PRIMARY KEY,\nuri varchar(300),\nname text";
 
@@ -553,7 +553,7 @@ public class RDFClass {
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
 					result2 += "\n\nDROP TABLE IF EXISTS "
-							+ property.getTableName(this) + ";\nCREATE TABLE "
+							+ property.getTableName(this) + " CASCADE;\nCREATE TABLE "
 							+ property.getTableName(this) + "\n(id int PRIMARY KEY,";
 					result2 += "\n" + classVariableName + "_id int,";
 					result2 += "\n" + property.getTableAttributeName() + " "

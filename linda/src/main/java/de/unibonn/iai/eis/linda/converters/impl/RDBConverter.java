@@ -176,6 +176,7 @@ public class RDBConverter extends MainConverter implements Converter {
 									if (foreignKey == null) {
 										foreignKey = tableCounters
 												.get(objectProperty.predicate
+														.getRangeTableName()+"@"+objectProperty.predicate
 														.getRangeTableName()) + 1;
 										tableCounters.put(
 												objectProperty.predicate
@@ -201,7 +202,8 @@ public class RDBConverter extends MainConverter implements Converter {
 												.getBytes(Charset
 														.forName("UTF-8")));
 										uriPrimaryKeyLookup
-												.put(objectProperty.objects
+												.put(objectProperty.predicate
+														.getRangeTableName()+"@"+objectProperty.objects
 														.get(0).value
 														.toLowerCase(),
 														foreignKey);
@@ -300,7 +302,8 @@ public class RDBConverter extends MainConverter implements Converter {
 											.getRangeTableName();
 									for (RDFObjectPropertyValue objectPropertyValue : objectProperty.objects) {
 										Integer foreignKey = uriPrimaryKeyLookup
-												.get(objectPropertyValue.value
+												.get(objectProperty.predicate
+														.getRangeTableName()+"@"+objectPropertyValue.value
 														.toLowerCase());
 										if (foreignKey == null) {
 											foreignKey = tableCounters
@@ -324,7 +327,8 @@ public class RDBConverter extends MainConverter implements Converter {
 																			"EN")) + "');")
 													.getBytes(Charset
 															.forName("UTF-8")));
-											uriPrimaryKeyLookup.put(
+											uriPrimaryKeyLookup.put(objectProperty.predicate
+													.getRangeTableName()+"@"+
 													objectPropertyValue.value
 															.toLowerCase(),
 													foreignKey);
@@ -350,8 +354,6 @@ public class RDBConverter extends MainConverter implements Converter {
 												+ ", " + foreignKey + ");")
 												.getBytes(Charset
 														.forName("UTF-8")));
-										output.write(("--"+objectProperty.toString()).getBytes(Charset
-												.forName("UTF-8")));
 
 									}
 								}
