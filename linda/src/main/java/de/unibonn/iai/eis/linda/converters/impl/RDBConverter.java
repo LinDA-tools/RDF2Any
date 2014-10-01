@@ -330,9 +330,11 @@ public class RDBConverter extends MainConverter implements Converter {
 													foreignKey);
 										}
 										Integer objectPropertyPrimaryKey = tableCounters
-												.get(objectPropertyTableName) + 1;
+												.get(objectProperty.predicate
+														.getTableName(forClass)) + 1;
 										tableCounters.put(
-												objectPropertyTableName,
+												objectProperty.predicate
+												.getTableName(forClass),
 												objectPropertyPrimaryKey);
 										output.write(("\nINSERT INTO "
 												+ objectProperty.predicate
@@ -348,6 +350,8 @@ public class RDBConverter extends MainConverter implements Converter {
 												+ ", " + foreignKey + ");")
 												.getBytes(Charset
 														.forName("UTF-8")));
+										output.write(("--"+objectProperty.toString()).getBytes(Charset
+												.forName("UTF-8")));
 
 									}
 								}
@@ -362,6 +366,7 @@ public class RDBConverter extends MainConverter implements Converter {
 
 		}
 		System.out.println("Finished RDB Conversion ...... ");
+
 	}
 
 }

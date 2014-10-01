@@ -532,6 +532,9 @@ public class RDFClass {
 				if (!property.multiplePropertiesForSameNode) {
 					result1 += ",\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() ;
+					if(property.type.equals("object"))
+						result1 += " REFERENCES "+ CommonHelper.getVariableName(
+								property.range.label, "thing")+"s(id)";
 					if (property.range.isLanguageLiteral())
 						result1 += ",\n" + property.getTableAttributeName()
 								+ "Lang varchar(6)";
@@ -540,23 +543,6 @@ public class RDFClass {
 				}
 			}
 		}
-		/*
-		 * result1 += "\nPRIMARY KEY ID"; if (existsForeignKey) result1 += ",";
-		 */
-		// Section to reference foreign keys
-		/*
-		if (allProperties) {
-			for (RDFClassProperty property : this.properties) {
-				if (!property.multiplePropertiesForSameNode
-						&& property.type.equalsIgnoreCase("object")) {
-					result1 += "\nFOREIGN KEY "
-							+ property.getTableAttributeName()
-							+ " REFERENCES "
-							+ CommonHelper.getVariableName(
-									property.range.label, "thing") + "s(ID),";
-				}
-			}
-		}*/
 		result1 += "\n);";
 		if (allProperties)
 			result1 += "\n\n\n-- END Table creation section for main class table";
@@ -572,21 +558,12 @@ public class RDFClass {
 					result2 += "\n" + classVariableName + "_id int,";
 					result2 += "\n" + property.getTableAttributeName() + " "
 							+ property.getTableAttributeType() ;
+					if(property.type.equals("object"))
+						result2 += " REFERENCES "+ CommonHelper.getVariableName(
+								property.range.label, "thing")+"s(id)";
 					if (property.range.isLanguageLiteral())
 						result2 += ",\n" + property.getTableAttributeName()
 								+ "Lang varchar(6)";
-					/*
-					result2 += "\nPRIMARY KEY ID,\nFOREIGN KEY "
-							+ classVariableName + "ID REFERENCES "
-							+ getTableName() + "(ID)";
-					if (property.type.equalsIgnoreCase("object"))
-						result2 += "\nFOREIGN KEY "
-								+ property.getTableAttributeName()
-								+ " REFERENCES "
-								+ CommonHelper.getVariableName(
-										property.range.label, "thing")
-								+ "s(ID)";
-					*/
 					result2 += "\n);";
 				}
 			}
