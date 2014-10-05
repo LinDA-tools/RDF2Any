@@ -23,65 +23,90 @@ import de.unibonn.iai.eis.linda.querybuilder.output.ClassPropertyOutput;
 
 @Path("/v1.0/builder/")
 public class BuilderRoute {
-	//This route is for the free text search of classes
+	// This route is for the free text search of classes
 	@GET
 	@Path("classes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONOutput getClasses(@Context UriInfo uriInfo){
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
+	public JSONOutput getClasses(@Context UriInfo uriInfo) {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String search = queryParams.getFirst("search");
 		String dataset = queryParams.getFirst("dataset");
-		System.out.println("START Searching for classes matching '"+search+"' in dataset '"+dataset+"'");
-		Double startMilliseconds = (double) System.currentTimeMillis( );
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, new ClassSearch(dataset,search).getSPARQLQuery()));
-		Double endMilliseconds = (double) System.currentTimeMillis( );
-		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
+		System.out.println("START Searching for classes matching '" + search
+				+ "' in dataset '" + dataset + "'");
+		Double startMilliseconds = (double) System.currentTimeMillis();
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
+				dataset, new ClassSearch(dataset, search).getSPARQLQuery()));
+		Double endMilliseconds = (double) System.currentTimeMillis();
+		converter.jsonOutput
+				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH searching for classes ... ");
 		return converter.jsonOutput;
 	}
-	
-	//This route is for the free text search of objects
+
+	// This route is for the free text search of objects
 	@GET
 	@Path("objects")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONOutput getObjects(@Context UriInfo uriInfo){
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(); 
+	public JSONOutput getObjects(@Context UriInfo uriInfo) {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String search = queryParams.getFirst("search");
 		String dataset = queryParams.getFirst("dataset");
 		String classes = queryParams.getFirst("classes");
-		System.out.println("START Searching for objects of classes '"+classes+"' matching '"+search+"' in dataset '"+dataset+"'");
-		Double startMilliseconds = (double) System.currentTimeMillis( );
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(dataset, new ObjectSearch(dataset, search,classes).getSPARQLQuery()));
-		Double endMilliseconds = (double) System.currentTimeMillis( );
-		converter.jsonOutput.setTimeTaken((endMilliseconds-startMilliseconds)/1000);
+		String forClass = queryParams.getFirst("for_class");
+		String forProperty = queryParams.getFirst("for_property");
+		String objectQuery = null;
+		if (forClass != null && !forClass.equalsIgnoreCase("") && forProperty != null && !forProperty.equalsIgnoreCase("")) {
+			System.out.println("START Searching for objects of classes '"
+					+ classes + "' having subject class '" + forClass
+					+ "' matching '" + search + "' in dataset '" + dataset
+					+ "'");
+			objectQuery = new ObjectSearch(dataset, search, classes, forClass, forProperty).getSPARQLQuery();
+		} else {
+			System.out.println("START Searching for objects of classes '"
+					+ classes + "' matching '" + search + "' in dataset '"
+					+ dataset + "'");
+			objectQuery = new ObjectSearch(dataset, search, classes).getSPARQLQuery();
+		}
+		Double startMilliseconds = (double) System.currentTimeMillis();
+		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
+				dataset,objectQuery
+				));
+		Double endMilliseconds = (double) System.currentTimeMillis();
+		converter.jsonOutput
+				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH searching for objects ... ");
 		return converter.jsonOutput;
 	}
-	
-	//this route is for getting properties
+
+	// this route is for getting properties
 	@GET
 	@Path("properties")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClassPropertyOutput getProperties(@Context UriInfo uriInfo) throws IOException, ParseException{
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+	public ClassPropertyOutput getProperties(@Context UriInfo uriInfo)
+			throws IOException, ParseException {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String dataset = queryParams.getFirst("dataset");
 		String classUri = queryParams.getFirst("class");
 		RDFClass rdfClass = RDFClass.searchRDFClass(dataset, classUri);
-		//rdfClass.generatePropertiesFromSPARQL();
+		// rdfClass.generatePropertiesFromSPARQL();
 		return new ClassPropertyOutput(rdfClass);
 	}
-	
-	//this route is for getting properties
+
+	// this route is for getting properties
 	@GET
 	@Path("properties/indexes/create")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ResultOK getPropertiesIndexesCreate(@Context UriInfo uriInfo) throws IOException, ParseException{
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+	public ResultOK getPropertiesIndexesCreate(@Context UriInfo uriInfo)
+			throws IOException, ParseException {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
 		String dataset = queryParams.getFirst("dataset");
 		RDFClass.generateIndexesForDataset(dataset);
-		//rdfClass.generatePropertiesFromSPARQL();
+		// rdfClass.generatePropertiesFromSPARQL();
 		return new ResultOK();
 	}
-	
-	
+
 }
