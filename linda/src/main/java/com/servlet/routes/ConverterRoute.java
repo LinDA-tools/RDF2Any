@@ -1,5 +1,7 @@
 package com.servlet.routes;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,6 +18,7 @@ import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.example.SPARQLExample;
+import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
@@ -24,10 +27,10 @@ public class ConverterRoute {
 	@GET
 	@Path("csv-converter.csv")
 	@Produces({ "application/csv" })
-	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) {
+	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
-		String query = queryParams.getFirst("query");
+		String query = CommonHelper.decode(queryParams.getFirst("query"));
 		String dataset = queryParams.getFirst("dataset");
 		System.out.println("START CSV conversion for query in dataset "
 				+ dataset + " \n" + query);
@@ -39,10 +42,10 @@ public class ConverterRoute {
 	@GET
 	@Path("rdb-converter.sql")
 	@Produces({ "application/sql" })
-	public StreamingOutput getRDBConverter(@Context UriInfo uriInfo) {
+	public StreamingOutput getRDBConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
-		String query = queryParams.getFirst("query");
+		String query = CommonHelper.decode(queryParams.getFirst("query"));
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
@@ -64,10 +67,10 @@ public class ConverterRoute {
 	@GET
 	@Path("json")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONOutput getJSONConverter(@Context UriInfo uriInfo) {
+	public JSONOutput getJSONConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
-		String query = queryParams.getFirst("query");
+		String query = CommonHelper.decode(queryParams.getFirst("query"));
 		String dataset = queryParams.getFirst("dataset");
 		Double startMilliseconds = (double) System.currentTimeMillis();
 		System.out.println("START JSON conversion for query in dataset "
