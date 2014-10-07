@@ -75,16 +75,19 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
+		String header = "----- THIS IS THE HEADER OF THE FILE ------- ";
+		String body = "";
+		String footer = "----- THIS IS THE FOOTER OF THE FILE ------- ";
 		if (forClass != null) {
 			System.out.println("START configured conversion for query of class ("
 					+ forClass + ") in dataset " + dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new ConfiguredConverter(), dataset, query,forClass, properties);
+					new ConfiguredConverter(header,body, footer), dataset, query,forClass, properties);
 		} else {
 			System.out.println("START RDB conversion for query in dataset "
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new ConfiguredConverter(), dataset, query);
+					new ConfiguredConverter(header, body, footer), dataset, query);
 		}
 		
 

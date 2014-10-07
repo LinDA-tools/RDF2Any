@@ -10,7 +10,18 @@ import de.unibonn.iai.eis.linda.converters.Converter;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 public class ConfiguredConverter extends MainConverter implements Converter {
-
+	
+	public String header;
+	public String body;
+	public String footer;
+	
+	public ConfiguredConverter(String header,String body, String footer){
+		this.header = header;
+		this.body = body;
+		this.footer = footer;
+	}
+	
+	
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults)
 			throws IOException {
@@ -21,7 +32,11 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
-		output.write(( "Configured download working properly !!! \n\n")
+		//printing the header to the file
+		output.write(( this.header + "\n")
+				.getBytes(Charset.forName("UTF-8")));
+		//printing the footer to the file
+		output.write(( this.footer)
 				.getBytes(Charset.forName("UTF-8")));
 		
 	}
