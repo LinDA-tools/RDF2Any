@@ -75,19 +75,20 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
+		String variableDictionary = "country:http//dbpedia.org/ontology/country,abstract:http//dbpedia.org/ontology/abstract";
 		String header = "----- THIS IS THE HEADER OF THE FILE ------- ";
-		String body = "";
+		String body = "<something>\n$[for r : country]\n<country>$[=r]</country>\n$[end]\n</something>";
 		String footer = "----- THIS IS THE FOOTER OF THE FILE ------- ";
 		if (forClass != null) {
 			System.out.println("START configured conversion for query of class ("
 					+ forClass + ") in dataset " + dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new ConfiguredConverter(header,body, footer), dataset, query,forClass, properties);
+					new ConfiguredConverter(variableDictionary,header,body, footer), dataset, query,forClass, properties);
 		} else {
 			System.out.println("START RDB conversion for query in dataset "
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new ConfiguredConverter(header, body, footer), dataset, query);
+					new ConfiguredConverter(variableDictionary, header, body, footer), dataset, query);
 		}
 		
 
