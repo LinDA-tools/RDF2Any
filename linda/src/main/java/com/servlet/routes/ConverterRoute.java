@@ -14,6 +14,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
+import de.unibonn.iai.eis.linda.converters.impl.ConfiguredConverter;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
@@ -59,6 +60,31 @@ public class ConverterRoute {
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
 					new RDBConverter(), dataset, query);
+		}
+		
+
+	}
+	
+	@GET
+	@Path("configured-converter")
+	@Produces({ "application/txt" })
+	public StreamingOutput getConfiguredConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
+		String query = queryParams.getFirst("query");
+		String dataset = queryParams.getFirst("dataset");
+		String forClass = queryParams.getFirst("for_class");
+		String properties = queryParams.getFirst("properties");
+		if (forClass != null) {
+			System.out.println("START configured conversion for query of class ("
+					+ forClass + ") in dataset " + dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new ConfiguredConverter(), dataset, query,forClass, properties);
+		} else {
+			System.out.println("START RDB conversion for query in dataset "
+					+ dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new ConfiguredConverter(), dataset, query);
 		}
 		
 
