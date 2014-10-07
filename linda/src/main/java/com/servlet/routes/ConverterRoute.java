@@ -30,7 +30,7 @@ public class ConverterRoute {
 	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
-		String query = CommonHelper.decode(queryParams.getFirst("query"));
+		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
 		System.out.println("START CSV conversion for query in dataset "
 				+ dataset + " \n" + query);
@@ -45,7 +45,7 @@ public class ConverterRoute {
 	public StreamingOutput getRDBConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
-		String query = CommonHelper.decode(queryParams.getFirst("query"));
+		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
@@ -70,7 +70,7 @@ public class ConverterRoute {
 	public JSONOutput getJSONConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
-		String query = CommonHelper.decode(queryParams.getFirst("query"));
+		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
 		Double startMilliseconds = (double) System.currentTimeMillis();
 		System.out.println("START JSON conversion for query in dataset "
