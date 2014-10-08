@@ -63,7 +63,7 @@ public class ClassPropertyExample {
 		// RDFClass.searchRDFClass("http://dbpedia.org/sparql",
 		// "http://dbpedia.org/ontology/CricketTeam");
 		// System.out.println(cricketTeam.getTableCreationScript(true));
-		String body = "<something>\n$[for r : country]\n<country>$[=r]</country>\n$[end]\n</something>";
+		String body = "<something>\n$[for co : country]\n<country>$[=co]</country>\n$[end]\n</something>";
 
 //		for(String c: BodyChunk.getChunksFromString(body)){
 //			System.out.println("########");

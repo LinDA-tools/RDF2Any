@@ -18,7 +18,9 @@ public class BodyChunk {
 	}
 
 	public static Boolean isTextChunk(String chunk) {
-		if (chunk.charAt(0) == '$' && chunk.charAt(1) == '[')
+
+		if (chunk.length() < 2
+				|| (chunk.charAt(0) == '$' && chunk.charAt(1) == '['))
 			return false;
 		else
 			return true;
@@ -26,7 +28,7 @@ public class BodyChunk {
 
 	public static Boolean isEndChunk(String chunk) {
 		Boolean result = false;
-		if (chunk.charAt(0) == '$') {
+		if (chunk.length() > 0 && chunk.charAt(0) == '$') {
 			String keyword = BodyChunk.getKeywordFromChunk(chunk);
 			if (keyword.equals("end"))
 				result = true;
@@ -36,7 +38,8 @@ public class BodyChunk {
 
 	public static Boolean isVariableChunk(String chunk) {
 		Boolean result = false;
-		if (chunk.charAt(0) == '$') {
+		System.out.println(chunk);
+		if (chunk.length() > 0 && chunk.charAt(0) == '$') {
 			if (chunk.charAt(2) == '=')
 				result = true;
 		}
@@ -45,7 +48,7 @@ public class BodyChunk {
 
 	public static Boolean isConditionalChunk(String chunk) {
 		Boolean result = false;
-		if (chunk.charAt(0) == '$') {
+		if (chunk.length() > 0 && chunk.charAt(0) == '$') {
 			String keyword = BodyChunk.getKeywordFromChunk(chunk);
 			if (keyword.split(" ")[0].equals("if"))
 				result = true;
@@ -55,7 +58,7 @@ public class BodyChunk {
 
 	public static Boolean isLoopChunk(String chunk) {
 		Boolean result = false;
-		if (chunk.charAt(0) == '$') {
+		if (chunk.length() > 0 && chunk.charAt(0) == '$') {
 			String keyword = BodyChunk.getKeywordFromChunk(chunk);
 			if (keyword.split(" ")[0].equals("for"))
 				result = true;
@@ -70,7 +73,7 @@ public class BodyChunk {
 
 	public static String getValueOfVariableChunk(String chunk) {
 		String keyword = BodyChunk.getKeywordFromChunk(chunk);
-		return keyword.substring(1, keyword.length() ).trim();
+		return keyword.substring(1, keyword.length()).trim();
 	}
 
 	public static String getValueOfLoopChunk(String chunk) {
@@ -82,10 +85,11 @@ public class BodyChunk {
 		return chunk.substring(2, chunk.length() - 1).trim();
 	}
 
-	public static List<BodyChunk> getBodyChunksFromString(String body){
-		return BodyChunk.getBodyChunksFromChunks(BodyChunk.getChunksFromString(body));
+	public static List<BodyChunk> getBodyChunksFromString(String body) {
+		return BodyChunk.getBodyChunksFromChunks(BodyChunk
+				.getChunksFromString(body));
 	}
-	
+
 	public static List<BodyChunk> getBodyChunksFromChunks(List<String> strChunks) {
 		List<BodyChunk> chunks = new ArrayList<BodyChunk>();
 		String insideStructure = "";
@@ -124,10 +128,10 @@ public class BodyChunk {
 				} else {
 					insideStructureCounter++;
 					insideStructureChunk = new BodyChunk("loop");
-					insideStructureChunk.value = BodyChunk
-							.getValueOfConditionalChunk(strChunk).split(":")[1];
+					insideStructureChunk.value = BodyChunk.getValueOfLoopChunk(
+							strChunk).split(":")[1];
 					insideStructureChunk.additionalValue = BodyChunk
-							.getValueOfConditionalChunk(strChunk).split(":")[0];
+							.getValueOfLoopChunk(strChunk).split(":")[0];
 				}
 			} else if (BodyChunk.isEndChunk(strChunk)) {
 				insideStructureCounter--;
@@ -137,7 +141,7 @@ public class BodyChunk {
 					if (!insideStructure.equals("")) {
 						List<BodyChunk> insideChunks = BodyChunk
 								.getBodyChunksFromString(insideStructure);
-						for(BodyChunk ic:insideChunks){
+						for (BodyChunk ic : insideChunks) {
 							insideStructureChunk.chunks.add(ic);
 						}
 					}
@@ -148,7 +152,30 @@ public class BodyChunk {
 			}
 
 		}
-		return chunks;
+		List<BodyChunk> finalChunks = new ArrayList<BodyChunk>();
+		for (BodyChunk c : chunks) {
+			if (c.isValidChunk())
+				finalChunks.add(c);
+		}
+		return finalChunks;
+	}
+
+	private boolean isValidChunk() {
+		Boolean result = false;
+		if (this.type.equals("text")) {
+			result = true;
+		} else if (this.type.equals("condition")
+				|| this.type.equals("variable")) {
+			if (this.value != null && !this.value.equals(""))
+				result = true;
+		} else if (this.type.equals("loop")) {
+			if (this.value != null && !this.value.equals("")
+					&& this.additionalValue != null
+					&& !this.additionalValue.equals(""))
+				result = true;
+		}
+
+		return result;
 	}
 
 	// this method returns a list of String chunks from a string. The chunks are
@@ -188,12 +215,13 @@ public class BodyChunk {
 		}
 		return chunks;
 	}
-	
-	public String toString(){
-		String result = "("+this.type+", "+this.value+", "+this.additionalValue;
-		if(this.chunks.size() > 0){
+
+	public String toString() {
+		String result = "(" + this.type + ", " + this.value + ", "
+				+ this.additionalValue;
+		if (this.chunks.size() > 0) {
 			result += ", [";
-			for(BodyChunk b:this.chunks){
+			for (BodyChunk b : this.chunks) {
 				result += b.toString();
 			}
 			result += "]";
