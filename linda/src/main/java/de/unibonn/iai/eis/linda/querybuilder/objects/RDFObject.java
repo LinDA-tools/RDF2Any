@@ -97,6 +97,44 @@ public class RDFObject {
 		+ RDBHelper.getSQLReadyEntry(this.name) + "');";
 	}
 
+	public String getCollectedPropertyValue(String propertyUri){
+		return getCollectedPropertyValue(propertyUri,",");
+	}
+	
+	public String getCollectedPropertyValue(String propertyUri, String joiner){
+		String result = "";
+		for(RDFObjectProperty rop:this.properties){
+			if(rop.predicate.uri.equals(propertyUri)){
+				for(RDFObjectPropertyValue rpv:rop.objects){
+					if(!result.equals(""))
+						result += joiner;
+					result += rpv.value;
+					if(rpv.additionalValue!= null && !rpv.additionalValue.equals("")){
+						result += "@"+rpv.additionalValue;
+					}
+				}
+				break;
+			}
+		}
+		return result;
+	}
+	
+	public List<String> getPropertyValues(String propertyUri){
+		List<String> result = new ArrayList<String>();
+		for(RDFObjectProperty rop:this.properties){
+			if(rop.predicate.uri.equals(propertyUri)){
+				for(RDFObjectPropertyValue rpv:rop.objects){
+					String tempResult = rpv.value;
+					if(rpv.additionalValue!= null && !rpv.additionalValue.equals("")){
+						tempResult += "@"+rpv.additionalValue;
+					}
+					result.add(tempResult);
+				}
+				break;
+			}
+		}
+		return result;
+	}
 	
 	public String toString() {
 		String result = "uri : " + this.uri + ", name : " + this.name + ", has class : "
