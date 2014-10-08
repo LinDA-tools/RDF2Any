@@ -65,9 +65,14 @@ public class ClassPropertyExample {
 		// System.out.println(cricketTeam.getTableCreationScript(true));
 		String body = "<something>\n$[for r : country]\n<country>$[=r]</country>\n$[end]\n</something>";
 
-		for(String c: BodyChunk.getChunksFromString(body)){
-			System.out.println("########");
-			System.out.println(c);
+//		for(String c: BodyChunk.getChunksFromString(body)){
+//			System.out.println("########");
+//			System.out.println(c);
+//		}
+		
+		List<BodyChunk> chunks = BodyChunk.getBodyChunksFromString(body);
+		for(BodyChunk c:chunks){
+			System.out.println(c.toString());
 		}
 	}
 
