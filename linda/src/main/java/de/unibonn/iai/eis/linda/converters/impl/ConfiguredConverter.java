@@ -57,7 +57,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 			RDFClass forClass) throws IOException {
 		// printing the header to the file
 		output.write((this.header + "\n").getBytes(Charset.forName("UTF-8")));
-		//printing the body to the file
+		// printing the body to the file
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			RDFNode object = row.get("concept");
@@ -74,6 +74,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 				for (BodyChunk c : this.bodyChunks) {
 					writeBodyChunk(output, c, rdfObject);
 				}
+				output.write("\n".getBytes(Charset.forName("UTF-8")));
 			}
 		}
 		// printing the footer to the file
@@ -81,20 +82,62 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 
 	}
 
-	private void writeBodyChunk(OutputStream output, BodyChunk bodyChunk, RDFObject rdfObject)
-			throws IOException {
+	private void writeBodyChunk(OutputStream output, BodyChunk bodyChunk,
+			RDFObject rdfObject) throws IOException {
 		if (bodyChunk.type.equals("text")) {
 			output.write(bodyChunk.value.getBytes(Charset.forName("UTF-8")));
 		} else if (bodyChunk.type.equals("variable")) {
 			String outputString = "";
-			if(bodyChunk.equals("NAME"))
+			if (bodyChunk.equals("NAME"))
 				outputString = rdfObject.name;
-			else if(bodyChunk.equals("URI"))
+			else if (bodyChunk.equals("URI"))
 				outputString = rdfObject.uri;
-			else if (variableDictionary.containsKey(bodyChunk.type)) {
-				//
+			else if (variableDictionary.containsKey(bodyChunk.value)) {
+				outputString = rdfObject.getCollectedPropertyValue(
+						variableDictionary.get(bodyChunk.value), ";");
+			} else if (intermediateVariableDictionary
+					.containsKey(bodyChunk.value)) {
+				outputString = intermediateVariableValue.get(bodyChunk.value);
 			}
-			output.write(outputString.getBytes(Charset.forName("UTF-8")));
+			if (!outputString.equals(""))
+				output.write(outputString.getBytes(Charset.forName("UTF-8")));
+		} else if (bodyChunk.type.equals("condition")) {
+			if (variableDictionary.containsKey(bodyChunk.value)) {
+				if (rdfObject.hasProperty(variableDictionary
+						.get(bodyChunk.value))) {
+					if (bodyChunk.chunks.size() > 0) {
+						for (BodyChunk c : bodyChunk.chunks) {
+							writeBodyChunk(output, c, rdfObject);
+						}
+					}
+				}
+			}
+
+		} else if (bodyChunk.type.equals("loop")) {
+			if (variableDictionary.containsKey(bodyChunk.value)) {
+				if (rdfObject.hasProperty(variableDictionary
+						.get(bodyChunk.value)) && bodyChunk.chunks.size() > 0) {
+					intermediateVariableDictionary.put(
+							bodyChunk.additionalValue,
+							variableDictionary.get(bodyChunk.value));
+					intermediateVariableValue
+							.put(bodyChunk.additionalValue, "");
+					List<String> propertyValues = rdfObject
+							.getPropertyValues(variableDictionary
+									.get(bodyChunk.additionalValue));
+					for (String propertyValue : propertyValues) {
+						intermediateVariableValue.put(
+								bodyChunk.additionalValue, propertyValue);
+						for (BodyChunk c : bodyChunk.chunks) {
+							writeBodyChunk(output, c, rdfObject);
+						}
+					}
+
+					intermediateVariableDictionary
+							.remove(bodyChunk.additionalValue);
+					intermediateVariableValue.remove(bodyChunk.additionalValue);
+				}
+			}
 		}
 	}
 

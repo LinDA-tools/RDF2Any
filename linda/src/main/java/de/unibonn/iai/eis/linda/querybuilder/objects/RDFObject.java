@@ -60,16 +60,17 @@ public class RDFObject {
 			RDFNode predicate = row.get("predicate");
 			String strPredicate = predicate.toString();
 			if (!strPredicate.equals(prevUri)) {
-				if(oProperty != null)
+				if (oProperty != null)
 					this.properties.add(oProperty);
 				oProperty = new RDFObjectProperty(
 						this.hasClass.getPropertyFromStringUri(strPredicate));
 			}
 			RDFNode object = row.get("object");
-			oProperty.objects.add(new RDFObjectPropertyValue(oProperty, object));
+			oProperty.objects
+					.add(new RDFObjectPropertyValue(oProperty, object));
 			i++;
 		}
-		if(oProperty != null)
+		if (oProperty != null)
 			this.properties.add(oProperty);
 		System.out.println(i + " properties found for " + this.uri);
 	}
@@ -89,28 +90,28 @@ public class RDFObject {
 		return query;
 	}
 
-	public String getInsertRowScript(Integer id){
+	public String getInsertRowScript(Integer id) {
 		return "INSERT INTO " + hasClass.getTableName()
-		+ " (ID, uri, name) VALUES (" + id
-		+ ", '" + RDBHelper.getSQLReadyEntry(this.uri)
-		+ "','"
-		+ RDBHelper.getSQLReadyEntry(this.name) + "');";
+				+ " (ID, uri, name) VALUES (" + id + ", '"
+				+ RDBHelper.getSQLReadyEntry(this.uri) + "','"
+				+ RDBHelper.getSQLReadyEntry(this.name) + "');";
 	}
 
-	public String getCollectedPropertyValue(String propertyUri){
-		return getCollectedPropertyValue(propertyUri,",");
+	public String getCollectedPropertyValue(String propertyUri) {
+		return getCollectedPropertyValue(propertyUri, ",");
 	}
-	
-	public String getCollectedPropertyValue(String propertyUri, String joiner){
+
+	public String getCollectedPropertyValue(String propertyUri, String joiner) {
 		String result = "";
-		for(RDFObjectProperty rop:this.properties){
-			if(rop.predicate.uri.equals(propertyUri)){
-				for(RDFObjectPropertyValue rpv:rop.objects){
-					if(!result.equals(""))
+		for (RDFObjectProperty rop : this.properties) {
+			if (rop.predicate.uri.equals(propertyUri)) {
+				for (RDFObjectPropertyValue rpv : rop.objects) {
+					if (!result.equals(""))
 						result += joiner;
 					result += rpv.value;
-					if(rpv.additionalValue!= null && !rpv.additionalValue.equals("")){
-						result += "@"+rpv.additionalValue;
+					if (rpv.additionalValue != null
+							&& !rpv.additionalValue.equals("")) {
+						result += "@" + rpv.additionalValue;
 					}
 				}
 				break;
@@ -118,15 +119,16 @@ public class RDFObject {
 		}
 		return result;
 	}
-	
-	public List<String> getPropertyValues(String propertyUri){
+
+	public List<String> getPropertyValues(String propertyUri) {
 		List<String> result = new ArrayList<String>();
-		for(RDFObjectProperty rop:this.properties){
-			if(rop.predicate.uri.equals(propertyUri)){
-				for(RDFObjectPropertyValue rpv:rop.objects){
+		for (RDFObjectProperty rop : this.properties) {
+			if (rop.predicate.uri.equals(propertyUri)) {
+				for (RDFObjectPropertyValue rpv : rop.objects) {
 					String tempResult = rpv.value;
-					if(rpv.additionalValue!= null && !rpv.additionalValue.equals("")){
-						tempResult += "@"+rpv.additionalValue;
+					if (rpv.additionalValue != null
+							&& !rpv.additionalValue.equals("")) {
+						tempResult += "@" + rpv.additionalValue;
 					}
 					result.add(tempResult);
 				}
@@ -135,12 +137,23 @@ public class RDFObject {
 		}
 		return result;
 	}
-	
+
+	public Boolean hasProperty(String propertyUri) {
+		Boolean result = false;
+		for (RDFObjectProperty rop : this.properties) {
+			if (rop.predicate.uri.equals(propertyUri)) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+
 	public String toString() {
-		String result = "uri : " + this.uri + ", name : " + this.name + ", has class : "
-				+ this.hasClass.label+"\nProperties : ";
-		for(RDFObjectProperty p:this.properties){
-			result +="\n"+p.toString();
+		String result = "uri : " + this.uri + ", name : " + this.name
+				+ ", has class : " + this.hasClass.label + "\nProperties : ";
+		for (RDFObjectProperty p : this.properties) {
+			result += "\n" + p.toString();
 		}
 		return result;
 	}
