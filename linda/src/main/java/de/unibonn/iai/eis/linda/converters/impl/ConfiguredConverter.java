@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.hp.hpl.jena.query.ResultSet;
 
 import de.unibonn.iai.eis.linda.converters.Converter;
+import de.unibonn.iai.eis.linda.converters.impl.configuration.BodyChunk;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 public class ConfiguredConverter extends MainConverter implements Converter {
@@ -17,6 +19,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 	public String body;
 	public String footer;
 	private Map<String, String> variableDictionary;
+	private List<BodyChunk> bodyChunks;
 
 	public ConfiguredConverter(String variableDictionary, String header,
 			String body, String footer) {
@@ -30,6 +33,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 				this.variableDictionary.put(item.split(":")[0], item.split(":")[1]);
 			}
 		}
+		this.bodyChunks = BodyChunk.getBodyChunksFromString(this.body);
 	}
 
 	@Override
@@ -44,6 +48,9 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 			RDFClass forClass) throws IOException {
 		// printing the header to the file
 		output.write((this.header + "\n").getBytes(Charset.forName("UTF-8")));
+		for(BodyChunk c:this.bodyChunks){
+			output.write((c.toString() + "\n").getBytes(Charset.forName("UTF-8")));
+		}
 		// printing the footer to the file
 		output.write((this.footer).getBytes(Charset.forName("UTF-8")));
 
