@@ -38,7 +38,6 @@ public class BodyChunk {
 
 	public static Boolean isVariableChunk(String chunk) {
 		Boolean result = false;
-		System.out.println(chunk);
 		if (chunk.length() > 0 && chunk.charAt(0) == '$') {
 			if (chunk.charAt(2) == '=')
 				result = true;
@@ -116,6 +115,7 @@ public class BodyChunk {
 			} else if (BodyChunk.isConditionalChunk(strChunk)) {
 				if (insideStructureCounter > 0) {
 					insideStructure += strChunk;
+					insideStructureCounter++;
 				} else {
 					insideStructureCounter++;
 					insideStructureChunk = new BodyChunk("condition");
@@ -125,6 +125,7 @@ public class BodyChunk {
 			} else if (BodyChunk.isLoopChunk(strChunk)) {
 				if (insideStructureCounter > 0) {
 					insideStructure += strChunk;
+					insideStructureCounter++;
 				} else {
 					insideStructureCounter++;
 					insideStructureChunk = new BodyChunk("loop");
@@ -154,7 +155,7 @@ public class BodyChunk {
 		}
 		List<BodyChunk> finalChunks = new ArrayList<BodyChunk>();
 		for (BodyChunk c : chunks) {
-			if (c.isValidChunk())
+			if (c!= null && c.isValidChunk())
 				finalChunks.add(c);
 		}
 		return finalChunks;
@@ -213,7 +214,13 @@ public class BodyChunk {
 		if (otherLastIndex < body.length()) {
 			chunks.add(body.substring(otherLastIndex, body.length()));
 		}
-		return chunks;
+		List<String> finalChunks = new ArrayList<String>();
+		for(String c:chunks){
+			if(c.length()>0){
+				finalChunks.add(c);
+			}
+		}
+		return finalChunks;
 	}
 
 	public String toString() {
