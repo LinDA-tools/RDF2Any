@@ -38,8 +38,9 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 		if (variableDictionary != null
 				&& !variableDictionary.equalsIgnoreCase("")) {
 			for (String item : variableDictionary.split(",")) {
-				this.variableDictionary.put(item.split(":")[0],
-						item.split(":")[1]);
+				item = item.trim();
+				this.variableDictionary.put(item.split("::")[0],
+						item.split("::")[1]);
 			}
 		}
 		this.bodyChunks = BodyChunk.getBodyChunksFromString(this.body);
@@ -72,7 +73,11 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 				}
 				rdfObject.generateProperties();
 				for (BodyChunk c : this.bodyChunks) {
-					writeBodyChunk(output, c, rdfObject);
+					try {
+						writeBodyChunk(output, c, rdfObject);
+					} catch (Exception e) {
+						System.out.println(e.toString());
+					}
 				}
 				output.write("\n".getBytes(Charset.forName("UTF-8")));
 			}
@@ -115,8 +120,10 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 
 		} else if (bodyChunk.type.equals("loop")) {
 			if (variableDictionary.containsKey(bodyChunk.value)) {
+
 				if (rdfObject.hasProperty(variableDictionary
 						.get(bodyChunk.value)) && bodyChunk.chunks.size() > 0) {
+
 					intermediateVariableDictionary.put(
 							bodyChunk.additionalValue,
 							variableDictionary.get(bodyChunk.value));
@@ -124,7 +131,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 							.put(bodyChunk.additionalValue, "");
 					List<String> propertyValues = rdfObject
 							.getPropertyValues(variableDictionary
-									.get(bodyChunk.additionalValue));
+									.get(bodyChunk.value));
 					for (String propertyValue : propertyValues) {
 						intermediateVariableValue.put(
 								bodyChunk.additionalValue, propertyValue);

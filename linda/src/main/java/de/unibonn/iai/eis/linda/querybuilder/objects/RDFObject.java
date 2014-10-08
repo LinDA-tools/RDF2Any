@@ -104,7 +104,7 @@ public class RDFObject {
 	public String getCollectedPropertyValue(String propertyUri, String joiner) {
 		String result = "";
 		for (RDFObjectProperty rop : this.properties) {
-			if (rop.predicate.uri.equals(propertyUri)) {
+			if (rop.predicate.uri.equalsIgnoreCase((propertyUri.toLowerCase()))) {
 				for (RDFObjectPropertyValue rpv : rop.objects) {
 					if (!result.equals(""))
 						result += joiner;
@@ -123,7 +123,7 @@ public class RDFObject {
 	public List<String> getPropertyValues(String propertyUri) {
 		List<String> result = new ArrayList<String>();
 		for (RDFObjectProperty rop : this.properties) {
-			if (rop.predicate.uri.equals(propertyUri)) {
+			if (rop.predicate.uri.equalsIgnoreCase((propertyUri.toLowerCase()))) {
 				for (RDFObjectPropertyValue rpv : rop.objects) {
 					String tempResult = rpv.value;
 					if (rpv.additionalValue != null
@@ -141,7 +141,7 @@ public class RDFObject {
 	public Boolean hasProperty(String propertyUri) {
 		Boolean result = false;
 		for (RDFObjectProperty rop : this.properties) {
-			if (rop.predicate.uri.equals(propertyUri)) {
+			if (rop.predicate.uri.equalsIgnoreCase((propertyUri.toLowerCase()))) {
 				result = true;
 				break;
 			}
