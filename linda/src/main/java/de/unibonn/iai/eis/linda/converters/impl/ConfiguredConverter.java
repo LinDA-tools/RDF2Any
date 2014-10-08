@@ -88,9 +88,9 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 			output.write(bodyChunk.value.getBytes(Charset.forName("UTF-8")));
 		} else if (bodyChunk.type.equals("variable")) {
 			String outputString = "";
-			if (bodyChunk.equals("NAME"))
+			if (bodyChunk.value.equals("NAME"))
 				outputString = rdfObject.name;
-			else if (bodyChunk.equals("URI"))
+			else if (bodyChunk.value.equals("URI"))
 				outputString = rdfObject.uri;
 			else if (variableDictionary.containsKey(bodyChunk.value)) {
 				outputString = rdfObject.getCollectedPropertyValue(

@@ -77,7 +77,7 @@ public class ConverterRoute {
 		String properties = queryParams.getFirst("properties");
 		String variableDictionary = "country:http//dbpedia.org/ontology/country,abstract:http//dbpedia.org/ontology/abstract";
 		String header = "----- THIS IS THE HEADER OF THE FILE ------- ";
-		String body = "<something>\n$[for r : country]\n<country>$[=r]</country>\n$[end]\n</something>";
+		String body = "<something>\n<city uri=\"$[=URI]\">$[=NAME]</city>$[for r : country]\n<country>$[=r]</country>\n$[end]\n</something>";
 		String footer = "----- THIS IS THE FOOTER OF THE FILE ------- ";
 		if (forClass != null) {
 			System.out.println("START configured conversion for query of class ("
