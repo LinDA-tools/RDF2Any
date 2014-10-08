@@ -133,6 +133,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 							.getPropertyValues(variableDictionary
 									.get(bodyChunk.value));
 					for (String propertyValue : propertyValues) {
+						intermediateVariableValue.remove(bodyChunk.additionalValue);
 						intermediateVariableValue.put(
 								bodyChunk.additionalValue, propertyValue);
 						for (BodyChunk c : bodyChunk.chunks) {

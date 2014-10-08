@@ -132,7 +132,6 @@ public class RDFObject {
 					}
 					result.add(tempResult);
 				}
-				break;
 			}
 		}
 		return result;
