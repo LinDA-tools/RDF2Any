@@ -30,6 +30,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -118,10 +119,12 @@ public class RDFClass {
 	}
 
 	// this method returns the query to get properties of a class
+	@JsonIgnore
 	public String getPropertiesSPARQLQuery(String propertyType) {
 		return getPropertiesSPARQLQuery(propertyType, 25);
 	}
 
+	@JsonIgnore
 	public String getPropertiesSPARQLQuery(String propertyType, Integer limit) {
 		String query = SPARQLHandler.getPrefixes();
 		if (propertyType.equals("schema")) {
@@ -505,6 +508,7 @@ public class RDFClass {
 		return foundProp;
 	}
 
+	@JsonIgnore
 	public String getVariableName() {
 		return CommonHelper.getVariableName(this.label, "thing");
 	}
@@ -513,6 +517,7 @@ public class RDFClass {
 	 * START RDB related methods
 	 */
 	// This method returns the create table script for this class
+	@JsonIgnore
 	public String getTableCreationScript(Boolean allProperties) {
 		Boolean existsForeignKey = false;
 		List<String> tablesCreated = new ArrayList<String>();
@@ -591,15 +596,18 @@ public class RDFClass {
 		return result3 + result1 + result2;
 	}
 
+	@JsonIgnore
 	public String getTableCreationScript() {
 		return getTableCreationScript(false);
 	}
 
+	@JsonIgnore
 	public String getTableName() {
 		return getVariableName() + "s";
 	}
 
 	// This method returns a list of tablenames needed to have this class
+	@JsonIgnore
 	public List<String> getTableNames() {
 		List<String> tables = new ArrayList<String>();
 		// adding the table for this class
@@ -642,6 +650,7 @@ public class RDFClass {
 		}
 		
 	}
+	@JsonIgnore
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
 		for (Integer i = 0; i < properties.size(); i++) {

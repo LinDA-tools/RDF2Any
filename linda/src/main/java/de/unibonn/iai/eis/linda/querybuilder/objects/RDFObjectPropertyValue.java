@@ -1,5 +1,6 @@
 package de.unibonn.iai.eis.linda.querybuilder.objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
@@ -56,6 +57,7 @@ public class RDFObjectPropertyValue {
 
 	}
 
+	@JsonIgnore
 	public String toString() {
 		String result = this.value;
 		if (this.additionalValue != null && !this.additionalValue.equals(""))

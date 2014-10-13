@@ -1,5 +1,6 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -115,13 +116,15 @@ public class RDFClassProperty {
 		}
 	}
 
+	@JsonIgnore
 	private String getRangeSPARQLQuery() {
 		String query = SPARQLHandler.getPrefixes();
 		query += "select distinct ?range where {<" + this.uri
 				+ "> rdfs:range ?range}";
 		return query;
 	}
-
+	
+	@JsonIgnore
 	public Boolean hasValidRange() {
 		Boolean result = true;
 		if (this.type.equals("object")) {
@@ -136,6 +139,7 @@ public class RDFClassProperty {
 	/*
 	 * START RDB methods
 	 */
+	@JsonIgnore
 	public String getTableAttributeType() {
 		if (this.type.equalsIgnoreCase("object"))
 			return "int";
@@ -146,7 +150,7 @@ public class RDFClassProperty {
 				return "text";
 		}
 	}
-
+	@JsonIgnore
 	public String getTableAttributeName() {
 		if (this.type.equalsIgnoreCase("object"))
 			return CommonHelper.getVariableName(this.label, "") + "_id";
@@ -154,6 +158,7 @@ public class RDFClassProperty {
 			return CommonHelper.getVariableName(this.label, "");
 	}
 
+	@JsonIgnore
 	public String getRangeTableName(){
 		String result = "";
 		if(this.type.equals("object")){
@@ -161,7 +166,7 @@ public class RDFClassProperty {
 		}
 		return result;
 	}
-	
+	@JsonIgnore
 	public String getTableName(RDFClass rdfClass) {
 		return rdfClass.getVariableName()
 				+ CommonHelper.getVariableName(this.label, "thing", false)
@@ -171,7 +176,7 @@ public class RDFClassProperty {
 	/*
 	 * END RDB methods
 	 */
-
+	@JsonIgnore
 	public String toString() {
 		return "uri : " + this.uri + ", type : " + this.type + ", label : "
 				+ this.label + ", range : {" + this.range.toString()

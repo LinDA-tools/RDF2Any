@@ -3,6 +3,7 @@ package de.unibonn.iai.eis.linda.querybuilder.objects;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -38,11 +39,13 @@ public class RDFObject {
 		this.properties = new ArrayList<RDFObjectProperty>();
 	}
 
+	@JsonIgnore
 	private String getName() {
 		return SPARQLHandler.getLabelFromNode(this.hasClass.dataset, this.uri,
 				"EN");
 	}
 
+	@JsonIgnore
 	private String getName(RDFClass hasClass, String uri) {
 		return SPARQLHandler.getLabelFromNode(hasClass.dataset, uri, "EN");
 	}
@@ -75,6 +78,7 @@ public class RDFObject {
 		System.out.println(i + " properties found for " + this.uri);
 	}
 
+	@JsonIgnore
 	public String propertiesSPARQLQuery() {
 		String query = SPARQLHandler.getPrefixes();
 		query += " SELECT DISTINCT ?predicate ?object WHERE { <" + this.uri
@@ -101,6 +105,7 @@ public class RDFObject {
 		return getCollectedPropertyValue(propertyUri, ",");
 	}
 
+	@JsonIgnore
 	public String getCollectedPropertyValue(String propertyUri, String joiner) {
 		String result = "";
 		for (RDFObjectProperty rop : this.properties) {
@@ -119,7 +124,8 @@ public class RDFObject {
 		}
 		return result;
 	}
-
+	
+	@JsonIgnore
 	public List<String> getPropertyValues(String propertyUri) {
 		List<String> result = new ArrayList<String>();
 		for (RDFObjectProperty rop : this.properties) {

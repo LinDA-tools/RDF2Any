@@ -1,6 +1,6 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 
@@ -41,6 +41,7 @@ public class RDFClassPropertyRange {
 	}
 	
 	//returns true if range is a language literal
+	@JsonIgnore
 	public Boolean isLanguageLiteral(){
 		Boolean result = false;
 		if(this.uri.equalsIgnoreCase("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"))
@@ -48,6 +49,7 @@ public class RDFClassPropertyRange {
 		return result;
 	}
 	
+	@JsonIgnore
 	public String toString(){
 		return "uri : "+this.uri+", label:"+this.label;
 	}

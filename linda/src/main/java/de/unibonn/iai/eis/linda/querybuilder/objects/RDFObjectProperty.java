@@ -3,6 +3,8 @@ package de.unibonn.iai.eis.linda.querybuilder.objects;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
 
 /**
@@ -19,6 +21,7 @@ public class RDFObjectProperty {
 		this.objects = new ArrayList<RDFObjectPropertyValue>();
 	}
 	
+	@JsonIgnore
 	public String toString(){
 		String result = "property : "+this.predicate.uri+", values : ";
 		for(Integer i=0;i<objects.size();i++){
