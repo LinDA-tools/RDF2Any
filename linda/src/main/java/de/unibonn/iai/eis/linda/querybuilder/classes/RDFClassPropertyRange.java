@@ -1,6 +1,6 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.owlike.genson.annotation.JsonIgnore;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 

@@ -3,7 +3,7 @@ package de.unibonn.iai.eis.linda.querybuilder.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.owlike.genson.annotation.JsonIgnore;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;

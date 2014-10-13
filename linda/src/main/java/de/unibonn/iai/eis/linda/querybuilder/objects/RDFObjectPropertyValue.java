@@ -1,6 +1,6 @@
 package de.unibonn.iai.eis.linda.querybuilder.objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.owlike.genson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;

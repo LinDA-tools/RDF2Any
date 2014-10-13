@@ -3,7 +3,7 @@ package de.unibonn.iai.eis.linda.querybuilder.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.owlike.genson.annotation.JsonIgnore;
 
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
 

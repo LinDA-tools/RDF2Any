@@ -30,11 +30,12 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.owlike.genson.annotation.JsonIgnore;
 
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.LuceneHelper;
