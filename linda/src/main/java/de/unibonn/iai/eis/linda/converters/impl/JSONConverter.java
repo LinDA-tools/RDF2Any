@@ -103,6 +103,7 @@ public class JSONConverter extends MainConverter {
 				} else {
 					rdfObject = new RDFObject(forClass, object.toString());
 				}
+			rdfObject.generateProperties();
 			jsonObjectsOutput.addObject(rdfObject);
 			}
 		} catch (Exception e) {
