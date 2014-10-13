@@ -9,43 +9,61 @@ import com.hp.hpl.jena.query.ResultSet;
 import de.unibonn.iai.eis.linda.converters.Converter;
 import de.unibonn.iai.eis.linda.helper.CSVHelper;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
 
 /**
  * @author gsingharoy
- *
- *This converts ResultSet to CSV
+ * 
+ *         This converts ResultSet to CSV
  **/
 
 public class CSVConverter extends MainConverter implements Converter {
-	private String generateFileHeader(){
+	private String generateFileHeader() {
 		String result = "";
-		for(int i=0;i<resultVars.size();i++){
-			if(i>0)
-				result+=",";
+		for (int i = 0; i < resultVars.size(); i++) {
+			if (i > 0)
+				result += ",";
 			result += resultVars.get(i);
 		}
 		result += "\n";
 		return result;
 	}
-	private String generateFileResultRow(QuerySolution row) throws Exception{
+
+	private String generateFileHeader(RDFClass forClass) {
 		String result = "";
-		for(int i=0;i<resultVars.size();i++){
-			if(i>0)
-				result+=",";
-			result += CSVHelper.getCSVReadyEntry(row.get(resultVars.get(i)).toString());
+		for(RDFClassProperty property:forClass.properties){
+			if(!result.equals(""))
+				result += ",";
+			result += property.getCSVHeaderAttributeName();
 		}
-		result +="\n";
+		result += "\n";
 		return result;
 	}
-	public void convert(OutputStream outputStream, ResultSet rdfResults) throws IOException {
+
+	private String generateFileResultRow(QuerySolution row) throws Exception {
+		String result = "";
+		for (int i = 0; i < resultVars.size(); i++) {
+			if (i > 0)
+				result += ",";
+			result += CSVHelper.getCSVReadyEntry(row.get(resultVars.get(i))
+					.toString());
+		}
+		result += "\n";
+		return result;
+	}
+
+	public void convert(OutputStream outputStream, ResultSet rdfResults)
+			throws IOException {
 		generateResultVars(rdfResults);
-		outputStream.write(generateFileHeader().getBytes(Charset.forName("UTF-8")));
-		while(rdfResults.hasNext()){
-			QuerySolution row= rdfResults.next();
+		outputStream.write(generateFileHeader().getBytes(
+				Charset.forName("UTF-8")));
+		while (rdfResults.hasNext()) {
+			QuerySolution row = rdfResults.next();
 			try {
-				outputStream.write(generateFileResultRow(row).getBytes(Charset.forName("UTF-8")));
+				outputStream.write(generateFileResultRow(row).getBytes(
+						Charset.forName("UTF-8")));
 			} catch (Exception e) {
-				//pass
+				System.out.println("Error : " + e.toString());
 			}
 
 		}
@@ -55,8 +73,17 @@ public class CSVConverter extends MainConverter implements Converter {
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
-		// TODO Auto-generated method stub
-		
+		output.write(generateFileHeader(forClass).getBytes(Charset.forName("UTF-8")));
+		while (rdfResults.hasNext()) {
+			QuerySolution row = rdfResults.next();
+			try {
+
+			} catch (Exception e) {
+				System.out.println("Error : " + e.toString());
+			}
+
+		}
+
 	}
 
 }

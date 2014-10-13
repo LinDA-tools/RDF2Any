@@ -37,10 +37,19 @@ public class ConverterRoute {
 				.getQueryParameters();
 		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
-		System.out.println("START CSV conversion for query in dataset "
-				+ dataset + " \n" + query);
-		return OutputStreamHandler.getConverterStreamingOutput(
-				new CSVConverter(), dataset, query);
+		String forClass = queryParams.getFirst("for_class");
+		String properties = queryParams.getFirst("properties");
+		if (forClass == null || forClass.equals("")) {
+			System.out.println("START CSV conversion for query in dataset "
+					+ dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new CSVConverter(), dataset, query);
+		} else {
+			System.out.println("START CSV conversion for query in dataset "
+					+ dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new CSVConverter(), dataset, query, forClass, properties);
+		}
 
 	}
 
@@ -132,7 +141,7 @@ public class ConverterRoute {
 			RDFClass rdfForClass = RDFClass.searchRDFClass(dataset, forClass);
 			rdfForClass.filterProperties(properties);
 			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
-					query),rdfForClass);
+					query), rdfForClass);
 		}
 
 		Double endMilliseconds = (double) System.currentTimeMillis();

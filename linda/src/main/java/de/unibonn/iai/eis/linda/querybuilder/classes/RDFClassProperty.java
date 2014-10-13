@@ -176,6 +176,24 @@ public class RDFClassProperty {
 	/*
 	 * END RDB methods
 	 */
+	
+	
+	/*
+	 * START CSV methods
+	 * 
+	 * */
+	
+	//this method returns the header attribute name
+	@JsonIgnore
+	public String getCSVHeaderAttributeName() {
+		return this.label.trim().toLowerCase().replace(" ", "_");
+	}
+	/*
+	 * END CSV methods
+	 * 
+	 * */
+	
+	
 	@JsonIgnore
 	public String toString() {
 		return "uri : " + this.uri + ", type : " + this.type + ", label : "
@@ -184,4 +202,5 @@ public class RDFClassProperty {
 				+ ", has multiple properties for the same node : "
 				+ this.multiplePropertiesForSameNode.toString();
 	}
+
 }
