@@ -28,4 +28,5 @@ public class JSONOutput {
 	public void setTimeTaken(Double timeTaken){
 		this.results.setTimeTaken(timeTaken);
 	}
+	
 }

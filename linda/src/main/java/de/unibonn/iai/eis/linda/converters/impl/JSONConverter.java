@@ -10,7 +10,9 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONObjectsOutput;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
+import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
 
 /**
  * @author gsingharoy
@@ -39,7 +41,8 @@ public class JSONConverter extends MainConverter {
 		super.generateResultVars(rdfResultSet);
 		this.jsonOutput = new JSONOutput(rdfResultSet);
 		this.forClass = forClass;
-		this.jsonObjectsOutput = new JSONObjectsOutput(forClass.uri, forClass.label);
+		this.jsonObjectsOutput = new JSONObjectsOutput(forClass.uri,
+				forClass.label);
 		convert();
 	}
 
@@ -82,17 +85,35 @@ public class JSONConverter extends MainConverter {
 			if (this.forClass == null) {
 				addResultSetRowToOutput(row);
 			} else {
-
+				objectConvert(row);
 			}
 		}
 
 	}
-	
-	public void setTimeTaken(Double timeTaken){
-		if(forClass == null){
-			this.jsonOutput.setTimeTaken(timeTaken);
+
+	public void objectConvert(QuerySolution row) {
+		try {
+			RDFNode object = row.get("concept");
+			if (object != null) {
+				RDFNode objectName = row.get("label");
+				RDFObject rdfObject = null;
+				if (objectName != null) {
+					rdfObject = new RDFObject(forClass, object.toString(),
+							SPARQLHandler.getLabelName(objectName));
+				} else {
+					rdfObject = new RDFObject(forClass, object.toString());
+				}
+			jsonObjectsOutput.addObject(rdfObject);
+			}
+		} catch (Exception e) {
+			System.out.println("Error occured :  " + e.toString());
 		}
-		else{
+	}
+
+	public void setTimeTaken(Double timeTaken) {
+		if (forClass == null) {
+			this.jsonOutput.setTimeTaken(timeTaken);
+		} else {
 			this.jsonObjectsOutput.time_taken = timeTaken;
 		}
 	}

@@ -24,4 +24,7 @@ public class JSONObjectsOutput {
 		this.class_name = class_name;
 		this.objects = new ArrayList<RDFObject>();
 	}
+	public void addObject(RDFObject object){
+		this.objects.add(object);
+	}
 }
