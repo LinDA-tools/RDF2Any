@@ -58,10 +58,7 @@ public class OutputStreamHandler {
 					if (rdfClass != null) {
 
 						if (properties != null) {
-							String decodedProperties = CommonHelper
-									.decode(properties);
-							System.out.println(decodedProperties);
-							rdfClass.filterProperties(decodedProperties);
+							rdfClass.filterProperties(properties);
 						}
 
 						converter.convert(output, results, rdfClass);
