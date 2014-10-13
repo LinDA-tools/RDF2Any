@@ -129,13 +129,14 @@ public class ConverterRoute {
 		} else {
 			System.out.println("START JSON conversion for query (class : "
 					+ forClass + ") in dataset " + dataset + " \n" + query);
+			RDFClass rdfForClass = RDFClass.searchRDFClass(dataset, forClass);
+			rdfForClass.filterProperties(properties);
 			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
-					query),RDFClass.searchRDFClass(dataset, forClass));
+					query),rdfForClass);
 		}
 
 		Double endMilliseconds = (double) System.currentTimeMillis();
-		converter.jsonOutput
-				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
+		converter.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH JSON conversion ... ");
 		if (forClass == null || forClass.equals(""))
 			return converter.jsonOutput;

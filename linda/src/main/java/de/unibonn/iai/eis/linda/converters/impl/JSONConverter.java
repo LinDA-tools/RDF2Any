@@ -87,4 +87,13 @@ public class JSONConverter extends MainConverter {
 		}
 
 	}
+	
+	public void setTimeTaken(Double timeTaken){
+		if(forClass == null){
+			this.jsonOutput.setTimeTaken(timeTaken);
+		}
+		else{
+			this.jsonObjectsOutput.time_taken = timeTaken;
+		}
+	}
 }
