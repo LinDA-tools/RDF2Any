@@ -75,10 +75,14 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
-		String variableDictionary = "country::http://dbpedia.org/ontology/country,abstracts::http://dbpedia.org/ontology/abstract";
-		String header = "<cities> ";
-		String body = "<city uri=\"$[=URI]\">\n<name>$[=NAME]</name>$[if country]\n<country uri=\"$[=country]\" />\n$[end]$[for abstract : abstracts]\n<abstract>$[=abstract]</abstract>\n$[end]</city>";
-		String footer = "</cities>";
+		String variableDictionary = queryParams.getFirst("variable_dictionary");
+		//String variableDictionary = "country::http://dbpedia.org/ontology/country,abstracts::http://dbpedia.org/ontology/abstract";
+		String header = queryParams.getFirst("header");
+		//String header = "<cities> ";
+		String body = queryParams.getFirst("body");
+		//String body = "<city uri=\"$[=URI]\">\n<name>$[=NAME]</name>$[if country]\n<country uri=\"$[=country]\" />\n$[end]$[for abstract : abstracts]\n<abstract>$[=abstract]</abstract>\n$[end]</city>";
+		String footer = queryParams.getFirst("footer");
+		//String footer = "</cities>";
 		if (forClass != null) {
 			System.out.println("START configured conversion for query of class ("
 					+ forClass + ") in dataset " + dataset + " \n" + query);
