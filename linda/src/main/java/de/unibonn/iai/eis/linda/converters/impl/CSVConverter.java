@@ -25,7 +25,7 @@ public class CSVConverter extends MainConverter implements Converter {
 	private String generateFileHeader() {
 		String result = "";
 		for (int i = 0; i < resultVars.size(); i++) {
-			if (i > 0)
+			if(i>0)
 				result += ",";
 			result += resultVars.get(i);
 		}
@@ -34,10 +34,9 @@ public class CSVConverter extends MainConverter implements Converter {
 	}
 
 	private String generateFileHeader(RDFClass forClass) {
-		String result = "";
+		String result = "uri,name";
 		for (RDFClassProperty property : forClass.properties) {
-			if (!result.equals(""))
-				result += ",";
+			result += ",";
 			result += property.getCSVHeaderAttributeName();
 		}
 		result += "\n";
@@ -93,10 +92,9 @@ public class CSVConverter extends MainConverter implements Converter {
 						rdfObject = new RDFObject(forClass, object.toString());
 					}
 					rdfObject.generateProperties();
-					String strRow = "";
+					String strRow = rdfObject.uri+","+rdfObject.name;
 					for (RDFClassProperty property : forClass.properties) {
-						if (!strRow.equals(""))
-							strRow += ",";
+						strRow += ",";
 						strRow += CSVHelper.getCSVReadyEntry(rdfObject
 								.getCollectedPropertyValue(property.uri, ""));
 					}
