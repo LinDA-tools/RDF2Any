@@ -33,7 +33,7 @@ public class RDBConverter extends MainConverter implements Converter {
 	private String tableName;
 
 	public RDBConverter() {
-		this.tableName = "rdf_table";
+		this.tableName = "things";
 	}
 
 	public RDBConverter(String tableName) {
