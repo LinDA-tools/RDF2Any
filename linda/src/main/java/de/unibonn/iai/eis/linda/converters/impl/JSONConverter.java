@@ -10,6 +10,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONObjectsOutput;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
+import de.unibonn.iai.eis.linda.converters.impl.results.sesame.JSONSesameOutput;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
@@ -25,12 +26,35 @@ public class JSONConverter extends MainConverter {
 	public ResultSet rdfResults;
 	public JSONOutput jsonOutput;
 	public JSONObjectsOutput jsonObjectsOutput;
+	public JSONSesameOutput jsonSesameOutput;
+	public String outputFormat;
 	public RDFClass forClass;
 
 	public JSONConverter(ResultSet rdfResultSet) {
 		this.rdfResults = rdfResultSet;
 		super.generateResultVars(rdfResultSet);
 		this.jsonOutput = new JSONOutput(rdfResultSet);
+		this.forClass = null;
+		this.jsonObjectsOutput = null;
+		this.jsonSesameOutput = null;
+		this.outputFormat = "virtuoso";
+		convert();
+	}
+
+	public JSONConverter(ResultSet rdfResultSet, String outputFormat) {
+		this.rdfResults = rdfResultSet;
+		super.generateResultVars(rdfResultSet);
+		if (outputFormat.equalsIgnoreCase("sesame"))
+			this.outputFormat = "sesame";
+		else
+			this.outputFormat = "virtuoso";
+		if (isSesameConvert()) {
+			this.jsonOutput = null;
+			this.jsonSesameOutput = new JSONSesameOutput(rdfResultSet);
+		} else {
+			this.jsonOutput = new JSONOutput(rdfResultSet);
+			this.jsonSesameOutput = null;
+		}
 		this.forClass = null;
 		this.jsonObjectsOutput = null;
 		convert();
@@ -43,6 +67,7 @@ public class JSONConverter extends MainConverter {
 		this.forClass = forClass;
 		this.jsonObjectsOutput = new JSONObjectsOutput(forClass.uri,
 				forClass.label);
+		this.jsonSesameOutput = null;
 		convert();
 	}
 
@@ -83,7 +108,9 @@ public class JSONConverter extends MainConverter {
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			if (this.forClass == null) {
-				addResultSetRowToOutput(row);
+				if (isVistuosoConvert()) {
+					addResultSetRowToOutput(row);
+				}
 			} else {
 				objectConvert(row);
 			}
@@ -103,17 +130,32 @@ public class JSONConverter extends MainConverter {
 				} else {
 					rdfObject = new RDFObject(forClass, object.toString());
 				}
-			rdfObject.generateProperties();
-			jsonObjectsOutput.addObject(rdfObject);
+				rdfObject.generateProperties();
+				jsonObjectsOutput.addObject(rdfObject);
 			}
 		} catch (Exception e) {
 			System.out.println("Error occured :  " + e.toString());
 		}
 	}
 
+	public Boolean isVistuosoConvert(){
+		if(this.outputFormat.equalsIgnoreCase("virtuoso"))
+			return true;
+		else
+			return false;
+	}
+	
+	public Boolean isSesameConvert(){
+		if(this.outputFormat.equalsIgnoreCase("sesame"))
+			return true;
+		else
+			return false;
+	}
+	
 	public void setTimeTaken(Double timeTaken) {
 		if (forClass == null) {
-			this.jsonOutput.setTimeTaken(timeTaken);
+			if(isVistuosoConvert())
+				this.jsonOutput.setTimeTaken(timeTaken);
 		} else {
 			this.jsonObjectsOutput.time_taken = timeTaken;
 		}

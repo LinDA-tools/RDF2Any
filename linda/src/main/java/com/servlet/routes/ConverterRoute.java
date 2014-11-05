@@ -128,17 +128,17 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
-		String jsonOutputType = queryParams.getFirst("json_output_type");
+		String jsonOutputType = queryParams.getFirst("json_output_format");
 		Double startMilliseconds = (double) System.currentTimeMillis();
 		JSONConverter converter = null;
 		if (forClass == null || forClass.equals("")) {
-			String outputType = "virtuoso";
+			String outputFormat = "virtuoso";
 			if(jsonOutputType != null && jsonOutputType.equalsIgnoreCase("sesame"))
-				outputType = "sesame";
+				outputFormat = "sesame";
 			System.out.println("START JSON conversion for query in dataset "
 					+ dataset + " \n" + query);
 			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
-					query));
+					query), outputFormat);
 		} else {
 			System.out.println("START JSON conversion for query (class : "
 					+ forClass + ") in dataset " + dataset + " \n" + query);
@@ -151,9 +151,12 @@ public class ConverterRoute {
 		Double endMilliseconds = (double) System.currentTimeMillis();
 		converter.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH JSON conversion ... ");
-		if (forClass == null || forClass.equals(""))
-			return converter.jsonOutput;
-		else
+		if (forClass == null || forClass.equals("")){
+			if(converter.outputFormat.equals("sesame"))
+				return converter.jsonSesameOutput;
+			else
+				return converter.jsonOutput;
+		}else
 			return converter.jsonObjectsOutput;
 	}
 
