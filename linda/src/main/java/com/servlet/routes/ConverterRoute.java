@@ -128,9 +128,13 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
+		String jsonOutputType = queryParams.getFirst("json_output_type");
 		Double startMilliseconds = (double) System.currentTimeMillis();
 		JSONConverter converter = null;
 		if (forClass == null || forClass.equals("")) {
+			String outputType = "virtuoso";
+			if(jsonOutputType != null && jsonOutputType.equalsIgnoreCase("sesame"))
+				outputType = "sesame";
 			System.out.println("START JSON conversion for query in dataset "
 					+ dataset + " \n" + query);
 			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
