@@ -104,16 +104,26 @@ public class JSONConverter extends MainConverter {
 		this.jsonOutput.results.bindings.add(bindingEntry);
 	}
 
+	public void addResultSetRowToSesameOutput(QuerySolution row) {
+		this.jsonSesameOutput.addResultBinding(row, super.resultVars);
+	}
+
 	public void convert() {
+		System.out.println(super.resultVars);
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			if (this.forClass == null) {
 				if (isVistuosoConvert()) {
 					addResultSetRowToOutput(row);
+				} else if (isSesameConvert()) {
+					addResultSetRowToSesameOutput(row);
 				}
 			} else {
 				objectConvert(row);
 			}
+		}
+		if (isSesameConvert()) {
+			this.jsonSesameOutput.setFinalResult();
 		}
 
 	}
@@ -138,23 +148,23 @@ public class JSONConverter extends MainConverter {
 		}
 	}
 
-	public Boolean isVistuosoConvert(){
-		if(this.outputFormat.equalsIgnoreCase("virtuoso"))
+	public Boolean isVistuosoConvert() {
+		if (this.outputFormat.equalsIgnoreCase("virtuoso"))
 			return true;
 		else
 			return false;
 	}
-	
-	public Boolean isSesameConvert(){
-		if(this.outputFormat.equalsIgnoreCase("sesame"))
+
+	public Boolean isSesameConvert() {
+		if (this.outputFormat.equalsIgnoreCase("sesame"))
 			return true;
 		else
 			return false;
 	}
-	
+
 	public void setTimeTaken(Double timeTaken) {
 		if (forClass == null) {
-			if(isVistuosoConvert())
+			if (isVistuosoConvert())
 				this.jsonOutput.setTimeTaken(timeTaken);
 		} else {
 			this.jsonObjectsOutput.time_taken = timeTaken;

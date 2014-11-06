@@ -133,10 +133,12 @@ public class ConverterRoute {
 		JSONConverter converter = null;
 		if (forClass == null || forClass.equals("")) {
 			String outputFormat = "virtuoso";
-			if(jsonOutputType != null && jsonOutputType.equalsIgnoreCase("sesame"))
+			if (jsonOutputType != null
+					&& jsonOutputType.equalsIgnoreCase("sesame"))
 				outputFormat = "sesame";
 			System.out.println("START JSON conversion for query in dataset "
 					+ dataset + " \n" + query);
+
 			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
 					query), outputFormat);
 		} else {
@@ -151,12 +153,12 @@ public class ConverterRoute {
 		Double endMilliseconds = (double) System.currentTimeMillis();
 		converter.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH JSON conversion ... ");
-		if (forClass == null || forClass.equals("")){
-			if(converter.outputFormat.equals("sesame"))
+		if (forClass == null || forClass.equals("")) {
+			if (converter.outputFormat.equals("sesame"))
 				return converter.jsonSesameOutput;
 			else
 				return converter.jsonOutput;
-		}else
+		} else
 			return converter.jsonObjectsOutput;
 	}
 
