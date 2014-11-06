@@ -109,7 +109,6 @@ public class JSONConverter extends MainConverter {
 	}
 
 	public void convert() {
-		System.out.println(super.resultVars);
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			if (this.forClass == null) {
