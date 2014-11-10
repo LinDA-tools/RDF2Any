@@ -1,7 +1,9 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QuerySolution;
@@ -23,14 +25,14 @@ public class RDFClassSummary {
 	public String uri;
 	public String name;
 	public Integer total_objects;
-	public List<RDFObject> sample_objects;
+	public List<Object> sample_objects;
 
 	public RDFClassSummary(String dataset, String uri) {
 		this.uri = uri;
 		this.name = SPARQLHandler.getLabelFromNode(dataset, uri, "EN");
 		this.dataset = dataset;
 		this.total_objects = null;
-		this.sample_objects = new ArrayList<RDFObject>();
+		this.sample_objects = new ArrayList<Object>();
 	}
 
 	public void generateSummaryItems() {
@@ -44,7 +46,7 @@ public class RDFClassSummary {
 			String countQuery = SPARQLHandler.getPrefixes();
 			countQuery += " SELECT  (count(DISTINCT ?c) AS ?totalcount)  where {?c rdf:type <"
 					+ this.uri + ">. } ";
-			ResultSet countResultSet = SPARQLHandler.executeQuery(dataset,
+			ResultSet countResultSet = SPARQLHandler.executeQuery(this.dataset,
 					countQuery);
 			if (countResultSet.hasNext()) {
 				QuerySolution row = countResultSet.next();
@@ -62,6 +64,25 @@ public class RDFClassSummary {
 	}
 
 	public void generateSampleObjects(Integer limit) {
-
+		try {
+			String query = SPARQLHandler.getPrefixes();
+			query += " SELECT distinct ?object ?label ";
+			query += " WHERE { ";
+			query += " ?object rdf:type <"+this.uri+">.";
+			query += "  ?object rdfs:label ?label.  ";
+			query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\"))} LIMIT "+limit.toString();
+			ResultSet rdfResultSet = SPARQLHandler.executeQuery(this.dataset,
+					query);
+			while(rdfResultSet.hasNext()){
+				QuerySolution row = rdfResultSet.next();
+				Map<String, String> objectMap = new HashMap<String, String>();
+				objectMap.put("uri", row.get("object").toString());
+				objectMap.put("name", SPARQLHandler.getLabelName(row.get("label")));
+				this.sample_objects.add(objectMap);
+			}
+		} catch (Exception e) {
+			System.out.println("Error in generating sample objects for "
+					+ this.uri + " : " + e.toString());
+		}
 	}
 }
