@@ -19,6 +19,7 @@ import de.unibonn.iai.eis.linda.helper.output.ResultOK;
 import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
 import de.unibonn.iai.eis.linda.querybuilder.ObjectSearch;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassSummary;
 import de.unibonn.iai.eis.linda.querybuilder.output.ClassPropertyOutput;
 
 @Path("/v1.0/builder/")
@@ -44,6 +45,22 @@ public class BuilderRoute {
 		return converter.jsonOutput;
 	}
 
+	// This route is for returning examples of a class
+	@GET
+	@Path("classes/examples")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getClassesExamples(@Context UriInfo uriInfo) {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
+		String dataset = queryParams.getFirst("dataset");
+		String classUri = queryParams.getFirst("class");
+		System.out.println("Start looking for example items for class "+classUri +" ("+dataset+")");
+		RDFClassSummary rdfClassSummary = new RDFClassSummary(dataset,classUri);
+		rdfClassSummary.generateSummaryItems();
+		return rdfClassSummary;
+	}
+	
+	
 	// This route is for the free text search of objects
 	@GET
 	@Path("objects")
