@@ -23,13 +23,13 @@ public class RDFClassSummary {
 
 	public String dataset;
 	public String uri;
-	public String name;
+	public String label;
 	public Integer total_objects;
 	public List<Object> sample_objects;
 
 	public RDFClassSummary(String dataset, String uri) {
 		this.uri = uri;
-		this.name = SPARQLHandler.getLabelFromNode(dataset, uri, "EN");
+		this.label = SPARQLHandler.getLabelFromNode(dataset, uri, "EN");
 		this.dataset = dataset;
 		this.total_objects = null;
 		this.sample_objects = new ArrayList<Object>();
@@ -81,7 +81,7 @@ public class RDFClassSummary {
 				QuerySolution row = rdfResultSet.next();
 				Map<String, String> objectMap = new HashMap<String, String>();
 				objectMap.put("uri", row.get("object").toString());
-				objectMap.put("name", SPARQLHandler.getLabelName(row.get("label")));
+				objectMap.put("label", SPARQLHandler.getLabelName(row.get("label")));
 				this.sample_objects.add(objectMap);
 			}
 		} catch (Exception e) {
