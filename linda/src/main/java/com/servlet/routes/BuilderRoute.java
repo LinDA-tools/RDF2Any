@@ -69,6 +69,21 @@ public class BuilderRoute {
 		return rdfClassSummary;
 	}
 
+	// This route is for returning subclasses of a class
+	@GET
+	@Path("classes/subclasses")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getClassesSubclasses(@Context UriInfo uriInfo) {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
+		String dataset = queryParams.getFirst("dataset");
+		String classUri = queryParams.getFirst("class");
+		System.out.println("Start looking for subclasses for class "
+				+ classUri + " (" + dataset + ")");
+		RDFClass rdfClass = new RDFClass(dataset, classUri);
+		return rdfClass.getSubclassesHashMap();
+	}
+	
 	// This route is for the free text search of objects
 	@GET
 	@Path("objects")

@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -660,6 +663,16 @@ public class RDFClass {
 
 		return result;
 
+	}
+	//This method returns the subclasses hash map
+	@JsonIgnore
+	public Object getSubclassesHashMap() {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("dataset", this.dataset);
+		result.put("uri", this.uri);
+		result.put("name",this.label);
+		result.put("subclasses", new ArrayList<Object>());
+		return result;
 	}
 
 
