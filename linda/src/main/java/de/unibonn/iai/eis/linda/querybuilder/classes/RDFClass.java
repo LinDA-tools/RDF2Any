@@ -670,8 +670,22 @@ public class RDFClass {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("dataset", this.dataset);
 		result.put("uri", this.uri);
-		result.put("name",this.label);
-		result.put("subclasses", new ArrayList<Object>());
+		result.put("label",this.label);
+		
+		String query = SPARQLHandler.getPrefixes();
+		query += " SELECT DISTINCT ?subclass_uri ?subclass_label WHERE {?subclass_uri rdfs:subClassOf <"+this.uri+">. ?subclass_uri rdfs:label ?subclass_label.  FILTER(langMatches(lang(?subclass_label), 'EN')) } ";
+		ResultSet rdfResultSet = SPARQLHandler.executeQuery(this.dataset, query);
+		List<Object> subclasses = new ArrayList<Object>();
+		while(rdfResultSet.hasNext()){
+			QuerySolution row = rdfResultSet.next();
+			Map<String, String> subclassMap = new HashMap<String, String>();
+			subclassMap.put("label", SPARQLHandler.getLabelName(row.get("?subclass_label")));
+			subclassMap.put("uri", row.get("subclass_uri").toString());
+			subclasses.add(subclassMap);
+		}
+		
+		
+		result.put("subclasses", subclasses);
 		return result;
 	}
 
