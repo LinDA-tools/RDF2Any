@@ -18,3 +18,6 @@ To run the API server
 mvn exec:java -X
 ```
 
+API Documentation
+-----------------
+Complete API documentation can be found [here](https://github.com/LinDA-tools/RDF2Any/blob/master/RESTfulAPIsforRDF2Any.pdf). 
