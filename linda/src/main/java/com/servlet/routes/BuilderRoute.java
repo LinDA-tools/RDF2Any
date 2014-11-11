@@ -54,13 +54,21 @@ public class BuilderRoute {
 				.getQueryParameters();
 		String dataset = queryParams.getFirst("dataset");
 		String classUri = queryParams.getFirst("class");
-		System.out.println("Start looking for example items for class "+classUri +" ("+dataset+")");
-		RDFClassSummary rdfClassSummary = new RDFClassSummary(dataset,classUri);
-		rdfClassSummary.generateSummaryItems();
+		String strLimit = queryParams.getFirst("limit");
+		Integer limit = 5;
+		if (strLimit != null) {
+			try {
+				limit = Integer.parseInt(strLimit);
+			} catch (Exception e) {
+			}
+		}
+		System.out.println("Start looking for example items for class "
+				+ classUri + " (" + dataset + ")");
+		RDFClassSummary rdfClassSummary = new RDFClassSummary(dataset, classUri);
+		rdfClassSummary.generateSummaryItems(limit);
 		return rdfClassSummary;
 	}
-	
-	
+
 	// This route is for the free text search of objects
 	@GET
 	@Path("objects")
@@ -74,22 +82,24 @@ public class BuilderRoute {
 		String forClass = queryParams.getFirst("for_class");
 		String forProperty = queryParams.getFirst("for_property");
 		String objectQuery = null;
-		if (forClass != null && !forClass.equalsIgnoreCase("") && forProperty != null && !forProperty.equalsIgnoreCase("")) {
+		if (forClass != null && !forClass.equalsIgnoreCase("")
+				&& forProperty != null && !forProperty.equalsIgnoreCase("")) {
 			System.out.println("START Searching for objects of classes '"
 					+ classes + "' having subject class '" + forClass
 					+ "' matching '" + search + "' in dataset '" + dataset
 					+ "'");
-			objectQuery = new ObjectSearch(dataset, search, classes, forClass, forProperty).getSPARQLQuery();
+			objectQuery = new ObjectSearch(dataset, search, classes, forClass,
+					forProperty).getSPARQLQuery();
 		} else {
 			System.out.println("START Searching for objects of classes '"
 					+ classes + "' matching '" + search + "' in dataset '"
 					+ dataset + "'");
-			objectQuery = new ObjectSearch(dataset, search, classes).getSPARQLQuery();
+			objectQuery = new ObjectSearch(dataset, search, classes)
+					.getSPARQLQuery();
 		}
 		Double startMilliseconds = (double) System.currentTimeMillis();
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
-				dataset,objectQuery
-				));
+				dataset, objectQuery));
 		Double endMilliseconds = (double) System.currentTimeMillis();
 		converter.jsonOutput
 				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);

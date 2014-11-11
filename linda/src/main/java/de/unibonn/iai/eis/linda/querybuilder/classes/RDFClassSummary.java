@@ -36,10 +36,14 @@ public class RDFClassSummary {
 	}
 
 	public void generateSummaryItems() {
-		generateTotalObjectsCount();
-		generateSampleObjects();
+		generateSummaryItems(5);
 	}
 
+	public void generateSummaryItems(Integer limit){
+		generateTotalObjectsCount();
+		generateSampleObjects(limit);
+	}
+	
 	public void generateTotalObjectsCount() {
 		this.total_objects = 0;
 		try {
