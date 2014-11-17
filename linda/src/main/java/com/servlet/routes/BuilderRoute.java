@@ -15,6 +15,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
+import de.unibonn.iai.eis.linda.helper.output.JSONError;
 import de.unibonn.iai.eis.linda.helper.output.ResultOK;
 import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
 import de.unibonn.iai.eis.linda.querybuilder.ObjectSearch;
@@ -28,7 +29,8 @@ public class BuilderRoute {
 	@GET
 	@Path("classes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONOutput getClasses(@Context UriInfo uriInfo) {
+	public Object getClasses(@Context UriInfo uriInfo) {
+		try{
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
 		String search = queryParams.getFirst("search");
@@ -43,6 +45,10 @@ public class BuilderRoute {
 				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
 		System.out.println("FINISH searching for classes ... ");
 		return converter.jsonOutput;
+		}catch(Exception e){
+			System.out.println("Error : "+e.toString());
+			return new JSONError("ERROR", e.toString());
+		}
 	}
 
 	// This route is for returning examples of a class
