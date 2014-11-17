@@ -95,5 +95,20 @@ public class SPARQLHandler {
 		Integer languageIdentifierPoint = label.toString().length()-2;
 		return label.toString().substring(languageIdentifierPoint,label.toString().length());
 	}
+	
+	public static String getBaseUrl(RDFNode node){
+		String baseUrl = "";
+		String nodeUrl = node.toString();
+		Integer baseEnd = 0;
+		for(Integer i=nodeUrl.length()-1;i>=0;i--){
+			if(nodeUrl.charAt(i) == '/' || nodeUrl.charAt(i) == '#'){
+				baseEnd = i;
+				break;
+			}
+		}
+		if(baseEnd > 0)
+			baseUrl = nodeUrl.substring(0,baseEnd);
+		return baseUrl;
+	}
 
 }

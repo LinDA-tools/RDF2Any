@@ -33,7 +33,7 @@ public class CSVConverter extends MainConverter implements Converter {
 	}
 
 	private String generateFileHeader(RDFClass forClass) {
-		String result = "rowID,uri,name";
+		String result = "rowID,rdfsMember,uri,name";
 		for (RDFClassProperty property : forClass.properties) {
 			result += ",";
 			result += property.getCSVHeaderAttributeName();
@@ -79,6 +79,7 @@ public class CSVConverter extends MainConverter implements Converter {
 			RDFClass forClass) throws IOException {
 		output.write(generateFileHeader(forClass).getBytes(
 				Charset.forName("UTF-8")));
+		Long rowCounter = (long) 1;
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			try {
@@ -93,7 +94,7 @@ public class CSVConverter extends MainConverter implements Converter {
 						rdfObject = new RDFObject(forClass, object.toString());
 					}
 					rdfObject.generateProperties();
-					String strRow = rdfObject.uri+","+rdfObject.name;
+					String strRow = rowCounter + ","+SPARQLHandler.getBaseUrl(object)+","+rdfObject.uri+","+rdfObject.name;
 					for (RDFClassProperty property : forClass.properties) {
 						strRow += ",";
 						strRow += CSVHelper.getCSVReadyEntry(rdfObject
@@ -101,6 +102,7 @@ public class CSVConverter extends MainConverter implements Converter {
 					}
 					output.write((strRow + "\n").getBytes(Charset
 							.forName("UTF-8")));
+					rowCounter++;
 				}
 			} catch (Exception e) {
 				System.out.println("Error : " + e.toString());
