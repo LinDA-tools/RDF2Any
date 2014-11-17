@@ -23,10 +23,9 @@ import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
 
 public class CSVConverter extends MainConverter implements Converter {
 	private String generateFileHeader() {
-		String result = "";
+		String result = "rowID";
 		for (int i = 0; i < resultVars.size(); i++) {
-			if(i>0)
-				result += ",";
+			result += ",";
 			result += resultVars.get(i);
 		}
 		result += "\n";
@@ -34,7 +33,7 @@ public class CSVConverter extends MainConverter implements Converter {
 	}
 
 	private String generateFileHeader(RDFClass forClass) {
-		String result = "uri,name";
+		String result = "rowID,uri,name";
 		for (RDFClassProperty property : forClass.properties) {
 			result += ",";
 			result += property.getCSVHeaderAttributeName();
@@ -43,8 +42,8 @@ public class CSVConverter extends MainConverter implements Converter {
 		return result;
 	}
 
-	private String generateFileResultRow(QuerySolution row) throws Exception {
-		String result = "";
+	private String generateFileResultRow(QuerySolution row, Long rowCounter) throws Exception {
+		String result = rowCounter +",";
 		for (int i = 0; i < resultVars.size(); i++) {
 			if (i > 0)
 				result += ",";
@@ -60,11 +59,13 @@ public class CSVConverter extends MainConverter implements Converter {
 		generateResultVars(rdfResults);
 		outputStream.write(generateFileHeader().getBytes(
 				Charset.forName("UTF-8")));
+		Long rowCounter = (long) 1;
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			try {
-				outputStream.write(generateFileResultRow(row).getBytes(
+				outputStream.write(generateFileResultRow(row, rowCounter).getBytes(
 						Charset.forName("UTF-8")));
+				rowCounter++;
 			} catch (Exception e) {
 				System.out.println("Error : " + e.toString());
 			}
