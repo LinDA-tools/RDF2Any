@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -110,12 +111,38 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 			else if (variableDictionary.containsKey(bodyChunk.value)) {
 				outputString = rdfObject.getCollectedPropertyValue(
 						variableDictionary.get(bodyChunk.value), ";");
+			} else if (bodyChunk.value.indexOf('.') > 0) {
+				String[] bcSplits = bodyChunk.value.split(Pattern.quote("."));
+				String var = bcSplits[0];
+				String varExt = bcSplits[1];
+				if (variableDictionary.containsKey(var)) {
+
+					if (varExt.equals("text")) {
+						outputString = SPARQLHandler
+								.getLabelText(variableDictionary.get(var));
+					} else if (varExt.equals("lang")) {
+						outputString = SPARQLHandler
+								.getLabelLanguage(variableDictionary.get(var));
+					}
+				} else if (intermediateVariableDictionary.containsKey(var)) {
+					if (varExt.equals("text")) {
+						outputString = SPARQLHandler
+								.getLabelText(intermediateVariableValue
+										.get(var));
+					} else if (varExt.equals("lang")) {
+						outputString = SPARQLHandler
+								.getLabelLanguage(intermediateVariableValue
+										.get(var));
+					}
+				}
 			} else if (intermediateVariableDictionary
 					.containsKey(bodyChunk.value)) {
 				outputString = intermediateVariableValue.get(bodyChunk.value);
 			}
+
 			if (!outputString.equals(""))
 				output.write(outputString.getBytes(Charset.forName("UTF-8")));
+
 		} else if (bodyChunk.type.equals("condition")) {
 			if (variableDictionary.containsKey(bodyChunk.value)) {
 				if (rdfObject.hasProperty(variableDictionary
@@ -130,7 +157,6 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 
 		} else if (bodyChunk.type.equals("loop")) {
 			if (variableDictionary.containsKey(bodyChunk.value)) {
-
 				if (rdfObject.hasProperty(variableDictionary
 						.get(bodyChunk.value)) && bodyChunk.chunks.size() > 0) {
 
@@ -151,13 +177,8 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 							writeBodyChunk(output, c, rdfObject, objectCounter);
 						}
 					}
-
-					intermediateVariableDictionary
-							.remove(bodyChunk.additionalValue);
-					intermediateVariableValue.remove(bodyChunk.additionalValue);
 				}
 			}
 		}
 	}
-
 }
