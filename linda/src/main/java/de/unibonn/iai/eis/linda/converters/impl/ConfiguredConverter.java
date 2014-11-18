@@ -116,13 +116,21 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 				String var = bcSplits[0];
 				String varExt = bcSplits[1];
 				if (variableDictionary.containsKey(var)) {
-
-					if (varExt.equals("text")) {
-						outputString = SPARQLHandler
-								.getLabelText(variableDictionary.get(var));
-					} else if (varExt.equals("lang")) {
-						outputString = SPARQLHandler
-								.getLabelLanguage(variableDictionary.get(var));
+					List<String> thisProperties = rdfObject
+							.getPropertyValues(variableDictionary.get(var));
+					outputString = "";
+					for (String thisProperty : thisProperties) {
+						if (varExt.equals("text")) {
+							if (!outputString.equals(""))
+								outputString += ";";
+							outputString += SPARQLHandler
+									.getLabelText(thisProperty);
+						} else if (varExt.equals("lang")) {
+							if (!outputString.equals(""))
+								outputString += ";";
+							outputString += SPARQLHandler
+									.getLabelLanguage(thisProperty);
+						}
 					}
 				} else if (intermediateVariableDictionary.containsKey(var)) {
 					if (varExt.equals("text")) {
