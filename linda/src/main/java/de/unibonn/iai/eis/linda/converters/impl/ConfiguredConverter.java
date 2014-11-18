@@ -57,11 +57,14 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
 		// printing the header to the file
-		output.write((this.header + "\n").getBytes(Charset.forName("UTF-8")));
+		if (this.header != null && !this.header.trim().equalsIgnoreCase(""))
+			output.write((this.header + "\n").getBytes(Charset.forName("UTF-8")));
 		// printing the body to the file
+		Long objectCounter = (long) 1;
 		while (rdfResults.hasNext()) {
 			QuerySolution row = rdfResults.next();
 			RDFNode object = row.get("concept");
+
 			if (object != null) {
 				RDFNode objectName = row.get("label");
 				RDFObject rdfObject = null;
@@ -74,21 +77,26 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 				rdfObject.generateProperties();
 				for (BodyChunk c : this.bodyChunks) {
 					try {
-						writeBodyChunk(output, c, rdfObject);
+						writeBodyChunk(output, c, rdfObject, objectCounter);
+
 					} catch (Exception e) {
 						System.out.println(e.toString());
 					}
+
 				}
+				objectCounter++;
 				output.write("\n".getBytes(Charset.forName("UTF-8")));
 			}
 		}
 		// printing the footer to the file
-		output.write((this.footer).getBytes(Charset.forName("UTF-8")));
+		if (this.footer != null && !this.footer.trim().equalsIgnoreCase(""))
+			output.write((this.footer).getBytes(Charset.forName("UTF-8")));
+		System.out.println("Finished configured convert.");
 
 	}
 
 	private void writeBodyChunk(OutputStream output, BodyChunk bodyChunk,
-			RDFObject rdfObject) throws IOException {
+			RDFObject rdfObject, Long objectCounter) throws IOException {
 		if (bodyChunk.type.equals("text")) {
 			output.write(bodyChunk.value.getBytes(Charset.forName("UTF-8")));
 		} else if (bodyChunk.type.equals("variable")) {
@@ -97,6 +105,8 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 				outputString = rdfObject.name;
 			else if (bodyChunk.value.equals("URI"))
 				outputString = rdfObject.uri;
+			else if (bodyChunk.value.equals("OBJECT_COUNTER"))
+				outputString = objectCounter.toString();
 			else if (variableDictionary.containsKey(bodyChunk.value)) {
 				outputString = rdfObject.getCollectedPropertyValue(
 						variableDictionary.get(bodyChunk.value), ";");
@@ -112,7 +122,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 						.get(bodyChunk.value))) {
 					if (bodyChunk.chunks.size() > 0) {
 						for (BodyChunk c : bodyChunk.chunks) {
-							writeBodyChunk(output, c, rdfObject);
+							writeBodyChunk(output, c, rdfObject, objectCounter);
 						}
 					}
 				}
@@ -133,11 +143,12 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 							.getPropertyValues(variableDictionary
 									.get(bodyChunk.value));
 					for (String propertyValue : propertyValues) {
-						intermediateVariableValue.remove(bodyChunk.additionalValue);
+						intermediateVariableValue
+								.remove(bodyChunk.additionalValue);
 						intermediateVariableValue.put(
 								bodyChunk.additionalValue, propertyValue);
 						for (BodyChunk c : bodyChunk.chunks) {
-							writeBodyChunk(output, c, rdfObject);
+							writeBodyChunk(output, c, rdfObject, objectCounter);
 						}
 					}
 
