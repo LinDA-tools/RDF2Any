@@ -37,14 +37,9 @@ public class BuilderRoute {
 		String dataset = queryParams.getFirst("dataset");
 		System.out.println("START Searching for classes matching '" + search
 				+ "' in dataset '" + dataset + "'");
-		Double startMilliseconds = (double) System.currentTimeMillis();
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
-				dataset, new ClassSearch(dataset, search).getSPARQLQuery()));
-		Double endMilliseconds = (double) System.currentTimeMillis();
-		converter.jsonOutput
-				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
-		System.out.println("FINISH searching for classes ... ");
-		return converter.jsonOutput;
+		ClassSearch searchClasses = new ClassSearch(dataset, search);
+		searchClasses.generateSearchedClassItems();
+		return searchClasses;
 		}catch(Exception e){
 			System.out.println("Error : "+e.toString());
 			return new JSONError("ERROR", e.toString());
