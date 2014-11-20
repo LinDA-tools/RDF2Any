@@ -1,7 +1,7 @@
 RDF2Any
 =======
 
-All tools necessary for RDF2Any, including convereters
+All tools necessary for RDF2Any, including converters
 
 Installation
 ------------
