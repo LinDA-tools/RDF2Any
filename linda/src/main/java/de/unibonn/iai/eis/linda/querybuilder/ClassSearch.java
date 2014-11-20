@@ -15,11 +15,19 @@ public class ClassSearch {
 		this.dataset = dataset;
 	}
 	
+	public String getSPARQLQuery(String lang){
+		String query = SPARQLHandler.getPrefixes();
+		query += " SELECT distinct ?class ?label ";
+		query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
+		query += " FILTER(bound(?label) && langMatches(lang(?label), \""+lang.toUpperCase()+"\") && REGEX(?label, \""+this.searchString+"\"))}";
+		return query;
+	}
+	
 	public String getSPARQLQuery(){
 		String query = SPARQLHandler.getPrefixes();
 		query += " SELECT distinct ?class ?label ";
 		query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
-		query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\") && REGEX(?label, \""+this.searchString+"\"))}";
+		query += " FILTER(bound(?label)  && REGEX(?label, \""+this.searchString+"\"))}";
 		return query;
 	}
 	

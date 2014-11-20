@@ -30,7 +30,7 @@ public class BuilderRouteOld {
 				+ "' in dataset '" + dataset + "'");
 		Double startMilliseconds = (double) System.currentTimeMillis();
 		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
-				dataset, new ClassSearch(dataset, search).getSPARQLQuery()));
+				dataset, new ClassSearch(dataset, search).getSPARQLQuery("EN")));
 		Double endMilliseconds = (double) System.currentTimeMillis();
 		converter.jsonOutput
 				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
