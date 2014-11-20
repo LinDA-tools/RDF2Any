@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriInfo;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.helper.output.JSONError;
-import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
+import de.unibonn.iai.eis.linda.querybuilder.search.ClassSearch;
 
 @Path("/v0.9/builder/")
 public class BuilderRouteOld {

@@ -17,7 +17,7 @@ import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.helper.output.JSONError;
 import de.unibonn.iai.eis.linda.helper.output.ResultOK;
-import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
+import de.unibonn.iai.eis.linda.querybuilder.search.ClassSearch;
 import de.unibonn.iai.eis.linda.querybuilder.ObjectSearch;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassSummary;

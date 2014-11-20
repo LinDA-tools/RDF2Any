@@ -1,4 +1,4 @@
-package de.unibonn.iai.eis.linda.querybuilder;
+package de.unibonn.iai.eis.linda.querybuilder.search;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 /*
