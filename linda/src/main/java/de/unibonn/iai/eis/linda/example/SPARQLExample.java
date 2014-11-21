@@ -10,7 +10,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
-import de.unibonn.iai.eis.linda.querybuilder.ClassSearch;
+import de.unibonn.iai.eis.linda.querybuilder.search.ClassSearch;
 
 /**
  * @author gsingharoy
