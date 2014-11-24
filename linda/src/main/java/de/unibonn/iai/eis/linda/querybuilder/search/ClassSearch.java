@@ -19,20 +19,32 @@ public class ClassSearch {
 	public String search_string;
 	public String dataset;
 	public List<SearchedClassItem> searched_items;
+	private Integer sequence;
 
 	public ClassSearch(String dataset, String searchString) {
 		this.search_string = searchString;
 		this.dataset = dataset;
 		this.searched_items = new ArrayList<SearchedClassItem>();
+		this.sequence = 0;
 	}
 
-	public void generateSearchedClassItems(){
+	public void generateSearchedClassItems() {
 		generateSearchedClassItems(false);
 	}
+
 	public void generateSearchedClassItems(Boolean forceUriSearch) {
 		ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
-				getSPARQLQuery(forceUriSearch));
-		Integer sequence = 0;
+				getSPARQLQuery());
+		generateSearchedClassItemsFromResultSet(rdfResultSet);
+		if (forceUriSearch) {
+			rdfResultSet = SPARQLHandler.executeQuery(dataset,
+					getSPARQLQuery(true));
+			generateSearchedClassItemsFromResultSet(rdfResultSet);
+		}
+
+	}
+
+	public void generateSearchedClassItemsFromResultSet(ResultSet rdfResultSet) {
 		String currClass = "";
 		SearchedClassItem currSearchedClass = null;
 		while (rdfResultSet.hasNext()) {
@@ -42,15 +54,18 @@ public class ClassSearch {
 				// new class found. Will create a new SearchedClassItem
 				if (currSearchedClass != null)
 					this.searched_items.add(currSearchedClass);
-				sequence++;
-				currSearchedClass = new SearchedClassItem(loopClass, sequence);
+				this.sequence++;
+				currSearchedClass = new SearchedClassItem(loopClass,
+						this.sequence);
 				currClass = loopClass.toString();
 
 			}
 			RDFNode label = row.get("label");
-			if(label != null && label.toString() != null && !label.toString().equals(""))
-				currSearchedClass.addLabel(SPARQLHandler.getLabelLanguage(label),
-					SPARQLHandler.getLabelText(label));
+			if (label != null && label.toString() != null
+					&& !label.toString().equals(""))
+				currSearchedClass.addLabel(
+						SPARQLHandler.getLabelLanguage(label),
+						SPARQLHandler.getLabelText(label));
 		}
 		// adding the last searched classItem
 		if (currSearchedClass != null)
@@ -79,9 +94,8 @@ public class ClassSearch {
 		query += " SELECT distinct ?class ?label ";
 		if (forceUriSearch) {
 			query += " WHERE { ?class rdf:type owl:Class. OPTIONAL {?class rdfs:label ?label}. ?object rdf:type ?class. ";
-			query += " FILTER(REGEX(?label, \"\\\\b" + this.search_string
-					+ "\",\"i\") || REGEX(?class, \"" + this.search_string
-					+ "\",\"i\") )} ORDER BY ?class";
+			query += " FILTER(!bound(?label) && REGEX(?class, \""
+					+ this.search_string + "\",\"i\") )} ORDER BY ?class";
 		} else {
 			query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
 			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
