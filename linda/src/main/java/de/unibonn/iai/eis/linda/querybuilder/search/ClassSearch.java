@@ -9,6 +9,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.owlike.genson.annotation.JsonIgnore;
 
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
+
 /*
  * @author gsingharoy
  * 
@@ -18,54 +19,72 @@ public class ClassSearch {
 	public String search_string;
 	public String dataset;
 	public List<SearchedClassItem> searched_items;
-	
-	public ClassSearch( String dataset, String searchString){
+
+	public ClassSearch(String dataset, String searchString) {
 		this.search_string = searchString;
 		this.dataset = dataset;
 		this.searched_items = new ArrayList<SearchedClassItem>();
 	}
-	
-	public void generateSearchedClassItems(){
-		ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset, getSPARQLQuery());
+
+	public void generateSearchedClassItems() {
+		ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
+				getSPARQLQuery());
 		Integer sequence = 0;
 		String currClass = "";
 		SearchedClassItem currSearchedClass = null;
-		while(rdfResultSet.hasNext()){
+		while (rdfResultSet.hasNext()) {
 			QuerySolution row = rdfResultSet.next();
 			String loopClass = row.get("class").toString();
-			if(!loopClass.equals(currClass)){
-				//new class found. Will create a new SearchedClassItem
-				if(currSearchedClass!=null)
+			if (!loopClass.equals(currClass)) {
+				// new class found. Will create a new SearchedClassItem
+				if (currSearchedClass != null)
 					this.searched_items.add(currSearchedClass);
 				sequence++;
-				currSearchedClass = new SearchedClassItem(loopClass,sequence);
+				currSearchedClass = new SearchedClassItem(loopClass, sequence);
 				currClass = loopClass.toString();
-				
+
 			}
 			RDFNode label = row.get("label");
-			currSearchedClass.addLabel(SPARQLHandler.getLabelLanguage(label), SPARQLHandler.getLabelText(label));
+			if(label != null && label.toString() != null && !label.toString().equals(""))
+				currSearchedClass.addLabel(SPARQLHandler.getLabelLanguage(label),
+					SPARQLHandler.getLabelText(label));
 		}
-		//adding the last searched classItem
-		if(currSearchedClass!=null)
+		// adding the last searched classItem
+		if (currSearchedClass != null)
 			this.searched_items.add(currSearchedClass);
 	}
-	
+
 	@JsonIgnore
-	public String getSPARQLQuery(String lang){
+	public String getSPARQLQuery(String lang) {
 		String query = SPARQLHandler.getPrefixes();
 		query += " SELECT distinct ?class ?label ";
 		query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
-		query += " FILTER(bound(?label) && langMatches(lang(?label), \""+lang.toUpperCase()+"\") && REGEX(?label, \""+this.search_string+"\"))}";
+		query += " FILTER(bound(?label) && langMatches(lang(?label), \""
+				+ lang.toUpperCase() + "\") && REGEX(?label, \""
+				+ this.search_string + "\"))}";
 		return query;
 	}
-	
+
 	@JsonIgnore
-	public String getSPARQLQuery(){
+	public String getSPARQLQuery() {
+		return getSPARQLQuery(false);
+	}
+
+	@JsonIgnore
+	public String getSPARQLQuery(Boolean forceUriSearch) {
 		String query = SPARQLHandler.getPrefixes();
 		query += " SELECT distinct ?class ?label ";
-		query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
-		query += " FILTER(bound(?label)  && REGEX(?label, \""+this.search_string+"\"))} ORDER BY ?class";
+		if (forceUriSearch) {
+			query += " WHERE { ?class rdf:type owl:Class. OPTIONAL {?class rdfs:label ?label}. ?object rdf:type ?class. ";
+			query += " FILTER(REGEX(?label, \"" + this.search_string
+					+ "\",\"i\") || REGEX(?class, \"" + this.search_string
+					+ "\",\"i\") )} ORDER BY ?class";
+		} else {
+			query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
+			query += " FILTER(bound(?label)  && REGEX(?label, \""
+					+ this.search_string + "\",\"i\"))} ORDER BY ?class";
+		}
 		return query;
 	}
-	
+
 }
