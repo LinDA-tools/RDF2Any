@@ -15,6 +15,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.ConfiguredConverter;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
@@ -24,6 +26,7 @@ import de.unibonn.iai.eis.linda.example.SPARQLExample;
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
+import de.unibonn.iai.eis.linda.helper.output.JSONError;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 @Path("/v1.0/convert/")
@@ -122,44 +125,52 @@ public class ConverterRoute {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object getJSONConverter(@Context UriInfo uriInfo)
 			throws UnsupportedEncodingException, ParseException {
-		MultivaluedMap<String, String> queryParams = uriInfo
-				.getQueryParameters();
-		String query = queryParams.getFirst("query");
-		String dataset = queryParams.getFirst("dataset");
-		String forClass = queryParams.getFirst("for_class");
-		String properties = queryParams.getFirst("properties");
-		String jsonOutputType = queryParams.getFirst("json_output_format");
-		Double startMilliseconds = (double) System.currentTimeMillis();
-		JSONConverter converter = null;
-		if (forClass == null || forClass.equals("")) {
-			String outputFormat = "virtuoso";
-			if (jsonOutputType != null
-					&& jsonOutputType.equalsIgnoreCase("sesame"))
-				outputFormat = "sesame";
-			System.out.println("START JSON conversion for query in dataset "
-					+ dataset + " \n" + query);
+		try {
+			MultivaluedMap<String, String> queryParams = uriInfo
+					.getQueryParameters();
+			String query = queryParams.getFirst("query");
+			String dataset = queryParams.getFirst("dataset");
+			String forClass = queryParams.getFirst("for_class");
+			String properties = queryParams.getFirst("properties");
+			String jsonOutputType = queryParams.getFirst("json_output_format");
+			Double startMilliseconds = (double) System.currentTimeMillis();
+			JSONConverter converter = null;
+			if (forClass == null || forClass.equals("")) {
+				String outputFormat = "virtuoso";
+				if (jsonOutputType != null
+						&& jsonOutputType.equalsIgnoreCase("sesame"))
+					outputFormat = "sesame";
+				System.out
+						.println("START JSON conversion for query in dataset "
+								+ dataset + " \n" + query);
 
-			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
-					query), outputFormat);
-		} else {
-			System.out.println("START JSON conversion for query (class : "
-					+ forClass + ") in dataset " + dataset + " \n" + query);
-			RDFClass rdfForClass = RDFClass.searchRDFClass(dataset, forClass);
-			rdfForClass.filterProperties(properties);
-			converter = new JSONConverter(SPARQLHandler.executeQuery(dataset,
-					query), rdfForClass);
+				converter = new JSONConverter(SPARQLHandler.executeQuery(
+						dataset, query), outputFormat);
+			} else {
+				System.out.println("START JSON conversion for query (class : "
+						+ forClass + ") in dataset " + dataset + " \n" + query);
+				RDFClass rdfForClass = RDFClass.searchRDFClass(dataset,
+						forClass);
+				rdfForClass.filterProperties(properties);
+				converter = new JSONConverter(SPARQLHandler.executeQuery(
+						dataset, query), rdfForClass);
+			}
+
+			Double endMilliseconds = (double) System.currentTimeMillis();
+			converter
+					.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
+			System.out.println("FINISH JSON conversion ... ");
+			if (forClass == null || forClass.equals("")) {
+				if (converter.outputFormat.equals("sesame"))
+					return converter.jsonSesameOutput;
+				else
+					return converter.jsonOutput;
+			} else
+				return converter.jsonObjectsOutput;
+		} catch (Exception e) {
+			System.out.println("Error : " + e.toString());
+			return new JSONError("ERROR", e.toString());
 		}
-
-		Double endMilliseconds = (double) System.currentTimeMillis();
-		converter.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
-		System.out.println("FINISH JSON conversion ... ");
-		if (forClass == null || forClass.equals("")) {
-			if (converter.outputFormat.equals("sesame"))
-				return converter.jsonSesameOutput;
-			else
-				return converter.jsonOutput;
-		} else
-			return converter.jsonObjectsOutput;
 	}
 
 }

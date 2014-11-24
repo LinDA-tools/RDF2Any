@@ -39,7 +39,10 @@ public class BuilderRoute {
 				+ "' in dataset '" + dataset + "'");
 		ClassSearch searchClasses = new ClassSearch(dataset, search);
 		searchClasses.generateSearchedClassItems();
+		System.out.println("FINISHED Searching for classes matching '" + search
+				+ "' in dataset '" + dataset + "'");
 		return searchClasses;
+		
 		}catch(Exception e){
 			System.out.println("Error : "+e.toString());
 			return new JSONError("ERROR", e.toString());
