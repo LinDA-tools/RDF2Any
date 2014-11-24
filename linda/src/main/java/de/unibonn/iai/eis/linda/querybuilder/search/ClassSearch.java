@@ -26,9 +26,12 @@ public class ClassSearch {
 		this.searched_items = new ArrayList<SearchedClassItem>();
 	}
 
-	public void generateSearchedClassItems() {
+	public void generateSearchedClassItems(){
+		generateSearchedClassItems(false);
+	}
+	public void generateSearchedClassItems(Boolean forceUriSearch) {
 		ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
-				getSPARQLQuery());
+				getSPARQLQuery(forceUriSearch));
 		Integer sequence = 0;
 		String currClass = "";
 		SearchedClassItem currSearchedClass = null;
@@ -76,12 +79,12 @@ public class ClassSearch {
 		query += " SELECT distinct ?class ?label ";
 		if (forceUriSearch) {
 			query += " WHERE { ?class rdf:type owl:Class. OPTIONAL {?class rdfs:label ?label}. ?object rdf:type ?class. ";
-			query += " FILTER(REGEX(?label, \"" + this.search_string
+			query += " FILTER(REGEX(?label, \"\\\\b" + this.search_string
 					+ "\",\"i\") || REGEX(?class, \"" + this.search_string
 					+ "\",\"i\") )} ORDER BY ?class";
 		} else {
 			query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
-			query += " FILTER(bound(?label)  && REGEX(?label, \""
+			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
 					+ this.search_string + "\",\"i\"))} ORDER BY ?class";
 		}
 		return query;

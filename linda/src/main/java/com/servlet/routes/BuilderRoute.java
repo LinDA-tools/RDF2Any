@@ -35,10 +35,14 @@ public class BuilderRoute {
 				.getQueryParameters();
 		String search = queryParams.getFirst("search");
 		String dataset = queryParams.getFirst("dataset");
+		String strForceUriSearch = queryParams.getFirst("force_uri_search");
+		Boolean forceUriSearch = false;
+		if(strForceUriSearch != null && strForceUriSearch.equalsIgnoreCase("true"))
+			forceUriSearch = true;
 		System.out.println("START Searching for classes matching '" + search
 				+ "' in dataset '" + dataset + "'");
 		ClassSearch searchClasses = new ClassSearch(dataset, search);
-		searchClasses.generateSearchedClassItems();
+		searchClasses.generateSearchedClassItems(forceUriSearch);
 		System.out.println("FINISHED Searching for classes matching '" + search
 				+ "' in dataset '" + dataset + "'");
 		return searchClasses;
