@@ -76,7 +76,7 @@ public class ClassSearch {
 	public String getSPARQLQuery(String lang) {
 		String query = SPARQLHandler.getPrefixes();
 		query += " SELECT distinct ?class ?label ";
-		query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
+		query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
 		query += " FILTER(bound(?label) && langMatches(lang(?label), \""
 				+ lang.toUpperCase() + "\") && REGEX(?label, \""
 				+ this.search_string + "\"))}";
@@ -93,11 +93,11 @@ public class ClassSearch {
 		String query = SPARQLHandler.getPrefixes();
 		query += " SELECT distinct ?class ?label ";
 		if (forceUriSearch) {
-			query += " WHERE { ?class rdf:type owl:Class. OPTIONAL {?class rdfs:label ?label}. ?object rdf:type ?class. ";
+			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. OPTIONAL {?class rdfs:label ?label}.  ";
 			query += " FILTER(!bound(?label) && REGEX(?class, \""
 					+ this.search_string + "\",\"i\") )} ORDER BY ?class";
 		} else {
-			query += " WHERE { ?class rdf:type owl:Class. ?class rdfs:label ?label. ?object rdf:type ?class. ";
+			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
 			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
 					+ this.search_string + "\",\"i\"))} ORDER BY ?class";
 		}
