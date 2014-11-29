@@ -71,8 +71,6 @@ public class JSONObjectsOutput {
 
 	public void addObject(RDFObject object) {
 		Map<String, Object> objectMap = new HashMap<String, Object>();
-		objectMap.put("uri", object.uri);
-		objectMap.put("label", object.name);
 		Map<String, Object> objectPropertyMap = new HashMap<String, Object>();
 		for (RDFObjectProperty objectProp : object.properties) {
 			List<Object> objectPropertyValues = new ArrayList<Object>();
@@ -84,6 +82,9 @@ public class JSONObjectsOutput {
 					objectPropertyValues);
 		}
 		objectMap.put("properties", objectPropertyMap);
+		objectMap.put("label", object.name);
+		objectMap.put("class",object.hasClass.uri);
+		objectMap.put("uri", object.uri);
 		this.objects.add(objectMap);
 	}
 	
