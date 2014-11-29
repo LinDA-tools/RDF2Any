@@ -128,7 +128,7 @@ public class ConverterRoute {
 		try {
 			MultivaluedMap<String, String> queryParams = uriInfo
 					.getQueryParameters();
-			String query = queryParams.getFirst("query");
+			String query = java.net.URLDecoder.decode(queryParams.getFirst("query"),"UTF-8");
 			String dataset = queryParams.getFirst("dataset");
 			String forClass = queryParams.getFirst("for_class");
 			String properties = queryParams.getFirst("properties");
@@ -151,11 +151,11 @@ public class ConverterRoute {
 						+ forClass + ") in dataset " + dataset + " \n" + query);
 				RDFClass rdfForClass = RDFClass.searchRDFClass(dataset,
 						forClass);
-				rdfForClass.filterProperties(properties);
+				if(properties != null && !properties.equals(""))
+					rdfForClass.filterProperties(properties);
 				converter = new JSONConverter(SPARQLHandler.executeQuery(
 						dataset, query), rdfForClass);
 			}
-
 			Double endMilliseconds = (double) System.currentTimeMillis();
 			converter
 					.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);

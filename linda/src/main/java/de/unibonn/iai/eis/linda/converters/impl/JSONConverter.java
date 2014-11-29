@@ -62,12 +62,12 @@ public class JSONConverter extends MainConverter {
 
 	public JSONConverter(ResultSet rdfResultSet, RDFClass forClass) {
 		this.rdfResults = rdfResultSet;
-		super.generateResultVars(rdfResultSet);
-		this.jsonOutput = new JSONOutput(rdfResultSet);
+		//super.generateResultVars(rdfResultSet);
+		this.jsonOutput = null;
 		this.forClass = forClass;
-		this.jsonObjectsOutput = new JSONObjectsOutput(forClass.uri,
-				forClass.label);
+		this.jsonObjectsOutput = new JSONObjectsOutput(forClass);
 		this.jsonSesameOutput = null;
+		this.outputFormat = "";
 		convert();
 	}
 
@@ -140,7 +140,7 @@ public class JSONConverter extends MainConverter {
 					rdfObject = new RDFObject(forClass, object.toString());
 				}
 				rdfObject.generateProperties();
-				jsonObjectsOutput.addObject(rdfObject);
+				
 			}
 		} catch (Exception e) {
 			System.out.println("Error occured :  " + e.toString());
@@ -165,8 +165,6 @@ public class JSONConverter extends MainConverter {
 		if (forClass == null) {
 			if (isVistuosoConvert())
 				this.jsonOutput.setTimeTaken(timeTaken);
-		} else {
-			this.jsonObjectsOutput.time_taken = timeTaken;
 		}
 	}
 }

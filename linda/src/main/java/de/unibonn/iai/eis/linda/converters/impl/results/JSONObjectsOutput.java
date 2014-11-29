@@ -1,8 +1,11 @@
 package de.unibonn.iai.eis.linda.converters.impl.results;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
 
 /**
@@ -14,17 +17,23 @@ import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
  **/
 
 public class JSONObjectsOutput {
-	public String class_uri;
-	public String class_name;
-	public List<RDFObject> objects;
-	public double time_taken;
+	public String dataset;
+	public List<Object> classes;
+	public List<Object> properties;
+	public List<Object> objects;
 	
-	public JSONObjectsOutput(String class_uri, String class_name){
-		this.class_uri = class_uri;
-		this.class_name = class_name;
-		this.objects = new ArrayList<RDFObject>();
+	public JSONObjectsOutput(RDFClass forClass) {
+		// TODO Auto-generated constructor stub
+		this.dataset = forClass.dataset;
+		this.classes = new ArrayList<Object>();
+		this.properties = new ArrayList<Object>();
+		this.objects = new ArrayList<Object>();
+		Map<String,Object> classDef = new HashMap<String,Object>();
+		classDef.put("uri", forClass.uri);
+		classDef.put("label",forClass.label);
+		this.classes.add(classDef);
+		
 	}
-	public void addObject(RDFObject object){
-		this.objects.add(object);
-	}
+
+
 }
