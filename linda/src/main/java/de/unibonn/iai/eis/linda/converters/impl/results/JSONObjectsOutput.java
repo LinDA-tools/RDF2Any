@@ -66,6 +66,13 @@ public class JSONObjectsOutput {
 			this.properties.put(propVar,propertyMap);
 		}
 	}
+	
+	public void addObject(RDFObject object){
+		Map<String,Object> objectMap = new HashMap<String, Object>();
+		objectMap.put("uri", object.uri);
+		objectMap.put("label", object.name);
+		this.objects.add(objectMap);
+	}
 
 
 }

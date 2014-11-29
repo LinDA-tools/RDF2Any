@@ -140,7 +140,7 @@ public class JSONConverter extends MainConverter {
 					rdfObject = new RDFObject(forClass, object.toString());
 				}
 				rdfObject.generateProperties();
-				
+				this.jsonObjectsOutput.addObject(rdfObject);
 			}
 		} catch (Exception e) {
 			System.out.println("Error occured :  " + e.toString());
