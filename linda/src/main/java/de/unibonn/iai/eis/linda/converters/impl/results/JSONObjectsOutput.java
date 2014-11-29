@@ -76,23 +76,8 @@ public class JSONObjectsOutput {
 		Map<String, Object> objectPropertyMap = new HashMap<String, Object>();
 		for (RDFObjectProperty objectProp : object.properties) {
 			List<Object> objectPropertyValues = new ArrayList<Object>();
-
 			for (RDFObjectPropertyValue objectPropertyValue : objectProp.objects) {
-
-				Map<String, Object> objectPropertyValueMap = new HashMap<String, Object>();
-				objectPropertyValueMap.put("value", objectPropertyValue.value);
-
-				if (objectProp.predicate.type.equalsIgnoreCase("data")) {
-					objectPropertyValueMap.put("type", "literal");
-					if (objectPropertyValue.additionalValue != null
-							&& !objectPropertyValue.additionalValue
-									.equalsIgnoreCase(""))
-						objectPropertyValueMap.put("xml_lang",
-								objectPropertyValue.additionalValue);
-				} else if (objectProp.predicate.type.equalsIgnoreCase("object")) {
-					objectPropertyValueMap.put("type", "uri");
-				}
-				objectPropertyValues.add(objectPropertyValueMap);
+				objectPropertyValues.add(getNewObjectValueMap(objectProp,objectPropertyValue));
 			}
 			objectPropertyMap.put(
 					objectProp.predicate.getPropertyUnderscoreVariableName(),
@@ -100,6 +85,24 @@ public class JSONObjectsOutput {
 		}
 		objectMap.put("properties", objectPropertyMap);
 		this.objects.add(objectMap);
+	}
+	
+	private Map getNewObjectValueMap(RDFObjectProperty objectProp, RDFObjectPropertyValue objectPropertyValue){
+		Map<String, String>objectPropertyValueMap = new HashMap<String, String>();
+		objectPropertyValueMap.put("value", objectPropertyValue.value);
+
+		if (objectProp.predicate.type.equalsIgnoreCase("data")) {
+			objectPropertyValueMap.put("type", "literal");
+			if (objectPropertyValue.additionalValue != null
+					&& !objectPropertyValue.additionalValue
+							.equalsIgnoreCase(""))
+				objectPropertyValueMap.put("xml_lang",
+						objectPropertyValue.additionalValue);
+		} else if (objectProp.predicate.type.equalsIgnoreCase("object")) {
+			objectPropertyValueMap.put("type", "uri");
+		}
+		
+		return objectPropertyValueMap;
 	}
 
 }

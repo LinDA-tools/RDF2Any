@@ -72,6 +72,7 @@ public class RDFObject {
 			oProperty.objects
 					.add(new RDFObjectPropertyValue(oProperty, object));
 			i++;
+			prevUri = strPredicate;
 		}
 		if (oProperty != null)
 			this.properties.add(oProperty);
