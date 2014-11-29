@@ -150,8 +150,11 @@ public class SPARQLHandler {
 	}
 
 	public static String getBaseUrl(RDFNode node) {
+		return SPARQLHandler.getBaseUrl(node.toString());
+	}
+
+	public static String getBaseUrl(String nodeUrl) {
 		String baseUrl = "";
-		String nodeUrl = node.toString();
 		Integer baseEnd = 0;
 		for (Integer i = nodeUrl.length() - 1; i >= 0; i--) {
 			if (nodeUrl.charAt(i) == '/' || nodeUrl.charAt(i) == '#') {
@@ -163,5 +166,6 @@ public class SPARQLHandler {
 			baseUrl = nodeUrl.substring(0, baseEnd);
 		return baseUrl;
 	}
+	
 
 }

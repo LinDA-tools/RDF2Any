@@ -115,7 +115,11 @@ public class RDFClassProperty {
 			}
 		}
 	}
-
+	@JsonIgnore
+	public String getPropertyUnderscoreVariableName(){
+		return CommonHelper.getUnderscoreStringFromCamelCase(this.uri.replace(SPARQLHandler.getBaseUrl(this.uri),""));
+	}
+	
 	@JsonIgnore
 	private String getRangeSPARQLQuery() {
 		String query = SPARQLHandler.getPrefixes();

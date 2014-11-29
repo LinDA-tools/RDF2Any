@@ -13,25 +13,36 @@ import org.apache.commons.lang3.text.WordUtils;
 
 public class CommonHelper {
 
-	public static String decode(String encodedString) throws UnsupportedEncodingException {
+	public static String decode(String encodedString)
+			throws UnsupportedEncodingException {
 		byte[] decoded = Base64.decodeBase64(encodedString);
 		return new String(decoded, "UTF-8");
 	}
-	
-	//This method returns a camel cased  variable name from the title
-	public static String getVariableName(String title, String defaultName, Boolean firstCharSmall){
+
+	// This method returns a camel cased variable name from the title
+	public static String getVariableName(String title, String defaultName,
+			Boolean firstCharSmall) {
 		String result = defaultName;
-		if(title != null && !title.equals(""))
-		{
+		if (title != null && !title.equals("")) {
 			result = WordUtils.capitalizeFully(title);
 			result = result.replaceAll(" ", "");
-			if(firstCharSmall)
-				result = Character.toLowerCase(result.charAt(0))+result.substring(1,result.length());
+			if (firstCharSmall)
+				result = Character.toLowerCase(result.charAt(0))
+						+ result.substring(1, result.length());
 		}
 		return result.toLowerCase();
 	}
-	
-	public static String getVariableName(String title, String defaultName){
-		return CommonHelper.getVariableName(title, defaultName,true);
+
+	public static String getVariableName(String title, String defaultName) {
+		return CommonHelper.getVariableName(title, defaultName, true);
+	}
+
+	public static String getUnderscoreStringFromCamelCase(String str) {
+		if (str != null) {
+			String regex = "([a-z])([A-Z])";
+			String replacement = "$1_$2";
+			return str.replaceAll(regex, replacement).toLowerCase();
+		} else
+			return null;
 	}
 }
