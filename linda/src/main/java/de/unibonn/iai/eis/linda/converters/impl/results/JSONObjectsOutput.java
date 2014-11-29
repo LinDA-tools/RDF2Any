@@ -2,6 +2,7 @@ package de.unibonn.iai.eis.linda.converters.impl.results;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,17 @@ public class JSONObjectsOutput {
 		Map<String,Object> classDef = new HashMap<String,Object>();
 		classDef.put("uri", forClass.uri);
 		classDef.put("label",forClass.label);
+		List<String> classProperties = new ArrayList<String>();
+		@SuppressWarnings("rawtypes")
+		Iterator it = this.propertyDictionary.entrySet().iterator();
+	    while (it.hasNext()) {
+	        @SuppressWarnings("rawtypes")
+			Map.Entry pairs = (Map.Entry)it.next();
+	        classProperties.add((String) pairs.getValue());
+	        it.remove(); // avoids a ConcurrentModificationException
+	        
+	    }
+	    classDef.put("properties", classProperties);
 		this.classes.add(classDef);
 		
 		

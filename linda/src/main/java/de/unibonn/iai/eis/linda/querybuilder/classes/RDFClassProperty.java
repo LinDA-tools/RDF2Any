@@ -1,6 +1,7 @@
 package de.unibonn.iai.eis.linda.querybuilder.classes;
 
 import com.owlike.genson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
