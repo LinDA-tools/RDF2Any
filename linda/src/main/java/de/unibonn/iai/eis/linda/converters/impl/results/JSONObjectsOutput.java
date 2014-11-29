@@ -20,7 +20,7 @@ import de.unibonn.iai.eis.linda.querybuilder.objects.RDFObject;
 public class JSONObjectsOutput {
 	public String dataset;
 	public List<Object> classes;
-	public List<Object> properties;
+	public Map<String,Object> properties;
 	public List<Object> objects;
 	private Map<String, String> propertyDictionary;
 	private RDFClass forClass;
@@ -29,20 +29,24 @@ public class JSONObjectsOutput {
 		// TODO Auto-generated constructor stub
 		this.dataset = forClass.dataset;
 		this.classes = new ArrayList<Object>();
-		this.properties = new ArrayList<Object>();
+		this.properties = new HashMap<String,Object>();
 		this.objects = new ArrayList<Object>();
+		this.forClass = forClass;
+		generatePropertiesForOutput();
 		Map<String,Object> classDef = new HashMap<String,Object>();
 		classDef.put("uri", forClass.uri);
 		classDef.put("label",forClass.label);
 		this.classes.add(classDef);
-		this.forClass = forClass;
-		generatePropertyDictionary();
+		
+		
 	}
 	
-	private void generatePropertyDictionary(){
+	private void generatePropertiesForOutput(){
 		this.propertyDictionary = new HashMap<String, String>();
 		for(RDFClassProperty prop: this.forClass.properties){
-			this.propertyDictionary.put(prop.uri, prop.getPropertyUnderscoreVariableName());
+			String propVar = prop.getPropertyUnderscoreVariableName();
+			this.propertyDictionary.put(prop.uri, propVar);
+			this.properties.put(propVar,prop);
 		}
 	}
 

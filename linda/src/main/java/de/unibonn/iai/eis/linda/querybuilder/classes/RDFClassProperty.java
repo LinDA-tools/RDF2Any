@@ -117,7 +117,8 @@ public class RDFClassProperty {
 	}
 	@JsonIgnore
 	public String getPropertyUnderscoreVariableName(){
-		return CommonHelper.getUnderscoreStringFromCamelCase(this.uri.replace(SPARQLHandler.getBaseUrl(this.uri),""));
+		String restOfTheUri = this.uri.replace(SPARQLHandler.getBaseUrl(this.uri),"");
+		return CommonHelper.getUnderscoreStringFromCamelCase(restOfTheUri.substring(1,restOfTheUri.length()));
 	}
 	
 	@JsonIgnore
