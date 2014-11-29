@@ -58,7 +58,12 @@ public class JSONObjectsOutput {
 		for(RDFClassProperty prop: this.forClass.properties){
 			String propVar = prop.getPropertyUnderscoreVariableName();
 			this.propertyDictionary.put(prop.uri, propVar);
-			this.properties.put(propVar,prop);
+			Map<String,Object> propertyMap = new HashMap<String,Object>();
+			propertyMap.put("uri",prop.uri);
+			propertyMap.put("label",prop.label);
+			propertyMap.put("type",prop.type);
+			propertyMap.put("range",prop.range);
+			this.properties.put(propVar,propertyMap);
 		}
 	}
 
