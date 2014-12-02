@@ -39,6 +39,10 @@ public class SPARQLHandler {
 		}
 	}
 
+	public static String getLiteralValue(RDFNode literal){
+		String result = literal.toString();
+		return result;
+	}
 	public static String getPrefixes() {
 		String prefixes = "";
 		prefixes += "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> ";

@@ -62,7 +62,7 @@ public class JSONConverter extends MainConverter {
 
 	public JSONConverter(ResultSet rdfResultSet, RDFClass forClass) {
 		this.rdfResults = rdfResultSet;
-		//super.generateResultVars(rdfResultSet);
+		// super.generateResultVars(rdfResultSet);
 		this.jsonOutput = null;
 		this.forClass = forClass;
 		this.jsonObjectsOutput = new JSONObjectsOutput(forClass);
@@ -88,6 +88,9 @@ public class JSONConverter extends MainConverter {
 								"value",
 								literal.toString().substring(0,
 										languageIdentifierPoint));
+					} else {
+						columnEntry.put("value",
+								SPARQLHandler.getLiteralValue(literal));
 					}
 
 				} else {
