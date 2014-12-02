@@ -77,7 +77,7 @@ public class JSONConverter extends MainConverter {
 			Map<String, String> columnEntry = new HashMap<String, String>();
 			if (row.get(resultVars.get(i)) instanceof Literal) {
 				RDFNode literal = row.get(resultVars.get(i));
-				
+
 				if (literal.toString().length() > 3) {
 					Integer languageIdentifierPoint = literal.toString()
 							.length() - 3;
@@ -89,15 +89,21 @@ public class JSONConverter extends MainConverter {
 								"value",
 								literal.toString().substring(0,
 										languageIdentifierPoint));
-					} else {
-						columnEntry.put("type", "typed-literal");
-						columnEntry.put("value",
-								SPARQLHandler.getLiteralValue(literal));
-						columnEntry.put("datatype", SPARQLHandler.getLiteralDataType(literal));
 					}
 
 				} else {
-					columnEntry.put("value", literal.toString());
+					if (((Literal) literal).getDatatypeURI() == null) {
+						// plain literal
+						columnEntry.put("type", "literal");
+						columnEntry.put("value", literal.toString());
+					} else {
+						// typed literal
+						columnEntry.put("type", "typed-literal");
+						columnEntry.put("value",
+								SPARQLHandler.getLiteralValue(literal));
+						columnEntry.put("datatype",
+								SPARQLHandler.getLiteralDataType(literal));
+					}
 
 				}
 			} else if (row.get(resultVars.get(i)) instanceof RDFNode) {
