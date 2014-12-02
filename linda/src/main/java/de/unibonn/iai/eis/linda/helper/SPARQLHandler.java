@@ -41,6 +41,8 @@ public class SPARQLHandler {
 
 	public static String getLiteralValue(RDFNode literal){
 		String result = literal.toString();
+		if(result.contains("^^"))
+			result = result.split("\\^\\^")[0];
 		return result;
 	}
 	public static String getPrefixes() {
