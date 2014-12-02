@@ -172,6 +172,15 @@ public class SPARQLHandler {
 			baseUrl = nodeUrl.substring(0, baseEnd);
 		return baseUrl;
 	}
+
+	public static String getLiteralDataType(RDFNode literal) {
+		String result = literal.toString();
+		if(result.contains("^^"))
+			result = result.split("\\^\\^")[1];
+		else
+			result = "";
+		return result;
+	}
 	
 
 }

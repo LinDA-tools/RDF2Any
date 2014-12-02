@@ -77,11 +77,12 @@ public class JSONConverter extends MainConverter {
 			Map<String, String> columnEntry = new HashMap<String, String>();
 			if (row.get(resultVars.get(i)) instanceof Literal) {
 				RDFNode literal = row.get(resultVars.get(i));
-				columnEntry.put("type", "literal");
+				
 				if (literal.toString().length() > 3) {
 					Integer languageIdentifierPoint = literal.toString()
 							.length() - 3;
 					if (literal.toString().charAt(languageIdentifierPoint) == '@') {
+						columnEntry.put("type", "literal");
 						columnEntry.put("xml:lang", literal.toString()
 								.substring(languageIdentifierPoint + 1));
 						columnEntry.put(
@@ -89,8 +90,10 @@ public class JSONConverter extends MainConverter {
 								literal.toString().substring(0,
 										languageIdentifierPoint));
 					} else {
+						columnEntry.put("type", "typed-literal");
 						columnEntry.put("value",
 								SPARQLHandler.getLiteralValue(literal));
+						columnEntry.put("datatype", SPARQLHandler.getLiteralDataType(literal));
 					}
 
 				} else {
