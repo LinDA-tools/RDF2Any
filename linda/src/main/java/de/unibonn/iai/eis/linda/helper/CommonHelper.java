@@ -30,7 +30,7 @@ public class CommonHelper {
 				result = Character.toLowerCase(result.charAt(0))
 						+ result.substring(1, result.length());
 		}
-		return result.toLowerCase();
+		return result.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "");
 	}
 
 	public static String getVariableName(String title, String defaultName) {
