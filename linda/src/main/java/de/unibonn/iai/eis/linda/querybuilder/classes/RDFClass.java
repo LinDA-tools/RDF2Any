@@ -33,7 +33,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 
-
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -532,20 +531,20 @@ public class RDFClass {
 
 		if (allProperties)
 			result1 += "\n\n\n-- START Table creation section for main class table";
-		result1 += "\n\n\nDROP TABLE IF EXISTS "
-				+ getTableName()
-				+ " CASCADE;\nCREATE TABLE "
-				+ getTableName()
+		result1 += "\n\n\nDROP TABLE IF EXISTS " + getTableName()
+				+ " CASCADE;\nCREATE TABLE " + getTableName()
 				+ "\n(\nid int PRIMARY KEY,\nuri varchar(300),\nname text";
 
 		if (allProperties) {
 			for (RDFClassProperty property : this.properties) {
 				if (!property.multiplePropertiesForSameNode) {
 					result1 += ",\n" + property.getTableAttributeName() + " "
-							+ property.getTableAttributeType() ;
-					if(property.type.equals("object"))
-						result1 += " REFERENCES "+ CommonHelper.getVariableName(
-								property.range.label, "thing")+"s(id)";
+							+ property.getTableAttributeType();
+					if (property.type.equals("object"))
+						result1 += " REFERENCES "
+								+ CommonHelper.getVariableName(
+										property.range.label, "thing")
+								+ "s(id)";
 					if (property.range.isLanguageLiteral())
 						result1 += ",\n" + property.getTableAttributeName()
 								+ "Lang varchar(6)";
@@ -564,14 +563,19 @@ public class RDFClass {
 			for (RDFClassProperty property : this.properties) {
 				if (property.multiplePropertiesForSameNode) {
 					result2 += "\n\nDROP TABLE IF EXISTS "
-							+ property.getTableName(this) + " CASCADE;\nCREATE TABLE "
-							+ property.getTableName(this) + "\n(id int PRIMARY KEY,";
-					result2 += "\n" + classVariableName + "_id int,";
+							+ property.getTableName(this)
+							+ " CASCADE;\nCREATE TABLE "
+							+ property.getTableName(this)
+							+ "\n(id int PRIMARY KEY,";
+					result2 += "\n" + classVariableName + "_id int REFERENCES "
+							+ getTableName() + "(id)" + ",";
 					result2 += "\n" + property.getTableAttributeName() + " "
-							+ property.getTableAttributeType() ;
-					if(property.type.equals("object"))
-						result2 += " REFERENCES "+ CommonHelper.getVariableName(
-								property.range.label, "thing")+"s(id)";
+							+ property.getTableAttributeType();
+					if (property.type.equals("object"))
+						result2 += " REFERENCES "
+								+ CommonHelper.getVariableName(
+										property.range.label, "thing")
+								+ "s(id)";
 					if (property.range.isLanguageLiteral())
 						result2 += ",\n" + property.getTableAttributeName()
 								+ "Lang varchar(6)";
@@ -639,21 +643,23 @@ public class RDFClass {
 	/*
 	 * END RDB related methods
 	 */
-	
-	//this method removes the properties which are not present in the comma separated properties string
-	//if "all" is passed,then does not filter
+
+	// this method removes the properties which are not present in the comma
+	// separated properties string
+	// if "all" is passed,then does not filter
 	public void filterProperties(String properties) {
-		if(properties != null && !properties.equalsIgnoreCase("all")){
+		if (properties != null && !properties.equalsIgnoreCase("all")) {
 			String[] propertiesArr = properties.split(",");
 			Iterator<RDFClassProperty> prop = this.properties.iterator();
-			while(prop.hasNext()){
-				if(!Arrays.asList(propertiesArr).contains(prop.next().uri)){
+			while (prop.hasNext()) {
+				if (!Arrays.asList(propertiesArr).contains(prop.next().uri)) {
 					prop.remove();
 				}
 			}
 		}
-		
+
 	}
+
 	@JsonIgnore
 	public String toString() {
 		String result = "uri : " + this.uri + ", dataset : " + this.dataset;
@@ -664,31 +670,33 @@ public class RDFClass {
 		return result;
 
 	}
-	//This method returns the subclasses hash map
+
+	// This method returns the subclasses hash map
 	@JsonIgnore
 	public Object getSubclassesHashMap() {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("dataset", this.dataset);
 		result.put("uri", this.uri);
-		result.put("label",this.label);
-		
+		result.put("label", this.label);
+
 		String query = SPARQLHandler.getPrefixes();
-		query += " SELECT DISTINCT ?subclass_uri ?subclass_label WHERE {?subclass_uri rdfs:subClassOf <"+this.uri+">. ?subclass_uri rdfs:label ?subclass_label.  FILTER(langMatches(lang(?subclass_label), 'EN')) } ";
-		ResultSet rdfResultSet = SPARQLHandler.executeQuery(this.dataset, query);
+		query += " SELECT DISTINCT ?subclass_uri ?subclass_label WHERE {?subclass_uri rdfs:subClassOf <"
+				+ this.uri
+				+ ">. ?subclass_uri rdfs:label ?subclass_label.  FILTER(langMatches(lang(?subclass_label), 'EN')) } ";
+		ResultSet rdfResultSet = SPARQLHandler
+				.executeQuery(this.dataset, query);
 		List<Object> subclasses = new ArrayList<Object>();
-		while(rdfResultSet.hasNext()){
+		while (rdfResultSet.hasNext()) {
 			QuerySolution row = rdfResultSet.next();
 			Map<String, String> subclassMap = new HashMap<String, String>();
-			subclassMap.put("label", SPARQLHandler.getLabelName(row.get("?subclass_label")));
+			subclassMap.put("label",
+					SPARQLHandler.getLabelName(row.get("?subclass_label")));
 			subclassMap.put("uri", row.get("subclass_uri").toString());
 			subclasses.add(subclassMap);
 		}
-		
-		
+
 		result.put("subclasses", subclasses);
 		return result;
 	}
-
-
 
 }
