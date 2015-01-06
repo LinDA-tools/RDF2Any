@@ -24,6 +24,7 @@ import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.example.SPARQLExample;
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
+import de.unibonn.iai.eis.linda.helper.InstanceExporter;
 import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.helper.output.JSONError;
@@ -133,6 +134,8 @@ public class ConverterRoute {
 			String forClass = queryParams.getFirst("for_class");
 			String properties = queryParams.getFirst("properties");
 			String jsonOutputType = queryParams.getFirst("json_output_format");
+			Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
+
 			Double startMilliseconds = (double) System.currentTimeMillis();
 			JSONConverter converter = null;
 			if (forClass == null || forClass.equals("")) {
@@ -146,6 +149,8 @@ public class ConverterRoute {
 
 				converter = new JSONConverter(SPARQLHandler.executeQuery(
 						dataset, query), outputFormat);
+				
+				if (generateOntology) InstanceExporter.exporter(query, dataset, "json");
 			} else {
 				System.out.println("START JSON conversion for query (class : "
 						+ forClass + ") in dataset " + dataset + " \n" + query);
@@ -155,6 +160,8 @@ public class ConverterRoute {
 					rdfForClass.filterProperties(properties);
 				converter = new JSONConverter(SPARQLHandler.executeQuery(
 						dataset, query), rdfForClass);
+				if (generateOntology) InstanceExporter.exporter(query, dataset, "json");
+
 			}
 			Double endMilliseconds = (double) System.currentTimeMillis();
 			converter
