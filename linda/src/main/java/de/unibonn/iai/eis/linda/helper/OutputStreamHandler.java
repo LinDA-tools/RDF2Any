@@ -23,7 +23,6 @@ public class OutputStreamHandler {
 			final Converter converter, final String dataset,
 			final String queryString) {
 		return new StreamingOutput() {
-
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
 				try {
@@ -45,7 +44,6 @@ public class OutputStreamHandler {
 			final String queryString, final String forClass,
 			final String properties) {
 		return new StreamingOutput() {
-
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
 				try {

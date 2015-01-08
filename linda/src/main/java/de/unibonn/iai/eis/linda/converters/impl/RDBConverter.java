@@ -81,6 +81,7 @@ public class RDBConverter extends MainConverter implements Converter {
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
+		Double startMilliseconds = (double) System.currentTimeMillis();
 		// TODO Auto-generated method stub
 		output.write((forClass.getTableCreationScript(true) + "\n\n")
 				.getBytes(Charset.forName("UTF-8")));
@@ -367,6 +368,8 @@ public class RDBConverter extends MainConverter implements Converter {
 			}
 
 		}
+		Double endMilliseconds = (double) System.currentTimeMillis();
+		System.out.println("Time taken : "+((endMilliseconds - startMilliseconds) / 1000)+" seconds");
 		System.out.println("Finished RDB Conversion ...... ");
 
 	}

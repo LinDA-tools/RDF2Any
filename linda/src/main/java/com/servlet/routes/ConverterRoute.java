@@ -159,6 +159,7 @@ public class ConverterRoute {
 			Double endMilliseconds = (double) System.currentTimeMillis();
 			converter
 					.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
+			System.out.println("Time taken : "+((endMilliseconds - startMilliseconds) / 1000)+" seconds");
 			System.out.println("FINISH JSON conversion ... ");
 			if (forClass == null || forClass.equals("")) {
 				if (converter.outputFormat.equals("sesame"))

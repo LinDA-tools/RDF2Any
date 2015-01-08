@@ -57,6 +57,7 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
+		Double startMilliseconds = (double) System.currentTimeMillis();
 		// printing the header to the file
 		if (this.header != null && !this.header.trim().equalsIgnoreCase(""))
 			output.write((this.header + "\n").getBytes(Charset.forName("UTF-8")));
@@ -92,6 +93,8 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 		// printing the footer to the file
 		if (this.footer != null && !this.footer.trim().equalsIgnoreCase(""))
 			output.write((this.footer).getBytes(Charset.forName("UTF-8")));
+		Double endMilliseconds = (double) System.currentTimeMillis();
+		System.out.println("Time taken : "+((endMilliseconds - startMilliseconds) / 1000)+" seconds");
 		System.out.println("Finished configured convert.");
 
 	}

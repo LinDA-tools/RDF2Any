@@ -77,6 +77,7 @@ public class CSVConverter extends MainConverter implements Converter {
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
+		Double startMilliseconds = (double) System.currentTimeMillis();
 		output.write(generateFileHeader(forClass).getBytes(
 				Charset.forName("UTF-8")));
 		Long rowCounter = (long) 1;
@@ -109,6 +110,8 @@ public class CSVConverter extends MainConverter implements Converter {
 			}
 
 		}
+		Double endMilliseconds = (double) System.currentTimeMillis();
+		System.out.println("Time taken : "+((endMilliseconds - startMilliseconds) / 1000)+" seconds");
 
 	}
 
