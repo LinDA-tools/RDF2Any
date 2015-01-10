@@ -1,0 +1,87 @@
+<html>
+ <head>
+    <title>Transformations</title>
+			 
+		<link rel="exhibit-data" type="application/json" href="fetchData.php" />
+
+		
+<script src="http://api.simile-widgets.org/exhibit/3.0.0rc1/exhibit-api.js" type="text/javascript"></script>
+
+
+
+			
+    <style>
+		.project{
+			border: 1px solid black;
+			margin-bottom: 10px;
+			padding:5px;
+			display:block;
+		}
+		.label{
+			font-style:italic;
+			clear:both;
+		}
+		.description{
+		}
+		.level{
+			color:red;
+		}
+		.requirements{
+			color:red;
+		}
+		.exhibit-collectionSummaryWidget-results{
+			display:none;
+		}
+		.exhibit-collectionView-header{
+			display:none;
+		}
+    </style>
+ </head> 
+ <body>
+	 
+
+
+ <div style="width: 100%"><table style="font-size: 100%" cellspacing="10" width="100%">
+            <tr valign="top">
+                <td>
+                    <div id="exhibit-control-panel"></div>
+                    <div id="exhibit-view-panel">
+						<h1>Transformations</h1>
+                        <div ex:role="exhibit-lens" class="project">
+                            		<b>Query: </b><span ex:content=".queryString" class="label"></span><br/>
+                               	<b>Initial Dataset: </b><span ex:content=".initialDataset" class="description"></span> (<span ex:content=".formatinitial" class="description"></span>)<br/>
+                                <b>Result Set: </b><span ex:content=".resultset" class="description"></span> (<span ex:content=".formatresult" class="description"></span>)<br/>
+                                <b>Execution Time: </b><span ex:content=".execTime" class="description"></span><br/>
+																<b>Agent: </b> <span ex:content=".agent"></span><br/>
+														 <a ex:href-content=".uri" >link to query builder</a>
+								
+                        </div>
+                       <div ex:role="exhibit-view"
+                            ex:viewClass="Exhibit.TileView"
+                            ex:orders=".initialDataset"
+                            ex:directions="ascending"
+                            ex:possibleOrders=".agent, .resultset"
+                            ex:showAll="true"
+                            ex:grouped="false">
+                        </div>
+                    </div>
+                </td>
+                <td width="25%">
+										<div ex:role="facet" ex:expression=".agent" ex:sortMode="count" ex:facetLabel="Agent"></div>
+										<div ex:role="facet" ex:expression=".initialDataset" ex:sortMode="count" ex:facetLabel="Dataset"></div>
+										<div ex:role="facet" ex:expression=".execTime" ex:sortMode="count" ex:facetLabel="Time of Execution"></div>
+										<div ex:role="facet" ex:expression=".formatinitial" ex:sortMode="count" ex:facetLabel="Initial Dataset Format"></div>
+										<div ex:role="facet" ex:expression=".formatresult" ex:sortMode="count" ex:facetLabel="Result Set Format"></div>
+										
+										
+
+                </td>
+            </tr>
+        </table></div>
+   
+	  </body>
+ </html>
+
+ 
+ 
+   
