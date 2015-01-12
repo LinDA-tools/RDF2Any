@@ -77,9 +77,12 @@ public class InstanceExporter {
 		}
 	}
 	
+	private static Map<String, Resource> blankNodes = null;
+	
 	//method for exporting data into triples
 	public static void exporter(String queryString, String originalDataset, String converterType){
 		m  = ModelFactory.createDefaultModel();
+		blankNodes =  new HashMap<String, Resource>();
 		spin_sparql_node = null;
 		try {
 			RepositoryConnection con = repo.getConnection();
@@ -106,7 +109,7 @@ public class InstanceExporter {
 			
 			//CREATING TRIPLES
 			
-			//transformation
+			//transformation 
 			con.add(transformationURI, RDF.TYPE, TRANSFORMATION);
 			con.add(transformationURI, EXECUTED_ON, originalDatasetURI);
 			con.add(transformationURI, RESULTS_IN, resultsetURI);
@@ -132,7 +135,7 @@ public class InstanceExporter {
 			//query string, spin
 			
 			// Initialize system functions and templates
-			SPINModuleRegistry.get().init();
+//			SPINModuleRegistry.get().init();
 			
 				ARQ2SPIN arq2SPIN = new ARQ2SPIN(m);
 				ARQFactory arqFactory = ARQFactory.get(); 
@@ -142,22 +145,19 @@ public class InstanceExporter {
 				//using spin api to generate a jena model for textual sparql query
 				org.topbraid.spin.model.Select spinQuery = (Select) arq2SPIN.createQuery( arqSelQuery, null);
 				
-				for(Element e : spinQuery.getWhereElements()){
-					if (e instanceof Filter){
-						System.out.println(((Filter) e).getExpression().toString());
-					}
-				}
-				
 				//iterating through statements in model and converting to sesame from jena
 				StmtIterator stmtIter = spinQuery.getModel().listStatements();
 				while(stmtIter.hasNext()){
 					Statement stmt = stmtIter.next();
 					org.openrdf.model.Statement sesameStmt = jena2Sesame(stmt);
+					System.out.println(sesameStmt);
 					con.add(sesameStmt);
 				}
 				//adding textual string
 				con.add(transformationURI, HAS_QUERY, spin_sparql_node);
 				con.add(spin_sparql_node, HAS_QUERY_STRING, factory.createLiteral(queryString));
+				
+				con.close();
 				
 		} catch (Exception e){
 			e.printStackTrace();
@@ -175,7 +175,7 @@ public class InstanceExporter {
 	}
 	
 	
-	private static Map<String, Resource> blankNodes = new HashMap<String, Resource>();
+	
 	
 	
 	private static org.openrdf.model.Statement jena2Sesame(Statement jenaStmt){
