@@ -108,7 +108,9 @@ function uriParameter($datasetURI, $queryURI) {
    	 ?filters a ?type .
  	   ?filters sp:arg1 ?lhsarg .
  	   ?lhsarg sp:varName ?varName .
- 	   ?filters sp:arg2 ?value 
+ 	   ?filters sp:arg2 ?value .
+	FILTER ( ?type != <http://www.w3.org/2000/01/rdf-schema#Resource> ) .
+
 	}";
 	
 	$filters_sparql = str_replace("%%queryURI%%", $queryURI, $filters_sparql);
