@@ -43,7 +43,7 @@ function uriParameter($datasetURI, $queryURI) {
 	$_CURI = "";
 
 	$class_sparql = "SELECT DISTINCT ?type WHERE {
-		 <%%queryURI%%> sp:where/rdf:rest*/rdf:first ?clauses .
+		 <%%queryURI%%> sp:where/rdf:rest*/rdf:first ?clause .
 		 ?clause sp:predicate rdf:type .
 		 ?clause sp:object ?type .
 	}";
@@ -85,11 +85,11 @@ function uriParameter($datasetURI, $queryURI) {
 	while( $row = sparql_fetch_array( $result ) )
 	{	
 		$optionals .= $row['optional_predicate'] . ";";	
-		$_op .= $labelsArray[$row['optional_predicate']]."+";
+		$_op .= $labelsArray[$row['optional_predicate']].", ";
 	}
 	
 	$optionals = trim($optionals, ";");
-  $_op =  trim($_op, "+");
+  $_op =  trim($_op, ", ");
 	if ($_op != "") $tempShowing = str_replace("[%optionals%]", $_op, $tempShowing) ;
 	
 	$filters_sparql = "SELECT DISTINCT * where {
@@ -197,7 +197,7 @@ function uriParameter($datasetURI, $queryURI) {
 	} else {
 		$tempTitle = str_replace("[%showing%]", $tempShowing, $tempTitle); 
 	}
-	
+
 	return $uri;
 }
 
@@ -239,6 +239,7 @@ function getAppliedOn($queryURI, $varfilter){
 
 function getLabels($dataset,$class){
 	$jsonurl = "http://localhost:8081/rdf2any/v1.0/builder/properties?dataset=".urlencode($dataset)."&class=".urlencode($class);
+
 
 	$json = file_get_contents($jsonurl);
 	$results = json_decode($json, true);

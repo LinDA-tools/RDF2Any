@@ -55,6 +55,15 @@ public class OutputStreamHandler {
 			final Converter converter, final String dataset,
 			final String queryString, final String forClass,
 			final String properties) {
+		
+		String converterType = "";
+		if (converter instanceof CSVConverter) converterType = "CSV";
+		else if (converter instanceof RDBConverter) converterType = "RDB";
+		else if (converter instanceof JSONConverter) converterType = "JSON";
+		else converterType = "userdefined";
+		
+		InstanceExporter.exporter(queryString, dataset, converterType);
+
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,

@@ -51,7 +51,7 @@
                       					<b>Title: </b><span ex:content=".title" class="label"></span><br/><br/>
                             		<b>Query: </b><span ex:content=".queryString" class="label"></span><br/><br/>
                                	<b>Initial Dataset: </b><span ex:content=".initialDataset" class="description"></span> (<span ex:content=".formatinitial" class="description"></span>)<br/><br/>
-                                <!--<b>Result Set: </b><span ex:content=".resultset" class="description"></span> (<span ex:content=".formatresult" class="description"></span>)<br/><br/>-->
+                                <b>Result Set: </b><span ex:content=".resultset" class="description"></span> (<span ex:content=".formatresult" class="description"></span>)<br/><br/>
                                 <b>Execution Time: </b><span ex:content=".execTime" class="description"></span><br/><br/>
 																<!--<b>Agent: </b> <span ex:content=".agent"></span><br/><br/>-->
 														 <a ex:href-content=".uri" >Edit Query in Query Builder</a>
@@ -59,9 +59,9 @@
                         </div>
                        <div ex:role="exhibit-view"
                             ex:viewClass="Exhibit.TileView"
-                            ex:orders=".initialDataset"
-                            ex:directions="ascending"
-                            ex:possibleOrders=".agent, .resultset"
+                            ex:orders=".execTime"
+														ex:directions="ascending"
+                            ex:possibleOrders=".resultset, .title"
                             ex:showAll="true"
                             ex:grouped="false">
                         </div>
