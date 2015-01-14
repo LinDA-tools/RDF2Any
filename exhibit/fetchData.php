@@ -270,11 +270,36 @@ function getClassLabel($dataset,$class){
 	return $label;
 }
 
+function getClass($dataset,$queryURI){
+	$_CURI = "";
+
+	$class_sparql = "SELECT DISTINCT ?type WHERE {
+		 <%%queryURI%%> sp:where/rdf:rest*/rdf:first ?clause .
+		 ?clause sp:predicate rdf:type .
+		 ?clause sp:object ?type .
+	}";
+	$class_sparql = str_replace("%%queryURI%%", $queryURI, $class_sparql);
+
+	$result = sparql_query( $class_sparql ); 
+	if( !$result ) { print sparql_errno() . ": " . sparql_error(). "\n"; exit; }
+
+	while( $row = sparql_fetch_array( $result ) )
+	{	
+		$_CURI .= $row['type'] ;
+	}
+
+	//get classLabel
+	$classLabel = substr($_CURI,strrpos($_CURI,"/") + 1);
+	
+	return $classLabel;
+}
+
 $db = sparql_connect( "http://localhost:8080/openrdf-sesame/repositories/QueryRepository" );
 if( !$db ) { print sparql_errno() . ": " . sparql_error(). "\n"; exit; }
 sparql_ns( "rdf","http://www.w3.org/1999/02/22-rdf-syntax-ns#" );
 sparql_ns( "cqo","http://example.com/cqo#" );
 sparql_ns( "prov","http://www.w3.org/ns/prov#" );
+sparql_ns( "sp","http://spinrdf.org/sp#" );
  	
 $sparql = "SELECT DISTINCT ?transformation ?query ?queryString ?initialDataset ?formatinitial ?resultset ?formatresult ?execTime WHERE 
 { ?transformation rdf:type cqo:Transformation . 
@@ -305,6 +330,7 @@ while( $row = sparql_fetch_array( $result ) )
 	{
 		$item .= "\"" . cleanString($field) ."\" : \"" . cleanString($row[$field]) . "\",";
 	}
+	$item .= "\"classTitle\" : \"" .getClass($row['initialDataset'],$row['query']). "\",";
 	$item .= "\"uri\" : \"" .uriParameter($row['initialDataset'],$row['query']). "\",";
 	$item .= "\"title\" : \"" .$tempTitle. "\"";
 	$item .= "},";
