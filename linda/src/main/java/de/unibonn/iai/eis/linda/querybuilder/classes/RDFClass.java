@@ -261,11 +261,12 @@ public class RDFClass {
 		if (getFromSPARQL) {
 			// generating properties from SPARQL
 			System.out.println("No indexed entry found for " + classUri
-					+ ". Will create indexes now ...");
+					+ ". Will create indexes now ..." );
 			if (forceIndexCreation) {
 				resultClass.generatePropertiesFromSPARQL(true);
 				try {
 					resultClass.generateLuceneIndexes();
+					System.out.println("Index entry created for " + classUri);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -363,6 +364,10 @@ public class RDFClass {
 					LuceneHelper.LUCENE_VERSION);
 			File indexPath = new File(
 					LuceneHelper.classPropertiesValidatorDir(this.dataset));
+			if(!indexPath.exists()){
+				analyzer.close();
+				return null;
+			}
 			Directory index = new SimpleFSDirectory(indexPath);
 			Query q;
 
@@ -370,7 +375,9 @@ public class RDFClass {
 					.parse("s" + this.uri.hashCode() + "e");
 			int hitsPerPage = 150;
 			IndexReader reader;
+			
 			reader = DirectoryReader.open(index);
+			
 			IndexSearcher searcher = new IndexSearcher(reader);
 			TopScoreDocCollector collector = TopScoreDocCollector.create(
 					hitsPerPage, true);
@@ -395,6 +402,9 @@ public class RDFClass {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(Exception e){
 			e.printStackTrace();
 		}
 		return resultD;

@@ -33,12 +33,14 @@ public class ClassSearch {
 	}
 
 	public void generateSearchedClassItems(Boolean forceUriSearch) {
-		ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
-				getSPARQLQuery());
-		generateSearchedClassItemsFromResultSet(rdfResultSet);
+		
 		if (forceUriSearch) {
-			rdfResultSet = SPARQLHandler.executeQuery(dataset,
+			ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
 					getSPARQLQuery(true));
+			generateSearchedClassItemsFromResultSet(rdfResultSet);
+		}else{
+			ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
+					getSPARQLQuery());
 			generateSearchedClassItemsFromResultSet(rdfResultSet);
 		}
 
@@ -94,8 +96,8 @@ public class ClassSearch {
 		query += " SELECT distinct ?class ?label ";
 		if (forceUriSearch) {
 			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. OPTIONAL {?class rdfs:label ?label}.  ";
-			query += " FILTER(!bound(?label) && REGEX(?class, \""
-					+ this.search_string + "\",\"i\") )} ORDER BY ?class";
+			query += " FILTER( REGEX(str(?class), \""  //!bound(?label) &&
+					+ this.search_string + "\",\"i\") )} ORDER BY ?class"; 
 		} else {
 			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
 			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
