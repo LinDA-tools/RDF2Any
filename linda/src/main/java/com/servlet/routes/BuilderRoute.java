@@ -40,7 +40,7 @@ public class BuilderRoute {
 		if(strForceUriSearch != null && strForceUriSearch.equalsIgnoreCase("true"))
 			forceUriSearch = true;
 		System.out.println("START Searching for classes matching '" + search
-				+ "' in dataset '" + dataset + "'");
+				+ "' in dataset '" + dataset + "' on " + (forceUriSearch?"URIs":"labels") );
 		ClassSearch searchClasses = new ClassSearch(dataset, search);
 		searchClasses.generateSearchedClassItems(forceUriSearch);
 		System.out.println("FINISHED Searching for classes matching '" + search
