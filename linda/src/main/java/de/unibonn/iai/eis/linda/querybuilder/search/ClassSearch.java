@@ -96,8 +96,10 @@ public class ClassSearch {
 		query += " SELECT distinct ?class ?label ";
 		if (forceUriSearch) {
 			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. OPTIONAL {?class rdfs:label ?label}.  ";
-			query += " FILTER( REGEX(str(?class), \""  //!bound(?label) &&
-					+ this.search_string + "\",\"i\") )} ORDER BY ?class"; 
+			query += " FILTER((!bound(?label) && REGEX(str(?class), \""  //!bound(?label) &&
+					+ this.search_string + "\",\"i\")) " +
+							" || (bound(?label)  && REGEX(?label, \"\\\\b" + this.search_string + "\",\"i\"))" +
+							")} ORDER BY ?class"; 
 		} else {
 			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
 			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
