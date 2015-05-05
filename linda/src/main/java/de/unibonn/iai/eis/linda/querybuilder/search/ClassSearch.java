@@ -20,18 +20,33 @@ public class ClassSearch {
 	public String dataset;
 	public List<SearchedClassItem> searched_items;
 	private Integer sequence;
-
+	
 	public ClassSearch(String dataset, String searchString) {
 		this.search_string = searchString;
 		this.dataset = dataset;
 		this.searched_items = new ArrayList<SearchedClassItem>();
 		this.sequence = 0;
 	}
-
+	
+	public ClassSearch(String dataset) {
+		this.search_string = "";
+		this.dataset = dataset;
+		this.searched_items = new ArrayList<SearchedClassItem>();
+		this.sequence = 0;
+	}
+	
 	public void generateSearchedClassItems() {
 		generateSearchedClassItems(false);
 	}
-
+	
+	/**
+	 * generate all classes of a dataset 
+	 */
+	public void generateAllClassItems(){
+		ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset, getAllClassSPARQLQuery());
+		generateSearchedClassItemsFromResultSet(rdfResultSet);
+	}
+	
 	public void generateSearchedClassItems(Boolean forceUriSearch) {
 		
 		if (forceUriSearch) {
@@ -96,15 +111,29 @@ public class ClassSearch {
 		query += " SELECT distinct ?class ?label ";
 		if (forceUriSearch) {
 			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. OPTIONAL {?class rdfs:label ?label}.  ";
-			query += " FILTER((!bound(?label) && REGEX(str(?class), \""  //!bound(?label) &&
-					+ this.search_string + "\",\"i\")) " +
-							" || (bound(?label)  && REGEX(?label, \"\\\\b" + this.search_string + "\",\"i\"))" +
-							")} ORDER BY ?class"; 
+			query += " FILTER("
+					+ " (bound(?label)  && REGEX(?label, \"\\\\b" + this.search_string + "\",\"i\"))"
+					+ " || (REGEX(str(?class), \"\\\\b" + this.search_string + "\",\"i\")) "  //!bound(?label) &&
+					+ ")} ORDER BY ?class"; 
 		} else {
 			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
 			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
 					+ this.search_string + "\",\"i\"))} ORDER BY ?class";
 		}
+		System.out.println(query);
+		return query;
+	}
+	
+	@JsonIgnore
+	public String getAllClassSPARQLQuery() {
+		String query = SPARQLHandler.getPrefixes();
+		query += " SELECT distinct ?class ?label ";
+		query += " WHERE { " +
+				 "      {?class rdf:type owl:Class} " +
+				 "     UNION " +
+				 "      {?class rdf:type rdfs:Class}. " +
+				 "     OPTIONAL { ?class rdfs:label ?label }. " +
+				 " } ";	
 		return query;
 	}
 

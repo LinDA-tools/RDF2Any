@@ -31,28 +31,56 @@ public class BuilderRoute {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object getClasses(@Context UriInfo uriInfo) {
 		try{
-		MultivaluedMap<String, String> queryParams = uriInfo
-				.getQueryParameters();
-		String search = queryParams.getFirst("search");
-		String dataset = queryParams.getFirst("dataset");
-		String strForceUriSearch = queryParams.getFirst("force_uri_search");
-		Boolean forceUriSearch = false;
-		if(strForceUriSearch != null && strForceUriSearch.equalsIgnoreCase("true"))
-			forceUriSearch = true;
-		System.out.println("START Searching for classes matching '" + search
-				+ "' in dataset '" + dataset + "' on " + (forceUriSearch?"URIs":"labels") );
-		ClassSearch searchClasses = new ClassSearch(dataset, search);
-		searchClasses.generateSearchedClassItems(forceUriSearch);
-		System.out.println("FINISHED Searching for classes matching '" + search
-				+ "' in dataset '" + dataset + "'");
-		return searchClasses;
-		
+			MultivaluedMap<String, String> queryParams = uriInfo
+					.getQueryParameters();
+			String search = queryParams.getFirst("search");
+			String dataset = queryParams.getFirst("dataset");
+			String strForceUriSearch = queryParams.getFirst("force_uri_search");
+			Boolean forceUriSearch = false;
+			if (strForceUriSearch != null
+					&& strForceUriSearch.equalsIgnoreCase("true"))
+				forceUriSearch = true;
+			System.out.println("START Searching for classes matching '"
+					+ search + "' in dataset '" + dataset + "' on "
+					+ (forceUriSearch ? "URIs" : "labels"));
+			ClassSearch searchClasses = new ClassSearch(dataset, search);
+			searchClasses.generateSearchedClassItems(forceUriSearch);
+			System.out.println("FINISHED Searching for classes matching '"
+					+ search + "' in dataset '" + dataset + "'");
+			return searchClasses;
 		}catch(Exception e){
 			System.out.println("Error : "+e.toString());
 			return new JSONError("ERROR", e.toString());
 		}
 	}
-
+	
+	/**
+	 * get all classes in a dataset
+	 * @param uriInfo 
+	 * @return all classes in a dataset
+	 */
+	@GET
+	@Path("classes/all")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getAllClasses(@Context UriInfo uriInfo) {
+		try{
+			MultivaluedMap<String, String> queryParams = uriInfo
+					.getQueryParameters();
+			String dataset = queryParams.getFirst("dataset");
+			System.out.println("START Searching for all classes in dataset '"
+					+ dataset + "'");
+			ClassSearch searchClasses = new ClassSearch(dataset);
+			searchClasses.generateAllClassItems();
+			System.out
+					.println("FINISHED Searching for all classes in dataset '"
+							+ dataset + "'");
+			return searchClasses;
+		}catch(Exception e){
+			System.out.println("Error : "+e.toString());
+			return new JSONError("ERROR", e.toString());
+		}
+	}
+	
 	// This route is for returning examples of a class
 	@GET
 	@Path("classes/examples")
