@@ -37,10 +37,19 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         final HttpServer server = startServer();
-        System.out.println(String.format("Jersey app started with WADL available at "
-                + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-        System.in.read();
-        server.stop();
+       
+        try{
+                server.start();
+                System.out.println(String.format("Jersey app started with WADL available %sapplication.wadl\nHit enter to stop it...", BASE_URI));      
+                Thread.currentThread().join();
+        }
+        catch (Exception ioe){
+                System.out.println(ioe.toString());
+        } finally {
+                if (server != null && server.isStarted()){
+                        server.shutdownNow();
+                }
+        }
     }
 }
 
