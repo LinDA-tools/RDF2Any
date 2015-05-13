@@ -2,12 +2,14 @@ package de.unibonn.iai.eis.linda.helper;
 
 import java.util.regex.Pattern;
 
+import org.apache.jena.riot.WebContent;
+
 import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 /**
  * @author gsingharoy
@@ -29,11 +31,16 @@ public class SPARQLHandler {
 		Query query = QueryFactory.create(queryString);
 		// System.out.println("Executing query .... ");
 		// System.out.println(queryString);
-		QueryExecution qexec = QueryExecutionFactory.sparqlService(uri, query);
+		QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
 		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		try {
+			qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
 			ResultSet results = qexec.execSelect();
 			return results;
-
 		} finally {
 
 		}
@@ -181,6 +188,4 @@ public class SPARQLHandler {
 			result = "";
 		return result;
 	}
-	
-
 }
