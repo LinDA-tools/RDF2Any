@@ -22,7 +22,7 @@ public class LuceneHelper {
 	}
 	
 	public static String classPropertiesDir(String dataset){
-		return homeDir() + "/class_properties/properties/" + dataset.hashCode();
+		return homeDir() + "/class_properties/properties/";
 	}
 
 	public static StandardAnalyzer getAnalyzer(){
@@ -31,7 +31,7 @@ public class LuceneHelper {
 	}
 	
 	public static String classPropertiesValidatorDir(String dataset){
-		return homeDir() + "/class_properties/classes/" + dataset.hashCode();
+		return homeDir() + "/class_properties/classes/";
 	}
 	
 	public static String getUriFromIndexEntry(String entry){
