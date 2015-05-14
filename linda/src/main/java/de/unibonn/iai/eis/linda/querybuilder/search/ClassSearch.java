@@ -133,7 +133,7 @@ public class ClassSearch {
 				 "     UNION " +
 				 "      {?class rdf:type rdfs:Class}. " +
 				 "     OPTIONAL { ?class rdfs:label ?label }. " +
-				 " } ";	
+				 " } ORDER BY ?class";	
 		return query;
 	}
 
