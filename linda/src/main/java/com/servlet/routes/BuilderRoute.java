@@ -164,6 +164,7 @@ public class BuilderRoute {
 	@Produces(MediaType.APPLICATION_JSON)
 	public ClassPropertyOutput getProperties(@Context UriInfo uriInfo)
 			throws IOException, ParseException {
+		try{
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
 		String dataset = queryParams.getFirst("dataset");
@@ -171,6 +172,10 @@ public class BuilderRoute {
 		RDFClass rdfClass = RDFClass.searchRDFClass(dataset, classUri);
 		// rdfClass.generatePropertiesFromSPARQL();
 		return new ClassPropertyOutput(rdfClass);
+		} catch(Exception e){
+			System.out.println("Error : "+e.toString());
+			return null;
+		}
 	}
 
 	// this route is for getting properties

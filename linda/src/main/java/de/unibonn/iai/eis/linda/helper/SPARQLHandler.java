@@ -33,7 +33,7 @@ public class SPARQLHandler {
 		// System.out.println(queryString);
 		QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -41,8 +41,11 @@ public class SPARQLHandler {
 			qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
 			ResultSet results = qexec.execSelect();
 			return results;
-		} finally {
-
+		} catch (Exception e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+		finally {
 		}
 	}
 
