@@ -41,7 +41,7 @@ public class SPARQLHandler {
 			qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
 			ResultSet results = qexec.execSelect();
 			return results;
-		finally {
+		}finally {
 		}
 	}
 
