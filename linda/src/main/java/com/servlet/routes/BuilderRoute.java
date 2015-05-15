@@ -173,7 +173,26 @@ public class BuilderRoute {
 		// rdfClass.generatePropertiesFromSPARQL();
 		return new ClassPropertyOutput(rdfClass);
 		} catch(Exception e){
-			System.out.println("Error : "+e.toString());
+			System.out.println("Error : "+e.getMessage());
+			return null;
+		}
+	}
+	
+	@GET
+	@Path("properties/indexes/reindex")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClassPropertyOutput getPropertiesReindex(@Context UriInfo uriInfo)
+			throws IOException, ParseException {
+		try{
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
+		String dataset = queryParams.getFirst("dataset");
+		String classUri = queryParams.getFirst("class");
+		RDFClass rdfClass = RDFClass.reindexRDFClass(dataset, classUri);
+		// rdfClass.generatePropertiesFromSPARQL();
+		return new ClassPropertyOutput(rdfClass);
+		} catch(Exception e){
+			System.out.println("Error : "+e.getMessage());
 			return null;
 		}
 	}
@@ -190,6 +209,39 @@ public class BuilderRoute {
 		RDFClass.generateIndexesForDataset(dataset);
 		// rdfClass.generatePropertiesFromSPARQL();
 		return new ResultOK();
+	}
+	
+	@GET
+	@Path("properties/indexes/create/localdbpedia")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ResultOK getPropertiesIndexesCreateLocalDBpedia(@Context UriInfo uriInfo)
+			throws IOException, ParseException {
+		
+		try{
+		RDFClass.generateIndexesForDBPedia();
+		return new ResultOK();
+		} catch(Exception e){
+			System.out.println("Error : "+e.getMessage());
+			return null;
+		}
+	}
+	
+	@GET
+	@Path("properties/indexes/reindex/localdbpedia")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClassPropertyOutput getPropertiesReindexLocalDBpedia(@Context UriInfo uriInfo)
+			throws IOException, ParseException {
+		try{
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
+		String classUri = queryParams.getFirst("class");
+		RDFClass rdfClass = RDFClass.reindexLocalDBPediaRDFClass(classUri);
+		// rdfClass.generatePropertiesFromSPARQL();
+		return new ClassPropertyOutput(rdfClass);
+		} catch(Exception e){
+			System.out.println("Error : "+e.getMessage());
+			return null;
+		}
 	}
 
 }

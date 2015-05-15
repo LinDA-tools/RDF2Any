@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -32,10 +34,15 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
+import org.openjena.riot.Lang;
 
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.owlike.genson.annotation.JsonIgnore;
 
@@ -221,6 +228,21 @@ public class RDFClass {
 			throws ParseException {
 		return searchRDFClass(dataset, classUri, true);
 	}
+	
+	public static RDFClass reindexRDFClass(String dataset, String classUri) throws ParseException {
+			System.out.println("Reindexing for " + classUri + ". Will create indexes now ..." );
+			RDFClass resultClass = new RDFClass(dataset, classUri);
+			resultClass.generatePropertiesFromSPARQL(true);
+			try {
+					resultClass.generateLuceneIndexes();
+					System.out.println("Index entry created for " + classUri);
+			} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+			}
+			return resultClass;
+	}
+	
 
 	@SuppressWarnings("deprecation")
 	public static RDFClass searchRDFClass(String dataset, String classUri,
@@ -708,5 +730,81 @@ public class RDFClass {
 		result.put("subclasses", subclasses);
 		return result;
 	}
+	
+	
+	// DBPedia Locally
+	public static void generateIndexesForDBPedia() throws IOException {
+		boolean forceNew = false; 
+		
+		String classesQuery = SPARQLHandler.getPrefixes();
+		List<String> failedClasses = new ArrayList<String>();
+		classesQuery += " select distinct ?class where {?class rdf:type owl:Class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"en\"))}";
+	
+		ResultSet classesResultSet = executeDBpediaLocalQuery(classesQuery);
+		
+		Integer classCounter = 0;
+
+		while (classesResultSet.hasNext()) {
+			classCounter++;
+			System.out.println(classCounter.toString() + ". ################################################################");
+			QuerySolution row = classesResultSet.next();
+			RDFClass classNode = new RDFClass("http://dbpedia.org/sparql", row.get("class").toString());
+			if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
+				try {
+					System.out.println("Evaluating properties of "+ classNode.label + " <" + classNode.uri + ">");
+					classNode.generatePropertiesFromSPARQLLocally(true);
+					classNode.generateLuceneIndexes();
+				} catch (Exception e) {
+					System.out.println("Failed to create index for the class "+ classNode.label + " <" + classNode.uri + ">");
+					failedClasses.add(classNode.uri);
+				}
+			} else {
+				System.out.println("Index already created for "+ classNode.label + " <" + classNode.uri + ">. Moving to the next class ...");
+			}
+		}
+
+		System.out.println("Finished creating indexes for "+ classCounter.toString() + " classes ... ");
+		System.out.println("Failed classes : " + failedClasses.size());
+		if (failedClasses.size() > 0) {
+			for (String c : failedClasses) {
+				System.out.println("Failed to create indexes for : " + c);
+			}
+		}
+	}
+	
+	private void generatePropertiesFromSPARQLLocally(Boolean doStatisticalQueries) {
+		// Get dataType properties
+		ResultSet dataTypeProperties = RDFClass.executeDBpediaLocalQuery(getPropertiesSPARQLQuery("datatype"));
+		addRdfResultSetToProperties(dataTypeProperties, "datatype", doStatisticalQueries);
+		// Get object properties
+		ResultSet objectProperties = RDFClass.executeDBpediaLocalQuery(getPropertiesSPARQLQuery("object"));
+		addRdfResultSetToProperties(objectProperties, "object", doStatisticalQueries);
+		ResultSet schemaProperties = RDFClass.executeDBpediaLocalQuery(getPropertiesSPARQLQuery("schema"));
+		addRdfResultSetToProperties(schemaProperties, "schema", doStatisticalQueries);
+	}
+	
+	private static ResultSet executeDBpediaLocalQuery(String query){
+		Model m = RDFDataMgr.loadModel(RDFClass.class.getResource("/dbpedia_2014.owl").getPath(), RDFLanguages.RDFXML);
+	
+		com.hp.hpl.jena.query.Query q = QueryFactory.create(query);
+	    QueryExecution qe = QueryExecutionFactory.create(q, m);
+		
+		return qe.execSelect();
+	}
+	
+	
+	public static RDFClass reindexLocalDBPediaRDFClass(String classUri) throws ParseException {
+		System.out.println("Reindexing for " + classUri + ". Will create indexes now ..." );
+		RDFClass resultClass = new RDFClass("http://dbpedia.org/sparql", classUri);
+		resultClass.generatePropertiesFromSPARQLLocally(true);
+		try {
+				resultClass.generateLuceneIndexes();
+				System.out.println("Index entry created for " + classUri);
+		} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+		}
+		return resultClass;
+}
 
 }
