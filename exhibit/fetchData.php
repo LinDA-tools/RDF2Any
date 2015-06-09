@@ -294,6 +294,21 @@ function getClass($dataset,$queryURI){
 	return $classLabel;
 }
 
+function createDownloadURI($dataset, $type, $queryString){
+	$uri = "http://localhost:8081/rdf2any/v1.0/convert/";
+	if ($type == "CSV"){
+		$uri .= "csv-converter.csv?";
+	} else if ($type == "RDB"){
+		$uri .= "rdb-converter.sql?";
+	} else if ($type == "json"){
+		$uri .= "json?";
+	}
+	$uri .= "dataset=".$dataset;
+	$uri .= "&query=".urlencode($queryString);
+	$uri .= "&generatedOntology=false";
+	return $uri;
+}
+
 $db = sparql_connect( "http://localhost:8080/openrdf-sesame/repositories/QueryRepository" );
 if( !$db ) { print sparql_errno() . ": " . sparql_error(). "\n"; exit; }
 sparql_ns( "rdf","http://www.w3.org/1999/02/22-rdf-syntax-ns#" );
@@ -332,6 +347,7 @@ while( $row = sparql_fetch_array( $result ) )
 	}
 	$item .= "\"classTitle\" : \"" .getClass($row['initialDataset'],$row['query']). "\",";
 	$item .= "\"uri\" : \"" .uriParameter($row['initialDataset'],$row['query']). "\",";
+	$item .= "\"download\" : \"" .createDownloadURI($row['initialDataset'],$row['formatresult'],$row['queryString']). "\",";
 	$item .= "\"title\" : \"" .$tempTitle. "\"";
 	$item .= "},";
 	$json .= $item;

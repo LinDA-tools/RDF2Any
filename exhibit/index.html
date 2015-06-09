@@ -1,33 +1,34 @@
-<html>
- <head>
-    <title>Transformations</title>
-			 
-		<link rel="exhibit-data" type="application/json" href="fetchData.php" />
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Query Explorer">
+    <meta name="author" content="Judie Attard">
+
+    <title>Query Explorer</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+	<link href="css/font-awesome.css" rel="stylesheet">
+	<link href="css/main.css" rel="stylesheet">
+	
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 		
-<script src="http://api.simile-widgets.org/exhibit/3.0.0rc1/exhibit-api.js" type="text/javascript"></script>
+	<link rel="exhibit-data" type="application/json" href="fetchData.php" />
+	<script src="http://api.simile-widgets.org/exhibit/3.0.0rc1/exhibit-api.js" type="text/javascript"></script>
 
-
-
-			
     <style>
-		.project{
-			border: 1px solid black;
-			margin-bottom: 10px;
-			padding:5px;
-			display:block;
-		}
-		.label{
-			font-style:italic;
-			clear:both;
-		}
-		.description{
-		}
-		.level{
-			color:red;
-		}
-		.requirements{
-			color:red;
+		.exhibit-toolboxWidget-button {
+			display:none;
 		}
 		.exhibit-collectionSummaryWidget-results{
 			display:none;
@@ -36,53 +37,79 @@
 			display:none;
 		}
     </style>
- </head> 
- <body>
-	 
+
+</head>
+
+<body>
+	
+  <div id="top-nav" class="navbar navbar-inverse navbar-static-top">
+	  <div class="container">
+		  <div class="navbar-header"><span class="navbar-brand">eXconquer</a></div>
+		  
+		  <div class="navbar-collapse collapse">
+			  <ul class="nav navbar-nav">
+                    <li>
+                        <a href="http://104.155.70.103">Query Explorator</a>
+                    </li>
+                    <li>
+                        <a href="http://104.155.70.103:3000/query/builder">Query Builder</a>
+                    </li>
+			  </ul>
+		  </div>
+	  </div>
+  </div>
 
 
- <div style="width: 100%"><table style="font-size: 100%" cellspacing="10" width="100%">
-            <tr valign="top">
-                <td>
-                    <div id="exhibit-control-panel"></div>
-                    <div id="exhibit-view-panel">
-						<h1>Transformations</h1>
-                        <div ex:role="exhibit-lens" class="project">
-                      					<b>Title: </b><span ex:content=".title" class="label"></span><br/><br/>
-                            		<b>Query: </b><span ex:content=".queryString" class="label"></span><br/><br/>
-                               	<b>Initial Dataset: </b><span ex:content=".initialDataset" class="description"></span> (<span ex:content=".formatinitial" class="description"></span>)<br/><br/>
-                                <b>Result Set: </b><span ex:content=".resultset" class="description"></span> (<span ex:content=".formatresult" class="description"></span>)<br/><br/>
-                                <b>Execution Time: </b><span ex:content=".execTime" class="description"></span><br/><br/>
-																<!--<b>Agent: </b> <span ex:content=".agent"></span><br/><br/>-->
-														 <a ex:href-content=".uri" >Edit Query in Query Builder</a>
-								
-                        </div>
-                       <div ex:role="exhibit-view"
-                            ex:viewClass="Exhibit.TileView"
-                            ex:orders=".execTime"
-														ex:directions="ascending"
-                            ex:possibleOrders=".resultset, .title"
-                            ex:showAll="true"
-                            ex:grouped="false">
-                        </div>
-                    </div>
-                </td>
-                <td width="25%">
-										<!--<div ex:role="facet" ex:expression=".agent" ex:sortMode="count" ex:facetLabel="Agent"></div>-->
-										<div ex:role="facet" ex:expression=".initialDataset" ex:sortMode="count" ex:facetLabel="Dataset"></div>
-										<!--<div ex:role="facet" ex:expression=".formatinitial" ex:sortMode="count" ex:facetLabel="Initial Dataset Format"></div>-->
-										<div ex:role="facet" ex:expression=".formatresult" ex:sortMode="count" ex:facetLabel="Result Set Format"></div>
-										<div ex:role="facet" ex:expression=".classTitle" ex:sortMode="count" ex:facetLabel="Class"></div>
-										<div ex:role="facet" ex:expression=".execTime" ex:sortMode="count" ex:facetLabel="Time of Execution"></div>
-																			
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+			<div class="col-lg-8" id="exhibit-view-panel">
+                 <div ex:role="exhibit-lens" class="alert alert-default" style="border:1px solid black;">
+               			<span class="label label-success" style="font-size:14px"><span ex:content=".title"></span></span><br/><br/>
+                     	<span onclick='$(".query_string").toggle()'><b>Query (Show/Hide): </b></span><div class="query_string"><span ex:content=".queryString"></span></div><br/><br/>
+                        <b>Query Dataset: </b><span ex:content=".initialDataset"></span><br/>
+                        <b>Transformation Format: </b><span ex:content=".formatresult"></span> <a ex:href-content=".download" >(Download)</a><br/>
+                        <b>Date: </b><span ex:content=".execTime"></span><br/><br/>
+						<!--<b>Agent: </b> <span ex:content=".agent"></span><br/><br/>-->
+						<a ex:href-content=".uri" >Edit Query</a>
+                 </div>
+                <div ex:role="exhibit-view"
+                     ex:viewClass="Exhibit.TileView"
+                     ex:orders=".execTime"
+					 ex:directions="ascending"
+                     ex:possibleOrders=".execTime, .resultset, .title"
+                     ex:showAll="true"
+                     ex:grouped="false">
+                 </div>
+			</div>
+			<div class="col-lg-4">				
+				<!-- <span class='fa fa-angle-down'/>
+				<a  onClick='$('#dataset_div')'> -->				
+				<div id="dataset_div" ex:role="facet" ex:expression=".initialDataset" ex:sortMode="count" ex:facetLabel="Dataset"></div>
+				<!--<div ex:role="facet" ex:expression=".formatinitial" ex:sortMode="count" ex:facetLabel="Initial Dataset Format"></div>-->
+				<div ex:role="facet" ex:expression=".formatresult" ex:sortMode="count" ex:facetLabel="Result Set Format"></div>
+				<div ex:role="facet" ex:expression=".classTitle" ex:sortMode="count" ex:facetLabel="Class"></div>
+				<div ex:role="facet" ex:expression=".execTime" ex:sortMode="count" ex:facetLabel="Time of Execution"></div>
+			</div>
+        </div>
+        
 
-                </td>
-            </tr>
-        </table></div>
-   
-	  </body>
- </html>
+        <!-- Footer 
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Maintained by: Enterprise Information Systems - University of Bonn <img src="images/logo-eis.png" width="80px" style="margin-left:15px; "/></p>
+                </div>
+            </div>
+        </footer>-->
 
- 
- 
-   
+    </div>
+    <!-- /.container -->
+    <!-- jQuery -->
+    <script src="js/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.js"></script>
+
+</body>
+
+</html>

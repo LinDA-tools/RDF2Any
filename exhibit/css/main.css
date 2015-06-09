@@ -1,0 +1,49 @@
+logoleft {
+	color: gray;
+	font-weight: bold;
+	letter-spacing: -1px;
+}
+
+logoright {
+	color: white;		
+	font-weight: bold;
+	letter-spacing: -1px;
+}
+
+leftalign{
+	text-align: left;
+	float:left;
+	margin:auto;
+}
+
+rightalign{
+	text-align: right;
+	float:right;
+	margin:auto;
+}
+
+h2:before {
+content: '>> ';
+letter-spacing: -1px;
+}
+
+h2{
+	font-size: 18px;
+	color: #df691a;
+	text-transform: uppercase;
+	letter-spacing: -1px;
+	font-weight:bold;
+}
+
+h5{
+	font-size: 16px;
+	font-weight:bold;
+	margin-bottom:3px;
+}
+
+h6{
+	font-size: 14px;
+	font-weight:bold;
+	margin-bottom:3px;
+}
+
