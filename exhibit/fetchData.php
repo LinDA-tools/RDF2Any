@@ -1,5 +1,6 @@
 <?php 
 require_once( "sparqllib.php" );
+include("phpfastcache.php");
 
 // ini_set('display_errors', 'On');
 // error_reporting(E_ALL);
@@ -300,6 +301,8 @@ function createDownloadURI($dataset, $type, $queryString){
 		$uri .= "csv-converter.csv?";
 	} else if ($type == "RDB"){
 		$uri .= "rdb-converter.sql?";
+	} else if ($type == "RDF"){
+		$uri .= "rdf-converter.ttl?";
 	} else if ($type == "json"){
 		$uri .= "json?";
 	}
@@ -309,51 +312,69 @@ function createDownloadURI($dataset, $type, $queryString){
 	return $uri;
 }
 
+$cache = phpFastCache(); 
+
 $db = sparql_connect( "http://localhost:8080/openrdf-sesame/repositories/QueryRepository" );
 if( !$db ) { print sparql_errno() . ": " . sparql_error(). "\n"; exit; }
 sparql_ns( "rdf","http://www.w3.org/1999/02/22-rdf-syntax-ns#" );
 sparql_ns( "cqo","http://example.com/cqo#" );
 sparql_ns( "prov","http://www.w3.org/ns/prov#" );
 sparql_ns( "sp","http://spinrdf.org/sp#" );
- 	
-$sparql = "SELECT DISTINCT ?transformation ?query ?queryString ?initialDataset ?formatinitial ?resultset ?formatresult ?execTime WHERE 
-{ ?transformation rdf:type cqo:Transformation . 
-?transformation cqo:hasQuery ?query . 
-?query cqo:hasQueryString ?queryString .
-?transformation cqo:executedOn ?initialDataset . 
-?initialDataset cqo:hasSerialisation ?formatinitial .
-?transformation cqo:resultsIn ?resultset . 
-?resultset cqo:hasSerialisation ?formatresult .
-?transformation cqo:executionTime ?execTime .
- }";
 
-//?transformation prov:wasAssociatedWith ?agent . 
-
- 
+$sparql = "SELECT (COUNT(?transformation) AS ?count) WHERE { ?transformation rdf:type cqo:Transformation . }";
 $result = sparql_query( $sparql ); 
 if( !$result ) { print sparql_errno() . ": " . sparql_error(). "\n"; exit; }
- 
-$fields = sparql_field_array( $result );
- 
-
-$json = "{ \"items\" : [";
+$count = -1;
 while( $row = sparql_fetch_array( $result ) )
 {
-	$tempTitle = "";
-	$item = "{";
-	foreach( $fields as $field )
-	{
-		$item .= "\"" . cleanString($field) ."\" : \"" . cleanString($row[$field]) . "\",";
-	}
-	$item .= "\"classTitle\" : \"" .getClass($row['initialDataset'],$row['query']). "\",";
-	$item .= "\"uri\" : \"" .uriParameter($row['initialDataset'],$row['query']). "\",";
-	$item .= "\"download\" : \"" .createDownloadURI($row['initialDataset'],$row['formatresult'],$row['queryString']). "\",";
-	$item .= "\"title\" : \"" .$tempTitle. "\"";
-	$item .= "},";
-	$json .= $item;
+	$count = $row['count'];
 }
-$json = trim($json, ",");
-$json .= "] }";
+$cached = $cache->get($count);
+
+if ($cached == null){
+	$sparql = "SELECT DISTINCT ?transformation ?query ?queryString ?initialDataset ?formatinitial ?resultset ?formatresult ?execTime WHERE 
+	{ ?transformation rdf:type cqo:Transformation . 
+	?transformation cqo:hasQuery ?query . 
+	?query cqo:hasQueryString ?queryString .
+	?transformation cqo:executedOn ?initialDataset . 
+	?initialDataset cqo:hasSerialisation ?formatinitial .
+	?transformation cqo:resultsIn ?resultset . 
+	?resultset cqo:hasSerialisation ?formatresult .
+	?transformation cqo:executionTime ?execTime .
+	 }";
+
+	//?transformation prov:wasAssociatedWith ?agent . 
+
+ 
+	$result = sparql_query( $sparql ); 
+	if( !$result ) { print sparql_errno() . ": " . sparql_error(). "\n"; exit; }
+ 
+	$fields = sparql_field_array( $result );
+ 
+
+	$json = "{ \"items\" : [";
+	while( $row = sparql_fetch_array( $result ) )
+	{
+		$tempTitle = "";
+		$item = "{";
+		foreach( $fields as $field )
+		{
+			$item .= "\"" . cleanString($field) ."\" : \"" . cleanString($row[$field]) . "\",";
+		}
+		$item .= "\"classTitle\" : \"" .getClass($row['initialDataset'],$row['query']). "\",";
+		$item .= "\"uri\" : \"" .uriParameter($row['initialDataset'],$row['query']). "\",";
+		$item .= "\"download\" : \"" .createDownloadURI($row['initialDataset'],$row['formatresult'],$row['queryString']). "\",";
+		$item .= "\"title\" : \"" .$tempTitle. "\"";
+		$item .= "},";
+		$json .= $item;
+	}
+	$json = trim($json, ",");
+	$json .= "] }";
+ 	$cache->set($count, $json,0);
+} else {
+	$json = $cached;
+}
+
 
 header('Content-Type: application/json');
 echo $json;
