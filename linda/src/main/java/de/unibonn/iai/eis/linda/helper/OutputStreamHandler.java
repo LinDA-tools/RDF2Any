@@ -12,6 +12,7 @@ import de.unibonn.iai.eis.linda.converters.Converter;
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
+import de.unibonn.iai.eis.linda.converters.impl.RDFConverter;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
@@ -23,15 +24,19 @@ import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 public class OutputStreamHandler {
 	public static StreamingOutput getConverterStreamingOutput(
 			final Converter converter, final String dataset,
-			final String queryString) {
+			final String queryString, final Boolean generateOntology) {
 
 		String converterType = "";
 		if (converter instanceof CSVConverter) converterType = "CSV";
 		else if (converter instanceof RDBConverter) converterType = "RDB";
 		else if (converter instanceof JSONConverter) converterType = "JSON";
+		else if (converter instanceof RDFConverter){
+			((RDFConverter) converter).setQuery(queryString);
+			converterType = "RDF";
+		}
 		else converterType = "userdefined";
 		
-		InstanceExporter.exporter(queryString, dataset, converterType);
+		if (generateOntology) InstanceExporter.exporter(queryString, dataset, converterType);
 		
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
@@ -53,15 +58,19 @@ public class OutputStreamHandler {
 	public static StreamingOutput getConverterStreamingOutput(
 			final Converter converter, final String dataset,
 			final String queryString, final String forClass,
-			final String properties) {
+			final String properties, final Boolean generateOntology) {
 		
 		String converterType = "";
 		if (converter instanceof CSVConverter) converterType = "CSV";
 		else if (converter instanceof RDBConverter) converterType = "RDB";
 		else if (converter instanceof JSONConverter) converterType = "JSON";
+		else if (converter instanceof RDFConverter){
+			((RDFConverter) converter).setQuery(queryString);
+			converterType = "RDF";
+		}
 		else converterType = "userdefined";
 		
-		InstanceExporter.exporter(queryString, dataset, converterType);
+		if (generateOntology) InstanceExporter.exporter(queryString, dataset, converterType);
 
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,

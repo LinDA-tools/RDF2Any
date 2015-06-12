@@ -46,7 +46,7 @@ public class ExampleRoute {
 	@Produces({"application/csv"})
 	public StreamingOutput getCSVExample() {
 		System.out.println("START example CSV conversion ...");
-		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),SPARQLExample.exampleDataset(), SPARQLExample.exampleQueryString(20000) );
+		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(),SPARQLExample.exampleDataset(), SPARQLExample.exampleQueryString(20000), false );
 
 	}
 
@@ -55,7 +55,7 @@ public class ExampleRoute {
 	@Produces({"application/sql"})
 	public StreamingOutput getRDBExample() {
 		System.out.println("START example RDB conversion ... ");
-		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(),SPARQLExample.exampleDataset(), SPARQLExample.exampleQueryString(20000) );	
+		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(),SPARQLExample.exampleDataset(), SPARQLExample.exampleQueryString(20000), false );	
 	}
 	
 	@GET

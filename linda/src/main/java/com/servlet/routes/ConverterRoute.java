@@ -21,6 +21,7 @@ import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.ConfiguredConverter;
 import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
+import de.unibonn.iai.eis.linda.converters.impl.RDFConverter;
 import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.example.SPARQLExample;
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
@@ -43,16 +44,18 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
+		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
+			
 		if (forClass == null || forClass.equals("")) {
 			System.out.println("START CSV conversion for query in dataset "
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new CSVConverter(), dataset, query);
+					new CSVConverter(), dataset, query, generateOntology);
 		} else {
 			System.out.println("START CSV conversion for query in dataset "
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new CSVConverter(), dataset, query, forClass, properties);
+					new CSVConverter(), dataset, query, forClass, properties, generateOntology);
 		}
 
 	}
@@ -68,18 +71,45 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
+		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
+		
 		if (forClass != null) {
 			System.out.println("START RDB conversion for query of class ("
 					+ forClass + ") in dataset " + dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDBConverter(), dataset, query, forClass, properties);
+					new RDBConverter(), dataset, query, forClass, properties, generateOntology);
 		} else {
 			System.out.println("START RDB conversion for query in dataset "
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDBConverter(), dataset, query);
+					new RDBConverter(), dataset, query, generateOntology);
 		}
-
+	}
+	
+	@GET
+	@Path("rdf-converter.ttl")
+	@Produces({ "text/turtle" })
+	public StreamingOutput getRDFConverter(@Context UriInfo uriInfo)
+			throws UnsupportedEncodingException {
+		MultivaluedMap<String, String> queryParams = uriInfo
+				.getQueryParameters();
+		String query = queryParams.getFirst("query");
+		String dataset = queryParams.getFirst("dataset");
+		String forClass = queryParams.getFirst("for_class");
+		String properties = queryParams.getFirst("properties");
+		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
+		
+		if (forClass != null) {
+			System.out.println("START RDF conversion for query of class ("
+					+ forClass + ") in dataset " + dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new RDFConverter(), dataset, query, forClass, properties, generateOntology);
+		} else {
+			System.out.println("START RDF conversion for query in dataset "
+					+ dataset + " \n" + query);
+			return OutputStreamHandler.getConverterStreamingOutput(
+					new RDFConverter(), dataset, query, generateOntology);
+		}
 	}
 
 	@GET
@@ -94,6 +124,8 @@ public class ConverterRoute {
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
 		String variableDictionary = queryParams.getFirst("variable_dictionary");
+		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
+		
 		// String variableDictionary =
 		// "country::http://dbpedia.org/ontology/country,abstracts::http://dbpedia.org/ontology/abstract";
 		String header = queryParams.getFirst("header");
@@ -110,13 +142,13 @@ public class ConverterRoute {
 							+ query);
 			return OutputStreamHandler.getConverterStreamingOutput(
 					new ConfiguredConverter(variableDictionary, header, body,
-							footer), dataset, query, forClass, properties);
+							footer), dataset, query, forClass, properties, generateOntology);
 		} else {
 			System.out.println("START RDB conversion for query in dataset "
 					+ dataset + " \n" + query);
 			return OutputStreamHandler.getConverterStreamingOutput(
 					new ConfiguredConverter(variableDictionary, header, body,
-							footer), dataset, query);
+							footer), dataset, query, generateOntology);
 		}
 
 	}
