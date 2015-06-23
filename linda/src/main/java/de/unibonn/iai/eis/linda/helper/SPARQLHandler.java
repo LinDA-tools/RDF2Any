@@ -4,12 +4,18 @@ import java.util.regex.Pattern;
 
 import org.apache.jena.riot.WebContent;
 
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
+
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
  * @author gsingharoy
@@ -26,23 +32,44 @@ public class SPARQLHandler {
 				queryString);
 	}
 
+	public static ResultSet executeQuery(String uri, String queryString, boolean summary) {
+		if (uri.toLowerCase().contains("dbpedia") && !summary){
+			return executeDBpediaLocalQuery(queryString);
+		}
+		else {
+			Query query = QueryFactory.create(queryString);
+			// System.out.println("Executing query .... ");
+			// System.out.println(queryString);
+			QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
+//			try {
+//				Thread.sleep(500);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+			try {
+				qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
+				ResultSet results = qexec.execSelect();
+				return results;
+			}finally {
+			}
+		}
+	}
+	
+	
 	// This method executes a SPARQL query in a RDF triple store
 	public static ResultSet executeQuery(String uri, String queryString) {
-		Query query = QueryFactory.create(queryString);
-		// System.out.println("Executing query .... ");
-		// System.out.println(queryString);
-		QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		try {
-			qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
-			ResultSet results = qexec.execSelect();
-			return results;
-		}finally {
-		}
+		return executeQuery(uri, queryString, false);
+	}
+	
+	static Model local = ModelFactory.createOntologyModel();
+	static{
+		local.read(RDFClass.class.getResourceAsStream("/dbpedia_2014.owl"),null);
+	}
+	private static ResultSet executeDBpediaLocalQuery(String query){
+		com.hp.hpl.jena.query.Query q = QueryFactory.create(query);
+	    QueryExecution qe = QueryExecutionFactory.create(q, local);
+		
+		return qe.execSelect();
 	}
 
 	public static String getLiteralValue(RDFNode literal){

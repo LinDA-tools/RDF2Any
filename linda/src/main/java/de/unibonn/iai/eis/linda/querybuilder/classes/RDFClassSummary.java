@@ -51,7 +51,7 @@ public class RDFClassSummary {
 			countQuery += " SELECT  (count(DISTINCT ?c) AS ?totalcount)  where {?c rdf:type <"
 					+ this.uri + ">. } ";
 			ResultSet countResultSet = SPARQLHandler.executeQuery(this.dataset,
-					countQuery);
+					countQuery, true);
 			if (countResultSet.hasNext()) {
 				QuerySolution row = countResultSet.next();
 				this.total_objects = SPARQLHandler.getIntegerValueOfLiteral(row
@@ -76,7 +76,7 @@ public class RDFClassSummary {
 			query += "  ?object rdfs:label ?label.  ";
 			query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\"))} LIMIT "+limit.toString();
 			ResultSet rdfResultSet = SPARQLHandler.executeQuery(this.dataset,
-					query);
+					query, true);
 			while(rdfResultSet.hasNext()){
 				QuerySolution row = rdfResultSet.next();
 				Map<String, String> objectMap = new HashMap<String, String>();

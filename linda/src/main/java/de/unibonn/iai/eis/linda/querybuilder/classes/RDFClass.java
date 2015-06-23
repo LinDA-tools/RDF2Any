@@ -2,6 +2,8 @@ package de.unibonn.iai.eis.linda.querybuilder.classes;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 import org.openjena.riot.Lang;
@@ -43,6 +46,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.owlike.genson.annotation.JsonIgnore;
 
@@ -142,18 +146,29 @@ public class RDFClass {
 					+ this.uri
 					+ ">. ?property rdfs:range ?range.  ?property rdfs:label ?label.";
 		} else {
-			query += "SELECT DISTINCT ?property ?label WHERE { ?concept rdf:type <"
-					+ this.uri
-					+ ">. ?concept ?property ?o. ?property rdfs:label ?label. ";
-
+			query += "SELECT DISTINCT ?property ?label WHERE {";
 			if (propertyType.equals("object"))
-				query += " ?property rdf:type owl:ObjectProperty. ?property rdfs:range ?range. ";
-			else if (propertyType.equals("datatype"))
+				query += " ?property rdf:type owl:ObjectProperty";
+			else if (propertyType.equals("datatype"))	
 				query += " ?property rdf:type owl:DatatypeProperty. ";
+			query += "{ SELECT DISTINCT ?superClass { <"+
+				this.uri + "> rdfs:subClassOf ?superClass ." +
+				"} } { " +
+				"?property rdfs:domain <"+this.uri+"> . }" +
+				"UNION { ?property rdfs:domain ?superClass . }   ?property rdfs:label ?label . ";
+			
+//			query += "SELECT DISTINCT ?property ?label WHERE { ?concept rdf:type <"
+//					+ this.uri
+//					+ ">. ?concept ?property ?o. ?property rdfs:label ?label. ";
+//
+//			if (propertyType.equals("object"))
+//				query += " ?property rdf:type owl:ObjectProperty. ?property rdfs:range ?range. ";
+//			else if (propertyType.equals("datatype"))
+//				query += " ?property rdf:type owl:DatatypeProperty. ";
 		}
 		query += " FILTER(langMatches(lang(?label), 'EN'))} ";
-		if (!propertyType.equalsIgnoreCase("schema"))
-			query += "LIMIT " + limit.toString();
+//		if (!propertyType.equalsIgnoreCase("schema"))
+//			query += "LIMIT " + limit.toString();
 		return query;
 	}
 
@@ -173,7 +188,7 @@ public class RDFClass {
 				+ this.uri + ">");
 		for (RDFClassProperty property : this.properties) {
 			try {
-				addLucenePropertyDoc(w, property);
+				addLucenePropertyDoc(property);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -187,25 +202,49 @@ public class RDFClass {
 		deleteIndexes();
 		System.out.println("Creating indexes for class .. " + this.label + " <"
 				+ this.uri + ">");
-		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
-		File indexPath = new File(LuceneHelper.classPropertiesDir(this.dataset));
-		Directory index = new SimpleFSDirectory(indexPath);
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40,
-				analyzer);
-
-		IndexWriter w = new IndexWriter(index, config);
+		
 		for (RDFClassProperty property : this.properties) {
-			addLucenePropertyDoc(w, property);
+			addLucenePropertyDoc(property);
 		}
-		w.close();
+
 		addLuceneValidatorDoc();
 	}
-
+	
+	
+	private static String byteToHex(byte[] arr){
+		 StringBuffer sb = new StringBuffer();
+	        for (int i = 0; i < arr.length; i++) {
+	         sb.append(Integer.toString((arr[i] & 0xff) + 0x100, 16).substring(1));
+	        }
+	    return sb.toString();
+	}
+	
+	private static byte[] createMD5(String s){
+		 MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+	    md.update(s.getBytes());
+	 
+	    return md.digest();
+	}
+	
+	
 	// this method adds a doc for property in lucene index
-	public void addLucenePropertyDoc(IndexWriter w, RDFClassProperty property)
+	public void addLucenePropertyDoc( RDFClassProperty property)
 			throws IOException {
+		StandardAnalyzer analyzer = new StandardAnalyzer(LuceneHelper.LUCENE_VERSION);
+		File indexPath = new File(LuceneHelper.classPropertiesDir(this.dataset));
+		
+		IndexWriterConfig config = new IndexWriterConfig(LuceneHelper.LUCENE_VERSION,analyzer);
+		
+		IndexWriter w = new IndexWriter(FSDirectory.open(indexPath), config);
+		
 		Document d = new Document();
-		d.add(new TextField("class_uri", "s" + this.uri.hashCode() + "e",
+		
+		d.add(new TextField("class_uri", "s" + byteToHex(createMD5(this.uri)) + "e",
 				Field.Store.YES));
 		d.add(new StringField("uri", property.uri, Field.Store.YES));
 		d.add(new StringField("label", property.label, Field.Store.YES));
@@ -219,8 +258,10 @@ public class RDFClass {
 		d.add(new StringField("range_label", property.range.label,
 				Field.Store.YES));
 		w.addDocument(d);
-		// System.out.println("Created index for "+property.toString());
+
+		w.close();
 	}
+	
 
 	// this method searches for a matching class
 
@@ -257,7 +298,7 @@ public class RDFClass {
 				for (int i = 0; i < hits.size(); ++i) {
 					Document d = hits.get(i);
 					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri"))
-							.equalsIgnoreCase(classUri.hashCode() + "")) {
+							.equalsIgnoreCase(byteToHex(createMD5(classUri)))) {
 						resultClass.properties
 								.add(new RDFClassProperty(
 										d.get("uri"),
@@ -373,7 +414,7 @@ public class RDFClass {
 				LuceneHelper.LUCENE_VERSION, analyzer);
 		IndexWriter w = new IndexWriter(index, config);
 		Document d = new Document();
-		d.add(new TextField("uri", "s" + this.uri.hashCode() + "e",
+		d.add(new TextField("uri", "s" + this.uri + "e",
 				Field.Store.YES));
 		w.addDocument(d);
 		w.close();
@@ -394,11 +435,15 @@ public class RDFClass {
 			Query q;
 
 			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri", analyzer)
-					.parse("s" + this.uri.hashCode() + "e");
+					.parse("s" + this.uri + "e");
 			int hitsPerPage = 150;
 			IndexReader reader;
 			
 			reader = DirectoryReader.open(index);
+			
+//			for (int i = 0; i < reader.numDocs(); i++){
+//				System.out.println(reader.document(i).toString());
+//			}
 			
 			IndexSearcher searcher = new IndexSearcher(reader);
 			TopScoreDocCollector collector = TopScoreDocCollector.create(
@@ -410,9 +455,7 @@ public class RDFClass {
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
-					if (LuceneHelper.getUriFromIndexEntry(d.get("uri"))
-							.equalsIgnoreCase(this.uri.hashCode() + "")) {
-
+					if (LuceneHelper.getUriFromIndexEntry(d.get("uri")).equalsIgnoreCase(this.uri+"")) {
 						resultD = d;
 						break;
 					}
@@ -442,7 +485,7 @@ public class RDFClass {
 			Query q;
 
 			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "class_uri",
-					analyzer).parse("s" + this.uri.hashCode() + "e");
+					analyzer).parse("s" + byteToHex(createMD5(this.uri)) + "e");
 
 			int hitsPerPage = 300;
 			IndexReader reader;
@@ -460,7 +503,7 @@ public class RDFClass {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
 					if (LuceneHelper.getUriFromIndexEntry(d.get("class_uri"))
-							.equalsIgnoreCase(this.uri.hashCode() + "")) {
+							.equalsIgnoreCase(byteToHex(createMD5(this.uri)) + "")) {
 						docs.add(d);
 					}
 
@@ -493,7 +536,7 @@ public class RDFClass {
 				Query q;
 
 				q = new QueryParser(LuceneHelper.LUCENE_VERSION, "uri",
-						analyzer).parse("s" + this.uri.hashCode() + "e");
+						analyzer).parse("s" + byteToHex(createMD5(this.uri)) + "e");
 				vWriter.deleteDocuments(q);
 				vWriter.close();
 			} catch (IOException e) {
@@ -517,7 +560,7 @@ public class RDFClass {
 			Query q;
 
 			q = new QueryParser(LuceneHelper.LUCENE_VERSION, "class_uri",
-					analyzer).parse("s" + this.uri.hashCode() + "e");
+					analyzer).parse("s" + byteToHex(createMD5(this.uri)) + "e");
 			pWriter.deleteDocuments(q);
 			pWriter.close();
 		} catch (IOException e) {
@@ -740,7 +783,7 @@ public class RDFClass {
 		List<String> failedClasses = new ArrayList<String>();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"en\"))}";
 	
-		ResultSet classesResultSet = executeDBpediaLocalQuery(classesQuery);
+		ResultSet classesResultSet = SPARQLHandler.executeQuery("http://dbpedia.org/sparql",classesQuery);
 		
 		Integer classCounter = 0;
 
@@ -752,7 +795,7 @@ public class RDFClass {
 			if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
 				try {
 					System.out.println("Evaluating properties of "+ classNode.label + " <" + classNode.uri + ">");
-					classNode.generatePropertiesFromSPARQLLocally(true);
+					classNode.generatePropertiesFromSPARQL(true);
 					classNode.generateLuceneIndexes();
 				} catch (Exception e) {
 					System.out.println("Failed to create index for the class "+ classNode.label + " <" + classNode.uri + ">");
@@ -772,31 +815,10 @@ public class RDFClass {
 		}
 	}
 	
-	private void generatePropertiesFromSPARQLLocally(Boolean doStatisticalQueries) {
-		// Get dataType properties
-		ResultSet dataTypeProperties = RDFClass.executeDBpediaLocalQuery(getPropertiesSPARQLQuery("datatype"));
-		addRdfResultSetToProperties(dataTypeProperties, "datatype", doStatisticalQueries);
-		// Get object properties
-		ResultSet objectProperties = RDFClass.executeDBpediaLocalQuery(getPropertiesSPARQLQuery("object"));
-		addRdfResultSetToProperties(objectProperties, "object", doStatisticalQueries);
-		ResultSet schemaProperties = RDFClass.executeDBpediaLocalQuery(getPropertiesSPARQLQuery("schema"));
-		addRdfResultSetToProperties(schemaProperties, "schema", doStatisticalQueries);
-	}
-	
-	private static ResultSet executeDBpediaLocalQuery(String query){
-		Model m = RDFDataMgr.loadModel(RDFClass.class.getResource("/dbpedia_2014.owl").getPath(), RDFLanguages.RDFXML);
-	
-		com.hp.hpl.jena.query.Query q = QueryFactory.create(query);
-	    QueryExecution qe = QueryExecutionFactory.create(q, m);
-		
-		return qe.execSelect();
-	}
-	
-	
 	public static RDFClass reindexLocalDBPediaRDFClass(String classUri) throws ParseException {
 		System.out.println("Reindexing for " + classUri + ". Will create indexes now ..." );
 		RDFClass resultClass = new RDFClass("http://dbpedia.org/sparql", classUri);
-		resultClass.generatePropertiesFromSPARQLLocally(true);
+		resultClass.generatePropertiesFromSPARQL(true);
 		try {
 				resultClass.generateLuceneIndexes();
 				System.out.println("Index entry created for " + classUri);

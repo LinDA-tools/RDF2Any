@@ -63,7 +63,7 @@ public class RDFClassProperty {
 		countQuery += " SELECT  (count(DISTINCT ?d) AS ?totalcount)  where {?c rdf:type <"
 				+ classUri + ">. ?c <" + this.uri + "> ?d} ";
 		ResultSet countResultSet = SPARQLHandler.executeQuery(dataset,
-				countQuery);
+				countQuery, true);
 		this.count = 0;
 		if (countResultSet.hasNext()) {
 			QuerySolution row = countResultSet.next();
@@ -88,7 +88,7 @@ public class RDFClassProperty {
 		q += "SELECT DISTINCT ?c ?d ?e  where {?c rdf:type <" + classUri
 				+ ">. ?c <" + this.uri + "> ?d. ?c <" + this.uri
 				+ "> ?e. FILTER(?e != ?d)}  LIMIT 1";
-		ResultSet checkResultSet = SPARQLHandler.executeQuery(dataset, q);
+		ResultSet checkResultSet = SPARQLHandler.executeQuery(dataset, q, true);
 		while (checkResultSet.hasNext()) {
 			checkResultSet.next();
 			result = true;
