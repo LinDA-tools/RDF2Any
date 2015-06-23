@@ -33,10 +33,10 @@ public class SPARQLHandler {
 	}
 
 	public static ResultSet executeQuery(String uri, String queryString, boolean summary) {
-		if (uri.toLowerCase().contains("dbpedia") && !summary){
-			return executeDBpediaLocalQuery(queryString);
-		}
-		else {
+//		if (uri.toLowerCase().contains("dbpedia") && !summary){
+//			return executeDBpediaLocalQuery(queryString);
+//		}
+//		else {
 			Query query = QueryFactory.create(queryString);
 			// System.out.println("Executing query .... ");
 			// System.out.println(queryString);
@@ -52,7 +52,7 @@ public class SPARQLHandler {
 				return results;
 			}finally {
 			}
-		}
+//		}
 	}
 	
 	
