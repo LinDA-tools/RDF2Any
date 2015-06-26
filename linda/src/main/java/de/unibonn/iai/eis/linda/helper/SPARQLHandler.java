@@ -39,7 +39,7 @@ public class SPARQLHandler {
 //		else {
 			Query query = QueryFactory.create(queryString);
 			// System.out.println("Executing query .... ");
-			// System.out.println(queryString);
+			 System.out.println(queryString);
 			QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
 //			try {
 //				Thread.sleep(500);
@@ -148,7 +148,9 @@ public class SPARQLHandler {
 	}
 
 	public static String getLabelLanguage(RDFNode label) {
-		return SPARQLHandler.getLabelLanguage(label.toString());
+		
+		return (label.asLiteral().getLanguage());
+		//return SPARQLHandler.getLabelLanguage(label.toString());
 	}
 	public static String getLabelLanguage(String label) {
 		Integer languageIdentifierPoint = label.length() - 2;
@@ -160,7 +162,8 @@ public class SPARQLHandler {
 	}
 
 	public static String getLabelText(RDFNode label) {
-		return SPARQLHandler.getLabelText(label.toString());
+		return label.asLiteral().getString();
+//		return SPARQLHandler.getLabelText(label.toString());
 	}
 
 	public static String getLabelText(String label) {
