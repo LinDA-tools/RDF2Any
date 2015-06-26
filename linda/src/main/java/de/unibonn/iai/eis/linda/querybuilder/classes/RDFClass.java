@@ -70,7 +70,7 @@ public class RDFClass {
 
 	public RDFClass(String dataset, String uri) {
 		this.uri = uri;
-		this.label = SPARQLHandler.getLabelFromNode(dataset, uri, "EN");
+		this.label = SPARQLHandler.getLabelFromNode(dataset, uri, "EN");					
 		this.dataset = dataset;
 		this.properties = new ArrayList<RDFClassProperty>();
 	}
@@ -91,16 +91,16 @@ public class RDFClass {
 	public void generatePropertiesFromSPARQL(Boolean doStatisticalQueries) {
 		// Get dataType properties
 		ResultSet dataTypeProperties = SPARQLHandler.executeQuery(this.dataset,
-				getPropertiesSPARQLQuery("datatype"));
+				getPropertiesSPARQLQuery("datatype", this.dataset));
 		addRdfResultSetToProperties(dataTypeProperties, "datatype",
 				doStatisticalQueries);
 		// Get object properties
 		ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,
-				getPropertiesSPARQLQuery("object"));
+				getPropertiesSPARQLQuery("object", this.dataset));
 		addRdfResultSetToProperties(objectProperties, "object",
 				doStatisticalQueries);
 		ResultSet schemaProperties = SPARQLHandler.executeQuery(this.dataset,
-				getPropertiesSPARQLQuery("schema"));
+				getPropertiesSPARQLQuery("schema", this.dataset));
 		addRdfResultSetToProperties(schemaProperties, "schema",
 				doStatisticalQueries);
 	}
@@ -134,37 +134,42 @@ public class RDFClass {
 
 	// this method returns the query to get properties of a class
 	@JsonIgnore
-	public String getPropertiesSPARQLQuery(String propertyType) {
-		return getPropertiesSPARQLQuery(propertyType, 25);
+	public String getPropertiesSPARQLQuery(String propertyType, String dataset) {
+		return getPropertiesSPARQLQuery(propertyType, 25, dataset);
 	}
 
 	@JsonIgnore
-	public String getPropertiesSPARQLQuery(String propertyType, Integer limit) {
+	public String getPropertiesSPARQLQuery(String propertyType, Integer limit, String dataset) {
 		String query = SPARQLHandler.getPrefixes();
 		if (propertyType.equals("schema")) {
 			query += "SELECT DISTINCT ?property ?label WHERE { ?property rdfs:domain <"
 					+ this.uri
 					+ ">. ?property rdfs:range ?range.  ?property rdfs:label ?label.";
 		} else {
-			query += "SELECT DISTINCT ?property ?label WHERE {";
-			if (propertyType.equals("object"))
-				query += " ?property rdf:type owl:ObjectProperty";
-			else if (propertyType.equals("datatype"))	
-				query += " ?property rdf:type owl:DatatypeProperty. ";
-			query += "{ SELECT DISTINCT ?superClass { <"+
-				this.uri + "> rdfs:subClassOf ?superClass ." +
-				"} } { " +
-				"?property rdfs:domain <"+this.uri+"> . }" +
-				"UNION { ?property rdfs:domain ?superClass . }   ?property rdfs:label ?label . ";
 			
-//			query += "SELECT DISTINCT ?property ?label WHERE { ?concept rdf:type <"
-//					+ this.uri
-//					+ ">. ?concept ?property ?o. ?property rdfs:label ?label. ";
-//
-//			if (propertyType.equals("object"))
-//				query += " ?property rdf:type owl:ObjectProperty. ?property rdfs:range ?range. ";
-//			else if (propertyType.equals("datatype"))
-//				query += " ?property rdf:type owl:DatatypeProperty. ";
+			if (dataset.contains("dbpedia")){
+				query += "SELECT DISTINCT ?property ?label WHERE {";
+				if (propertyType.equals("object"))
+					query += " ?property rdf:type owl:ObjectProperty";
+				else if (propertyType.equals("datatype"))	
+					query += " ?property rdf:type owl:DatatypeProperty. ";
+				query += "{ SELECT DISTINCT ?superClass { <"+
+					this.uri + "> rdfs:subClassOf ?superClass ." +
+					"} } { " +
+					"?property rdfs:domain <"+this.uri+"> . }" +
+					"UNION { ?property rdfs:domain ?superClass . }   ?property rdfs:label ?label . ";
+			}
+			else{
+				query += "SELECT DISTINCT ?property ?label WHERE { ?concept rdf:type <"
+				+ this.uri
+				+ ">. ?concept ?property ?o. ?property rdfs:label ?label. ";
+
+		if (propertyType.equals("object"))
+			query += " ?property rdf:type owl:ObjectProperty. ?property rdfs:range ?range. ";
+		else if (propertyType.equals("datatype"))
+			query += " ?property rdf:type owl:DatatypeProperty. ";
+		
+			}
 		}
 		query += " FILTER(langMatches(lang(?label), 'EN'))} ";
 //		if (!propertyType.equalsIgnoreCase("schema"))
