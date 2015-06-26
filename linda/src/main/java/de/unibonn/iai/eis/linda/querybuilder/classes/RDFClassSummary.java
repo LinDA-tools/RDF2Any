@@ -77,6 +77,17 @@ public class RDFClassSummary {
 			query += " FILTER(bound(?label) && langMatches(lang(?label), \"EN\"))} LIMIT "+limit.toString();
 			ResultSet rdfResultSet = SPARQLHandler.executeQuery(this.dataset,
 					query, true);
+			if(!rdfResultSet.hasNext()){
+				String query2 = SPARQLHandler.getPrefixes();
+				query2 += " SELECT distinct ?object ?label ";
+				query2 += " WHERE { ";
+				query2 += " ?object rdf:type <"+this.uri+">.";
+				query2 += "  ?object rdfs:label ?label.  ";
+				query += " } LIMIT "+limit.toString();
+				rdfResultSet = SPARQLHandler.executeQuery(this.dataset,
+						query, true);
+			}
+			
 			while(rdfResultSet.hasNext()){
 				QuerySolution row = rdfResultSet.next();
 				Map<String, String> objectMap = new HashMap<String, String>();
