@@ -44,7 +44,7 @@ public class OutputStreamHandler {
 				try {
 
 					ResultSet results = SPARQLHandler.executeQuery(dataset,
-							queryString);
+							queryString, true);
 					converter.convert(output, results);
 				} catch (Exception e) {
 					throw new WebApplicationException(e);
