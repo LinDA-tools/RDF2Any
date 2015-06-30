@@ -143,7 +143,7 @@ public class RDFConverter extends MainConverter implements Converter {
 			object = qrySol.get(qObject.toString().replace("?",""));
 		} 
 		
-		this.subset.add(subject, predicate, object);
+		if ((subject != null) && (object != null)) this.subset.add(subject, predicate, object);
 	}
 	
 	

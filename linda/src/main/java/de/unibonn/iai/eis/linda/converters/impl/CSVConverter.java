@@ -43,15 +43,15 @@ public class CSVConverter extends MainConverter implements Converter {
 	}
 
 	private String generateFileResultRow(QuerySolution row, Long rowCounter) throws Exception {
-		String result = rowCounter +",";
+			String result = rowCounter +",";
 		for (int i = 0; i < resultVars.size(); i++) {
 			if (i > 0)
 				result += ",";
-			result += CSVHelper.getCSVReadyEntry(row.get(resultVars.get(i))
-					.toString());
+			RDFNode node = row.get(resultVars.get(i));
+			if (node != null) result += CSVHelper.getCSVReadyEntry(node.toString());
 		}
 		result += "\n";
-		return result;
+		return result;		
 	}
 
 	public void convert(OutputStream outputStream, ResultSet rdfResults)

@@ -51,15 +51,19 @@ public class RDBConverter extends MainConverter implements Converter {
 	}
 
 	private String generateFileResultRow(QuerySolution row, Integer primaryKey) {
+	
 		String result = "INSERT INTO " + this.tableName + " VALUES("
 				+ primaryKey.toString();
 		for (int i = 0; i < resultVars.size(); i++) {
-			result += ",'"
-					+ RDBHelper.getSQLReadyEntry(row.get(resultVars.get(i))
-							.toString()) + "'";
+			
+			result += ",'";
+			RDFNode node = row.get(resultVars.get(i));
+			if (node != null) result += RDBHelper.getSQLReadyEntry(node.toString()) + "'";
+			else result += "'";
 		}
 		result += ");\n";
-		return result;
+		return result;	
+		
 	}
 
 	public void convert(OutputStream output, ResultSet rdfResults)
