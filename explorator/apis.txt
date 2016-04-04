@@ -1,0 +1,28 @@
+API
+
+publishers
+
+
+/publishers/all - gets all information on the publishers
+
+/publishers/add - adds a publisher to the web application. the passed json content should have the following stucture:
+{'publisher' : 'MusicBrainz','uri' : 'https://musicbrainz.org/','domain' : ['Music'],'natureOfContent' : ['Records'],'apiFormat' : ['RESTful API'],'licence' : 'Open', 'knownConsumers' : [{'consumer' :'BBC', 'consumersAim' : ['News Enhancement'], 'consumersDescription' : 'Music data from MusicBrainz is linked to news data on the BBC music site in order to provide discographies and track listings across about 700 artist pages.'}]}
+
+/publishers/exhibit/all - gets all information on the publishers that can be used in an <a href="">Exhibit</a> interface
+
+/publisher/:field/:value - searches a particular publisher according to the field (e.g. publisher) and its value (e.g. MusicBrainz)
+
+
+
+demand
+
+/demand/all - get all information regarding the demand of data
+
+/demand/add - adds a demand to the web application. the passed json object should have the following structure:
+{'domain' : 'Weather', 'natureOfContent' : ['Records','Satellite Images'], 'aim' : ['News Enhancement'], 'description' : 'some description'}
+
+
+/demand/exhibit/all - gets all information on the demand that can be used in an <a href="">Exhibit</a> interface
+
+/demand/:field/:value - searches a particular demand according to the field (e.g. domain) and its value (e.g. Weather)
+

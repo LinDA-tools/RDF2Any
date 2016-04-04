@@ -1,0 +1,25 @@
+# Retrieve the most popular instances of a particular concept URI.
+# This query checks for the number of back-links of an instance. 
+# The idea is that since we cannot really identify
+# the most popular instance (eg most popular cities known to humans)
+# we get the most popular instances of a concept based on the number
+# of links
+
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+
+
+SELECT ?label ?instance {
+	?instance rdfs:label ?label .
+	{
+		SELECT DISTINCT ?instance (COUNT(?x) AS ?cnt) WHERE {
+			?instance a <%%Concept-URI%%> .
+			?x ?p ?instance .
+		} 
+		GROUP BY ?instance
+		ORDER BY DESC(?cnt)
+		LIMIT %%limit%%
+	}
+	FILTER(langMatches(lang(?label), "EN"))
+}

@@ -1,0 +1,26 @@
+# Retreives all %%Type%% used in a Knowledge Base for a particular Concept
+
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+
+
+SELECT DISTINCT ?property ?label (count(distinct ?inst) as ?cnt) ?range ?rangeLabel WHERE { 
+	?property rdf:type owl:%%Type%%. 
+	?property rdfs:label ?label .  
+	{ ?property rdfs:domain <%%Concept-URI%%> . }
+	UNION { ?property rdfs:domain ?superClass . }   
+	{ 
+		SELECT DISTINCT ?superClass { <%%Concept-URI%%> rdfs:subClassOf* ?superClass . } 
+	} 
+	?inst a <%%Concept-URI%%> .
+	?inst ?property ?y .
+    FILTER(langMatches(lang(?label), 'EN'))
+    
+	OPTIONAL { 
+		?property rdfs:range ?range . 
+		?range rdfs:label ?rangeLabel . 
+		FILTER(langMatches(lang(?rangeLabel), 'EN'))
+	}
+}
+GROUP BY ?property ?label ?range ?rangeLabel

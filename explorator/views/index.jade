@@ -1,0 +1,39 @@
+extends layout
+
+block exhibit
+  link(rel='exhibit-data', type='application/json', href='data/retrieve/exhibit/all')
+
+block content
+  .container
+    .row
+      #exhibit-view-panel.col-lg-8
+        .alert.alert-default(ex:role='exhibit-lens' style='border:1px solid black;')
+          span.label.label-success(style='font-size:14px; white-space:normal')
+            span(ex:content='.title')
+          br
+          br
+          span(onclick='$(".query_string").toggle()')
+            b Query (Show/Hide):&nbsp;
+          .query_string
+            span(ex:content='.queryString')
+          br
+          br
+          b Query Dataset:&nbsp;
+          span(ex:content='.initialDataset')
+          br
+          b Transformation Format:&nbsp;
+          span(ex:content='.formatresult')
+          a(ex:href-content='.download') (Download)
+          br
+          b Date:&nbsp;
+          span(ex:content='.execTime')
+          br
+          br
+          // <b>Agent: </b> <span ex:content=".agent"></span><br/><br/>
+          a(ex:href-content='.uri') Edit Query
+        div(ex:role='exhibit-view' ex:viewclass='Exhibit.TileView' ex:orders='.execTime' ex:directions='ascending' ex:possibleorders='.execTime, .resultset, .title' ex:showall='true' ex:grouped='false')
+      .col-lg-4
+        #dataset_div(ex:role='facet' ex:expression='.initialDataset' ex:sortmode='count' ex:facetlabel='Dataset')
+        div(ex:role='facet' ex:expression='.formatresult' ex:sortmode='count' ex:facetlabel='Result Set Format')
+        div(ex:role='facet' ex:expression='.classes' ex:sortmode='count' ex:facetlabel='Class')
+        div(ex:role='facet' ex:expression='.execTime' ex:sortmode='count' ex:facetlabel='Time of Execution')
