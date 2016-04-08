@@ -150,7 +150,7 @@ public class InstanceExporter {
 				while(stmtIter.hasNext()){
 					Statement stmt = stmtIter.next();
 					org.openrdf.model.Statement sesameStmt = jena2Sesame(stmt);
-					System.out.println(sesameStmt);
+//					System.out.println(sesameStmt);
 					con.add(sesameStmt);
 				}
 				//adding textual string
@@ -243,8 +243,10 @@ public class InstanceExporter {
 	
 
 	public static void main (String [] args){
-		String queryString = "SELECT DISTINCT * WHERE { ?s ?p ?o . }";
-		String dataset = "http://dbpedia.org";
+		//String queryString = "SELECT DISTINCT * WHERE { ?s a <http://dbpedia.org/ontology/City> . ?s <http://dbpedia.org/ontology/distance> ?o . ?s <http://dbpedia.org/ontology/leader> ?leader . FILTER((?o < 3) || (?o > 10)) }";
+//		String queryString = "SELECT DISTINCT * WHERE { ?s a <http://dbpedia.org/ontology/City> . } ";
+		String queryString = "SELECT DISTINCT * {?city a <http://dbpedia.org/ontology/City> . ?city <http://dbpedia.org/ontology/leaderName> <http://dbpedia.org/resource/Ed_Fast> . ?city <http://dbpedia.org/ontology/elevation> ?elevation_ . FILTER (?elevation_ = 32)  }";
+		String dataset = "http://live.dbpedia.org/sparql";
 		String converterType = "RDF";
 		exporter(queryString, dataset, converterType);
 	}

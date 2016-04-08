@@ -32,8 +32,8 @@ public class SPARQLExample {
 
 		//System.out.print(exampleResultSet("text"));
 		ClassSearch c = new ClassSearch("dbpedia","animal");
-		System.out.print(c.getSPARQLQuery());
-		SPARQLHandler.executeDBPediaQuery(c.getSPARQLQuery());
+		System.out.print(c.getSPARQLQuery(false));
+		SPARQLHandler.executeDBPediaQuery(c.getSPARQLQuery(false));
 	}
 
 	//This function returns a sample SPARQL query String

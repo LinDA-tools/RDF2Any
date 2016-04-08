@@ -22,10 +22,8 @@ public class RDFClassPropertyRange {
 		this.label = label;
 	}
 	
-	public void generateRangeLabel(String dataset){
+	public void generateRangeLabel(){
 		if(SPARQLHandler.isDataTypeUri(this.uri)){
-			//data type range
-			//this.label = this.uri.replaceAll(SPARQLHandler.getXMLSchemaURI()+"#", "");
 			if(this.uri.contains("#")){
 				this.label = this.uri.split("\\#")[1];
 			}
@@ -35,8 +33,7 @@ public class RDFClassPropertyRange {
 			}
 		}
 		else{
-			//object type range
-			this.label = SPARQLHandler.getLabelFromNode(dataset, this.uri, "EN");
+			this.label = this.uri;
 		}
 	}
 	

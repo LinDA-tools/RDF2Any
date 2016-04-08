@@ -1,7 +1,15 @@
 package de.unibonn.iai.eis.linda.querybuilder.search;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -16,6 +24,10 @@ import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
  * This class provides queries to search for classes in a dataset
  * */
 public class ClassSearch {
+	
+	final static Logger logger = LoggerFactory.getLogger(ClassSearch.class);
+
+	
 	public String search_string;
 	public String dataset;
 	public List<SearchedClassItem> searched_items;
@@ -48,17 +60,8 @@ public class ClassSearch {
 	}
 	
 	public void generateSearchedClassItems(Boolean forceUriSearch) {
-		
-		if (forceUriSearch) {
-			ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
-					getSPARQLQuery(true));
+			ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,getSPARQLQuery(forceUriSearch));
 			generateSearchedClassItemsFromResultSet(rdfResultSet);
-		}else{
-			ResultSet rdfResultSet = SPARQLHandler.executeQuery(dataset,
-					getSPARQLQuery());
-			generateSearchedClassItemsFromResultSet(rdfResultSet);
-		}
-
 	}
 
 	public void generateSearchedClassItemsFromResultSet(ResultSet rdfResultSet) {
@@ -89,51 +92,35 @@ public class ClassSearch {
 			this.searched_items.add(currSearchedClass);
 	}
 
-	@JsonIgnore
-	public String getSPARQLQuery(String lang) {
-		String query = SPARQLHandler.getPrefixes();
-		query += " SELECT distinct ?class ?label ";
-		query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
-		query += " FILTER(bound(?label) && langMatches(lang(?label), \""
-				+ lang.toUpperCase() + "\") && REGEX(?label, \""
-				+ this.search_string + "\"))}";
-		return query;
-	}
-
-	@JsonIgnore
-	public String getSPARQLQuery() {
-		return getSPARQLQuery(false);
-	}
 
 	@JsonIgnore
 	public String getSPARQLQuery(Boolean forceUriSearch) {
-		String query = SPARQLHandler.getPrefixes();
-		query += " SELECT distinct ?class ?label ";
-		if (forceUriSearch) {
-			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. OPTIONAL {?class rdfs:label ?label}.  ";
-			query += " FILTER("
-					+ " (bound(?label)  && REGEX(?label, \"\\\\b" + this.search_string + "\",\"i\"))"
-					+ " || (REGEX(str(?class), \"\\\\b" + this.search_string + "\",\"i\")) "  //!bound(?label) &&
-					+ ")} ORDER BY ?class"; 
-		} else {
-			query += " WHERE { {?class rdf:type owl:Class} UNION {?class rdf:type rdfs:Class}. ?class rdfs:label ?label.  ";
-			query += " FILTER(bound(?label)  && REGEX(?label, \"\\\\b"
-					+ this.search_string + "\",\"i\"))} ORDER BY ?class";
+		
+		String query = "";
+		URL url = (forceUriSearch) ? Resources.getResource("builder_queries/SearchLabelsAndURIsQuery.sparql") :
+				Resources.getResource("builder_queries/SearchLabelsQuery.sparql");
+			
+		try {
+			query = Resources.toString(url, Charsets.UTF_8);
+			query = query.replace("%%Search-String%%", this.search_string);
+		} catch (IOException e) {
+			logger.error("Error: {}",e.getMessage());
 		}
+		
 		System.out.println(query);
 		return query;
 	}
 	
 	@JsonIgnore
 	public String getAllClassSPARQLQuery() {
-		String query = SPARQLHandler.getPrefixes();
-		query += " SELECT distinct ?class ?label ";
-		query += " WHERE { " +
-				 "      {?class rdf:type owl:Class} " +
-				 "     UNION " +
-				 "      {?class rdf:type rdfs:Class}. " +
-				 "     OPTIONAL { ?class rdfs:label ?label }. " +
-				 " } ORDER BY ?class";	
+		String query = "";
+		URL url = Resources.getResource("builder_queries/GetAllClasses.sparql");
+		try {
+			query = Resources.toString(url, Charsets.UTF_8);
+		} catch (IOException e) {
+			logger.error("Error: {}",e.getMessage());
+		}
+		
 		return query;
 	}
 

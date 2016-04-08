@@ -2,20 +2,21 @@ package de.unibonn.iai.eis.linda.helper;
 
 import java.util.regex.Pattern;
 
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.WebContent;
 
-import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.google.common.io.Resources;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
-import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 /**
  * @author gsingharoy
@@ -26,10 +27,7 @@ public class SPARQLHandler {
 
 	// This method executes a SPARQL query in DBPedia
 	public static ResultSet executeDBPediaQuery(String queryString) {
-		// System.out.println("Executing query .... ");
-		// System.out.println(queryString);
-		return executeQuery("http://dbpedia.org/sparql?timeout=60000",
-				queryString);
+		return executeQuery("http://dbpedia.org/sparql?timeout=100000",queryString);
 	}
 
 	public static ResultSet executeQuery(String uri, String queryString, boolean summary) {
@@ -38,20 +36,17 @@ public class SPARQLHandler {
 //		}
 //		else {
 			Query query = QueryFactory.create(queryString);
-			// System.out.println("Executing query .... ");
-			 System.out.println(queryString);
 			QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
-//			try {
-//				Thread.sleep(500);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+			qexec.setTimeout(1000000);
+			
 			try {
-				qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
-				ResultSet results = qexec.execSelect();
-				return results;
-			}finally {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
 			}
+			
+			qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
+			ResultSet results = qexec.execSelect();
+			return results;
 //		}
 	}
 	
@@ -63,8 +58,9 @@ public class SPARQLHandler {
 	
 	static Model local = ModelFactory.createOntologyModel();
 	static{
-		local.read(RDFClass.class.getResourceAsStream("/dbpedia_2014.owl"),null);
+		local.read(SPARQLHandler.class.getResourceAsStream("/dbpedia_2014.owl"),null);
 	}
+	
 	private static ResultSet executeDBpediaLocalQuery(String query){
 		com.hp.hpl.jena.query.Query q = QueryFactory.create(query);
 	    QueryExecution qe = QueryExecutionFactory.create(q, local);
@@ -78,6 +74,7 @@ public class SPARQLHandler {
 			result = result.split("\\^\\^")[0];
 		return result;
 	}
+	
 	public static String getPrefixes() {
 		String prefixes = "";
 		prefixes += "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> ";
@@ -115,9 +112,7 @@ public class SPARQLHandler {
 	}
 
 	public static Boolean isDataTypeUri(String uri) {
-		if (Pattern
-				.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()),
-						Pattern.CASE_INSENSITIVE).matcher(uri).find())
+		if (Pattern.compile(Pattern.quote(SPARQLHandler.getXMLSchemaURI()), Pattern.CASE_INSENSITIVE).matcher(uri).find())
 			return true;
 		else {
 			if (SPARQLHandler.isLangLiteralUri(uri)) {
@@ -129,29 +124,15 @@ public class SPARQLHandler {
 	}
 
 	public static Boolean isLangLiteralUri(String uri) {
-		return uri
-				.equalsIgnoreCase("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString");
+		return uri.equalsIgnoreCase("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString");
 	}
 
-	public static Integer getIntegerValueOfLiteral(RDFNode n) {
-		return Integer
-				.parseInt(n
-						.toString()
-						.replaceAll("http://www.w3.org/2001/XMLSchema#integer",
-								"")
-						.substring(
-								0,
-								n.toString()
-										.replaceAll(
-												"http://www.w3.org/2001/XMLSchema#integer",
-												"").length() - 2));
-	}
 
 	public static String getLabelLanguage(RDFNode label) {
-		
 		return (label.asLiteral().getLanguage());
-		//return SPARQLHandler.getLabelLanguage(label.toString());
 	}
+	
+	
 	public static String getLabelLanguage(String label) {
 		Integer languageIdentifierPoint = label.length() - 2;
 		if (SPARQLHandler.isLanguageLiteral(label))
@@ -172,11 +153,6 @@ public class SPARQLHandler {
 		} else {
 			return label;
 		}
-	}
-
-	public static String getLabelName(String label) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public static Boolean isLanguageLiteral(RDFNode label) {
