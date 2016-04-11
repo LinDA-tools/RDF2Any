@@ -60,9 +60,6 @@ public class Main {
     public static RDFClass addOrGetCachedClass(String classURI, RDFClass rdfClass){
     	if (rdfClass == null){
     		return allClassSearch.get(classURI);
-    	}
-    	if (allClassSearch.containsKey(classURI)){
-    		return allClassSearch.get(classURI);
     	} else {
     		allClassSearch.put(classURI, rdfClass);
     		return rdfClass;
@@ -71,9 +68,6 @@ public class Main {
     
     public static String addOrGetCachedLabel(String uri, String label){
     	if (label == null){
-    		return labels.get(uri);
-    	}
-    	if (labels.containsKey(uri)){
     		return labels.get(uri);
     	} else {
     		labels.put(uri, label);

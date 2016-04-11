@@ -49,7 +49,7 @@ public class RDFClass {
 	/**
 	 * @author gauravsingharoy
 	 * 
-	 *         This class will contain an RDF class and its properties
+	 * This class will contain an RDF class and its properties
 	 * 
 	 */
 	public String uri;
@@ -79,8 +79,8 @@ public class RDFClass {
 	public void generatePropertiesFromSPARQL(Boolean doStatisticalQueries) {
 		// Get dataType properties
 		try{
-			ResultSet dataTypeProperties = SPARQLHandler.executeQuery(this.dataset, getPropertiesInformationAndCountSPARQLQuery("DatatypeProperty"));
-			addRdfResultSetToProperties(dataTypeProperties, "data",doStatisticalQueries);
+			ResultSet dataTypeProperties = SPARQLHandler.executeQuery(this.dataset, getPropertiesAndRanges("DatatypeProperty"));
+			addPropertyInformationAndCount(dataTypeProperties, "data");
 			this.status = "Success";
 		} catch (Exception e){
 			try{
@@ -93,8 +93,9 @@ public class RDFClass {
 		}
 		// Get object properties
 		try{
-			ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,getPropertiesInformationAndCountSPARQLQuery("ObjectProperty"));
-			addRdfResultSetToProperties(objectProperties, "object",doStatisticalQueries);
+			ResultSet objectProperties = SPARQLHandler.executeQuery(this.dataset,getPropertiesAndRanges("ObjectProperty")); //getPropertiesInformationAndCountSPARQLQuery
+			addPropertyInformationAndCount(objectProperties, "object");
+			//addRdfResultSetToProperties(objectProperties, "object",doStatisticalQueries);
 			this.status = "Success";
 		} catch (Exception e){
 			try{
@@ -135,29 +136,67 @@ public class RDFClass {
 			Resource propertyNode = row.get("property").asResource();
 			Literal propertyLabel = row.getLiteral("label");
 			String propertyNodeUri = propertyNode.getURI();
-			
+			Resource range = (row.get("range") == null) ? null : row.get("range").asResource();;
+			Literal rangeLabel = (row.get("rangeLabel") == null) ? null : row.getLiteral("rangeLabel");
+
 			if (!isPropertyPresent(propertyNodeUri)) {
-				ResultSet info = SPARQLHandler.executeQuery(this.dataset, getInformationAndCountSPARQLQuery(propertyNodeUri));
+//				try {
+//					Thread.sleep(500);//giving the sparql endpoint chance to recover from the previous execution
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
 				
-				Resource range = null;
-				Literal rangeLabel = null;
+				ResultSet info = SPARQLHandler.executeQuery(this.dataset, getPropertyInstanceCount(propertyNodeUri));
+				
 				Literal count = null;
 				while(info.hasNext()){
 					QuerySolution infoRow = info.next();
-					range = (infoRow.get("range") == null) ? null : infoRow.get("range").asResource();
-					rangeLabel = (infoRow.get("rangeLabel") == null) ? null : infoRow.getLiteral("rangeLabel");
-					count = (infoRow.get("cnt") == null) ? null : infoRow.getLiteral("cnt");
+					count = (infoRow.get("totalcount") == null) ? null : infoRow.getLiteral("totalcount");
 				}
 				
-				RDFClassProperty p = new RDFClassProperty(propertyNodeUri, type, propertyLabel.getString(), new RDFClassPropertyRange("", ""));
-				p.addCountOfProperty(count.getInt());
-				p.addRange(range, rangeLabel, type);
-				p.addHintExample(this.dataset);
-				properties.add(p);
+				if (count.getInt() > 0){
+					RDFClassProperty p = new RDFClassProperty(propertyNodeUri, type, propertyLabel.getString(), new RDFClassPropertyRange("", ""));
+					p.addCountOfProperty(count.getInt());
+					p.addRange(range, rangeLabel, type);
+					p.addHintExample(this.dataset);
+					properties.add(p);
+				}
 			}
 		}
 	}
 	
+	
+	@JsonIgnore
+	public String getPropertiesAndRanges(String propertyType) {
+		String query = "";
+		URL url = Resources.getResource("builder_queries/GetPropertiesAndRanges.sparql");
+			
+		try {
+			query = Resources.toString(url, Charsets.UTF_8);
+			query = query.replace("%%Concept-URI%%", this.uri);
+			query = query.replace("%%Type%%", propertyType);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return query;
+	}
+	
+	@JsonIgnore
+	public String getPropertyInstanceCount(String propertyURI) {
+		String query = "";
+		URL url = Resources.getResource("builder_queries/GetPropertyInstanceCount.sparql");
+			
+		try {
+			query = Resources.toString(url, Charsets.UTF_8);
+			query = query.replace("%%Concept-URI%%", this.uri);
+			query = query.replace("%%Property-URI%%", propertyURI);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return query;
+	}
 	
 	
 	@JsonIgnore
@@ -386,38 +425,52 @@ public class RDFClass {
 	}
 
 	// this method creates indexes for all the classes of a dataset
-	public static void generateIndexesForDataset(String dataset,
-			Boolean forceNew) throws IOException {
-		String classesQuery = SPARQLHandler.getPrefixes();
+	public static void generateIndexesForDataset(String dataset,Boolean forceNew) throws IOException {
+		String classesQuery = "";
 		List<String> failedClasses = new ArrayList<String>();
-		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))}";
-		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset,
-				classesQuery);
+//		classesQuery += " select distinct ?class where {?class rdf:type owl:Class.  ?o rdf:type ?class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"EN\"))}";
+		
+		URL url = Resources.getResource("builder_queries/GetAllClasses.sparql");
+			
+		try {
+			classesQuery = Resources.toString(url, Charsets.UTF_8);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ResultSet classesResultSet = SPARQLHandler.executeQuery(dataset,classesQuery);
 		Integer classCounter = 0;
 
 		while (classesResultSet.hasNext()) {
-			classCounter++;
-			System.out
-					.println(classCounter.toString()
-							+ ". ################################################################");
 			QuerySolution row = classesResultSet.next();
-			RDFClass classNode = new RDFClass(dataset, row.get("class")
-					.toString());
-			if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
-				try {
-					System.out.println("Evaluating properties of "
-							+ classNode.label + " <" + classNode.uri + ">");
-					classNode.generatePropertiesFromSPARQL(true);
-					classNode.generateLuceneIndexes();
-				} catch (Exception e) {
-					System.out.println("Failed to create index for the class "
-							+ classNode.label + " <" + classNode.uri + ">");
-					failedClasses.add(classNode.uri);
+			
+			Resource clazz = row.getResource("class");
+			if (clazz.getURI().startsWith("http://")){
+				classCounter++;
+
+				System.out.println(classCounter.toString()+ ". ################################################################");
+
+				Literal label = (row.getLiteral("label") == null) ? null : row.getLiteral("label");
+				RDFClass classNode = null;
+				if (label == null)
+					classNode = new RDFClass(dataset, row.get("class").asResource().getURI());
+				else
+					classNode = new RDFClass(dataset, row.get("class").toString(), label.getValue().toString());
+				if (forceNew || (!forceNew && !classNode.isIndexCreated())) {
+					try {
+						System.out.println("Evaluating properties of "+ classNode.label + " <" + classNode.uri + ">");
+						classNode.generatePropertiesFromSPARQL(true);
+						classNode.generateLuceneIndexes();
+					} catch (Exception e) {
+						System.out.println("Failed to create index for the class "
+								+ classNode.label + " <" + classNode.uri + ">");
+						failedClasses.add(classNode.uri);
+					}
+				} else {
+					System.out.println("Index already created for "
+							+ classNode.label + " <" + classNode.uri
+							+ ">. Moving to the next class ...");
 				}
-			} else {
-				System.out.println("Index already created for "
-						+ classNode.label + " <" + classNode.uri
-						+ ">. Moving to the next class ...");
 			}
 		}
 
@@ -822,7 +875,7 @@ public class RDFClass {
 		List<String> failedClasses = new ArrayList<String>();
 		classesQuery += " select distinct ?class where {?class rdf:type owl:Class. ?class rdfs:label ?label. FILTER(langMatches(lang(?label), \"en\"))}";
 	
-		ResultSet classesResultSet = SPARQLHandler.executeQuery("http://live.dbpedia.org/sparql",classesQuery);
+		ResultSet classesResultSet = SPARQLHandler.executeQuery("http://dbpedia.org/sparql",classesQuery);
 		
 		Integer classCounter = 0;
 

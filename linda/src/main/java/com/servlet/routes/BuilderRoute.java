@@ -1,10 +1,7 @@
 package com.servlet.routes;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -202,7 +199,7 @@ public class BuilderRoute {
 		if (noClasses == 1){
 			String classUri = queryParams.getFirst("class");
 			RDFClass rdfClass = Main.addOrGetCachedClass(classUri, null);
-			if (rdfClass == null){
+			if ((rdfClass == null) || (rdfClass.properties.size() == 0)){
 				rdfClass = Main.addOrGetCachedClass(classUri,RDFClass.searchRDFClass(dataset, classUri));
 			}
 			return new ClassPropertyOutput(rdfClass);
@@ -211,7 +208,7 @@ public class BuilderRoute {
 			List<String> classes = queryParams.get("class");
 			for(String clazz : classes){
 				RDFClass rdfClass = Main.addOrGetCachedClass(clazz, null);
-				if (rdfClass == null){
+				if ((rdfClass == null) || (rdfClass.properties.size() == 0)){
 					rdfClass = Main.addOrGetCachedClass(clazz,RDFClass.searchRDFClass(dataset, clazz));
 				}				
 				multi.addRDFClass(rdfClass);

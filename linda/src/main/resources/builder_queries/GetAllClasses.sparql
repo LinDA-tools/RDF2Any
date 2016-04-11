@@ -9,4 +9,5 @@ SELECT distinct ?class ?label WHERE {
 	UNION
 	{ ?class rdf:type rdfs:Class }
 	OPTIONAL { ?class rdfs:label ?label }. 
+	FILTER(langMatches(lang(?label), "EN"))
 } ORDER BY ?class

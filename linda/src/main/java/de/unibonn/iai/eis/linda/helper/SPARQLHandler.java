@@ -39,10 +39,10 @@ public class SPARQLHandler {
 			QueryEngineHTTP qexec = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(uri, query);
 			qexec.setTimeout(1000000);
 			
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-			}
+//			try {
+//				Thread.sleep(500);
+//			} catch (InterruptedException e) {
+//			}
 			
 			qexec.setSelectContentType(WebContent.contentTypeResultsJSON);
 			ResultSet results = qexec.execSelect();
