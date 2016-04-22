@@ -1,7 +1,7 @@
 $(function() {
    			$('#tgl_query').bootstrapToggle({
-   					on: 'Show Queries',
-   					off: 'Hide Queries',
+   					on: 'Hide Queries',
+   					off: 'Show Queries',
    					size: 'small',
 					onstyle: 'success',
 					offstyle: 'warning'

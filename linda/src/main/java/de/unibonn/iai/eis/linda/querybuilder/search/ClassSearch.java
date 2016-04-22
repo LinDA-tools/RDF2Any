@@ -70,6 +70,7 @@ public class ClassSearch {
 		while (rdfResultSet.hasNext()) {
 			QuerySolution row = rdfResultSet.next();
 			String loopClass = row.get("class").toString();
+			if (!(loopClass.startsWith("http"))) continue;
 			if (!loopClass.equals(currClass)) {
 				// new class found. Will create a new SearchedClassItem
 				if (currSearchedClass != null)

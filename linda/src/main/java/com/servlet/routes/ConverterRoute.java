@@ -1,12 +1,12 @@
 package com.servlet.routes;
 
+import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -14,50 +14,37 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.glassfish.grizzly.http.util.URLDecoder;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.hp.hpl.jena.query.ResultSetFormatter;
+import com.servlet.Main;
 
 import de.unibonn.iai.eis.linda.converters.impl.CSVConverter;
 import de.unibonn.iai.eis.linda.converters.impl.ConfiguredConverter;
-import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDBConverter;
 import de.unibonn.iai.eis.linda.converters.impl.RDFConverter;
-import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
-import de.unibonn.iai.eis.linda.example.SPARQLExample;
-import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.InstanceExporter;
 import de.unibonn.iai.eis.linda.helper.OutputStreamHandler;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.helper.output.JSONError;
-import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
 @Path("/v1.0/convert/")
 public class ConverterRoute {
 	@GET
 	@Path("csv-converter.csv")
 	@Produces({ "application/csv" })
-	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo)
-			throws UnsupportedEncodingException {
-		MultivaluedMap<String, String> queryParams = uriInfo
-				.getQueryParameters();
+	public StreamingOutput getCSVConverter(@Context UriInfo uriInfo) throws UnsupportedEncodingException, ParseException {
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		String query = queryParams.getFirst("query");
 		String dataset = queryParams.getFirst("dataset");
-		String forClass = queryParams.getFirst("for_class");
-		String properties = queryParams.getFirst("properties");
+//		String forClass = queryParams.getFirst("for_class");
+//		String properties = queryParams.getFirst("properties");
 		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
-			
-		if (forClass == null || forClass.equals("")) {
-			System.out.println("START CSV conversion for query in dataset "
-					+ dataset + " \n" + query);
-			return OutputStreamHandler.getConverterStreamingOutput(
-					new CSVConverter(), dataset, query, generateOntology);
-		} else {
-			System.out.println("START CSV conversion for query in dataset "
-					+ dataset + " \n" + query);
-			return OutputStreamHandler.getConverterStreamingOutput(
-					new CSVConverter(), dataset, query, forClass, properties, generateOntology);
-		}
-
+		
+		query = query.replace("&lt;", "<").replace("&gt;", ">");
+		
+		System.out.println("START CSV conversion for query in dataset "+ dataset + " \n" + query);
+		return OutputStreamHandler.getConverterStreamingOutput(new CSVConverter(), dataset, query, generateOntology);
 	}
 
 	@GET
@@ -71,19 +58,23 @@ public class ConverterRoute {
 		String dataset = queryParams.getFirst("dataset");
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
+
+		query = query.replace("&lt;", "<").replace("&gt;", ">");
+
 		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
 		
-		if (forClass != null) {
-			System.out.println("START RDB conversion for query of class ("
-					+ forClass + ") in dataset " + dataset + " \n" + query);
-			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDBConverter(), dataset, query, forClass, properties, generateOntology);
-		} else {
-			System.out.println("START RDB conversion for query in dataset "
-					+ dataset + " \n" + query);
-			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDBConverter(), dataset, query, generateOntology);
-		}
+		return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), dataset, query, generateOntology);
+
+		
+//		if (forClass != null) {
+//			System.out.println("START RDB conversion for query of class ("
+//					+ forClass + ") in dataset " + dataset + " \n" + query);
+//			return OutputStreamHandler.getConverterStreamingOutput(
+//					new RDBConverter(), dataset, query, forClass, properties, generateOntology);
+//		} else {
+//			System.out.println("START RDB conversion for query in dataset "+ dataset + " \n" + query);
+//			return OutputStreamHandler.getConverterStreamingOutput(new RDBConverter(), dataset, query, generateOntology);
+//		}
 	}
 	
 	@GET
@@ -98,7 +89,9 @@ public class ConverterRoute {
 		String forClass = queryParams.getFirst("for_class");
 		String properties = queryParams.getFirst("properties");
 		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
-		
+
+		query = query.replace("&lt;", "<").replace("&gt;", ">");
+
 		if (forClass != null) {
 			System.out.println("START RDF conversion for query of class ("
 					+ forClass + ") in dataset " + dataset + " \n" + query);
@@ -125,7 +118,9 @@ public class ConverterRoute {
 		String properties = queryParams.getFirst("properties");
 		String variableDictionary = queryParams.getFirst("variable_dictionary");
 		Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
-		
+
+		query = query.replace("&lt;", "<").replace("&gt;", ">");
+
 		// String variableDictionary =
 		// "country::http://dbpedia.org/ontology/country,abstracts::http://dbpedia.org/ontology/abstract";
 		String header = queryParams.getFirst("header");
@@ -163,50 +158,26 @@ public class ConverterRoute {
 					.getQueryParameters();
 			String query = java.net.URLDecoder.decode(queryParams.getFirst("query"),"UTF-8");
 			String dataset = queryParams.getFirst("dataset");
-			String forClass = queryParams.getFirst("for_class");
-			String properties = queryParams.getFirst("properties");
-			String jsonOutputType = queryParams.getFirst("json_output_format");
+//			String forClass = queryParams.getFirst("for_class");
+//			String properties = queryParams.getFirst("properties");
+//			String jsonOutputType = queryParams.getFirst("json_output_format");
 			Boolean generateOntology = (queryParams.getFirst("generateOntology") == null) ? false : Boolean.parseBoolean(queryParams.getFirst("generateOntology"));
-
+			
+			query = query.replace("&lt;", "<").replace("&gt;", ">");			
+			
 			Double startMilliseconds = (double) System.currentTimeMillis();
-			JSONConverter converter = null;
-			if (forClass == null || forClass.equals("")) {
-				String outputFormat = "virtuoso";
-				if (jsonOutputType != null
-						&& jsonOutputType.equalsIgnoreCase("sesame"))
-					outputFormat = "sesame";
-				System.out
-						.println("START JSON conversion for query in dataset "
-								+ dataset + " \n" + query);
-
-				converter = new JSONConverter(SPARQLHandler.executeQuery(
-						dataset, query), outputFormat);
-				
-				if (generateOntology) InstanceExporter.exporter(query, dataset, "json");
-			} else {
-				System.out.println("START JSON conversion for query (class : "
-						+ forClass + ") in dataset " + dataset + " \n" + query);
-				RDFClass rdfForClass = RDFClass.searchRDFClass(dataset,
-						forClass);
-				if(properties != null && !properties.equals(""))
-					rdfForClass.filterProperties(properties);
-				converter = new JSONConverter(SPARQLHandler.executeQuery(
-						dataset, query), rdfForClass);
-				if (generateOntology) InstanceExporter.exporter(query, dataset, "json");
-
-			}
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ResultSetFormatter.outputAsJSON(outputStream, SPARQLHandler.executeQuery(dataset, query));
+			String json = new String(outputStream.toByteArray());
 			Double endMilliseconds = (double) System.currentTimeMillis();
-			converter
-					.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
+//			String timeTaken = "\"time_taken\" : " + ((endMilliseconds - startMilliseconds) / 1000) + "\n\t}\n}";
+//			json = json.replace("\t}\n}", timeTaken);
 			System.out.println("Time taken : "+((endMilliseconds - startMilliseconds) / 1000)+" seconds");
 			System.out.println("FINISH JSON conversion ... ");
-			if (forClass == null || forClass.equals("")) {
-				if (converter.outputFormat.equals("sesame"))
-					return converter.jsonSesameOutput;
-				else
-					return converter.jsonOutput;
-			} else
-				return converter.jsonObjectsOutput;
+			if (generateOntology) InstanceExporter.exporter(query, dataset, "json");
+			if (!generateOntology) Main.incrementQueryCounter();
+			
+			return json;
 		} catch (Exception e) {
 			System.out.println("Error : " + e.toString());
 			return new JSONError("ERROR", e.toString());

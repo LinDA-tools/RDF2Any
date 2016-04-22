@@ -2,13 +2,11 @@ package de.unibonn.iai.eis.linda.converters.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.model.vocabulary.SPIN;
 import org.topbraid.spin.arq.ARQ2SPIN;
 import org.topbraid.spin.arq.ARQFactory;
 import org.topbraid.spin.model.Element;
@@ -17,13 +15,8 @@ import org.topbraid.spin.model.Filter;
 import org.topbraid.spin.model.NamedGraph;
 import org.topbraid.spin.model.Optional;
 import org.topbraid.spin.model.Select;
-import org.topbraid.spin.model.TriplePattern;
 import org.topbraid.spin.model.Union;
-import org.topbraid.spin.model.impl.OptionalImpl;
 import org.topbraid.spin.model.impl.TriplePatternImpl;
-import org.topbraid.spin.model.print.StringPrintContext;
-import org.topbraid.spin.vocabulary.SP;
-
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -32,9 +25,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.vocabulary.RDF;
-
 import de.unibonn.iai.eis.linda.converters.Converter;
 import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
 
@@ -54,7 +44,7 @@ public class RDFConverter extends MainConverter implements Converter {
 	
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults) throws IOException {
-		this.convert(output, rdfResults, null);
+		this.convert(output, rdfResults, (RDFClass) null);
 	}
 
 	@Override
@@ -147,21 +137,10 @@ public class RDFConverter extends MainConverter implements Converter {
 	}
 	
 	
-	public static void main (String [] args){
-		String q = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>" +
-"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> " +
-"SELECT DISTINCT ?concept ?label ?birth_place WHERE " +
-"{ ?concept rdf:type <http://dbpedia.org/ontology/Person>." +
-" ?concept rdfs:label ?label." +
-"{?concept <http://dbpedia.org/ontology/birthPlace> ?birth_place.}" +
-"UNION {?concept <http://dbpedia.org/ontology/deadPlace> ?dead_place}." +
 
-"FILTER(langMatches(lang(?label), \"EN\"))}" +
-"LIMIT 200";
-		
-		RDFConverter r = new RDFConverter();
-		r.setQuery(q);
-		
+	@Override
+	public void convert(OutputStream output, ResultSet rdfResults, Map<String, List<Object>> propTable) throws IOException {
+		// TODO Auto-generated method stub
 	}
 
 }

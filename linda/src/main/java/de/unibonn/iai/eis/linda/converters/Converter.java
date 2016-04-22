@@ -5,6 +5,8 @@ package de.unibonn.iai.eis.linda.converters;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 import com.hp.hpl.jena.query.ResultSet;
 
@@ -24,5 +26,6 @@ public interface Converter {
 	
 	void convert(OutputStream output,ResultSet rdfResults) throws IOException;
 	void convert(OutputStream output,ResultSet rdfResults, RDFClass forClass) throws IOException;
+	void convert(OutputStream output, ResultSet rdfResults, Map<String,List<Object>> propTable) throws IOException;
 
 }

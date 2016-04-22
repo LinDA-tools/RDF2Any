@@ -5,8 +5,12 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import com.google.common.io.Files;
 
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClass;
+import de.unibonn.iai.eis.linda.querybuilder.classes.RDFClassProperty;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -22,10 +26,11 @@ public class Main {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://0.0.0.0:8081/rdf2any/";
     
-    private static Map<String, RDFClass> allClassSearch = (Map<String, RDFClass>) Collections.synchronizedMap(new LRUMap<String, RDFClass>(400));
-    private static Map<String, String> labels = (Map<String, String>) Collections.synchronizedMap(new LRUMap<String, String>(5000));
-
-    
+    private static Map<String, RDFClass> allClassSearch = (Map<String, RDFClass>) Collections.synchronizedMap(new LRUMap<String, RDFClass>(100000));
+    private static Map<String, String> labels = (Map<String, String>) Collections.synchronizedMap(new LRUMap<String, String>(100000));
+//    private static Map<String, RDFClassProperty> allPropertiesSearch = (Map<String, RDFClassProperty>) Collections.synchronizedMap(new LRUMap<String, RDFClassProperty>(400));
+    private static Long totalNumberOfQueries = 0l;
+    private static File f = new File("/home/butterbur22/attard/RDF2Any/counter.txt");
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
@@ -73,6 +78,34 @@ public class Main {
     		labels.put(uri, label);
     		return label;
     	}
+    }
+    
+//    public static RDFClassProperty addOrGetCachedProperty(String propertyURI, RDFClassProperty rdfClassProperty){
+//    	if (rdfClassProperty == null){
+//    		return allPropertiesSearch.get(propertyURI);
+//    	} else {
+//    		allPropertiesSearch.put(propertyURI, rdfClassProperty);
+//    		return rdfClassProperty;
+//    	}
+//    }
+    
+    public static void incrementQueryCounter(){
+   	 synchronized(totalNumberOfQueries){
+   		 totalNumberOfQueries++;
+   	 }
+    }
+    
+    public synchronized static Long getTotalNumberOfQueries(){
+   	 Long t = 0l;
+   	 synchronized(totalNumberOfQueries){
+   		 t = totalNumberOfQueries++;
+   		 try {
+				Files.write(t.toString().getBytes(), f);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+   	 } 
+   	 return t;
     }
     
     

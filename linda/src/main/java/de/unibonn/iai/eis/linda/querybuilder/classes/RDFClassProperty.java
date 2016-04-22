@@ -162,7 +162,7 @@ public class RDFClassProperty {
 	//this method returns the header attribute name
 	@JsonIgnore
 	public String getCSVHeaderAttributeName() {
-		return this.label.trim().toLowerCase().replace(" ", "_");
+		return this.label.trim().toLowerCase();
 	}
 	/*
 	 * END CSV methods

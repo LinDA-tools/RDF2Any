@@ -1,0 +1,18 @@
+# Retreives a number of properties used in a Knowledge Base for a particular Concept but are unattached to the concept itself.
+
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+
+SELECT ?p (COUNT(?p) as ?cnt) ?label where {
+  ?s a <%%Concept-URI%%> .
+  ?s ?p ?o .
+  MINUS { ?p rdfs:domain <%%Concept-URI%%> . }
+  OPTIONAL { 
+   	?p rdfs:label ?label . 
+   	FILTER(langMatches(lang(?label), 'EN'))
+  }
+} 
+GROUP BY ?p ?label
+ORDER BY DESC(?cnt)
+LIMIT 20

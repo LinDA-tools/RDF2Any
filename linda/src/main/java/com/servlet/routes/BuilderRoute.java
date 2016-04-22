@@ -1,7 +1,9 @@
 package com.servlet.routes;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,10 +14,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
+import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.servlet.Main;
 
-import de.unibonn.iai.eis.linda.converters.impl.JSONConverter;
-import de.unibonn.iai.eis.linda.converters.impl.results.JSONOutput;
 import de.unibonn.iai.eis.linda.helper.SPARQLHandler;
 import de.unibonn.iai.eis.linda.helper.output.JSONError;
 import de.unibonn.iai.eis.linda.helper.output.ResultOK;
@@ -30,6 +31,14 @@ import de.unibonn.iai.eis.linda.querybuilder.output.ClassPropertyOutput;
 @Path("/v1.0/builder/")
 public class BuilderRoute {
 	// This route is for the free text search of classes
+	@GET
+	@Path("stats")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getCounter(@Context UriInfo uriInfo) {
+		Long l = Main.getTotalNumberOfQueries();
+		return "{ 'counter' : '"+l.toString()+"' }";
+	}
+	
 	@GET
 	@Path("classes")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -150,7 +159,7 @@ public class BuilderRoute {
 	@GET
 	@Path("objects")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONOutput getObjects(@Context UriInfo uriInfo) {
+	public Object getObjects(@Context UriInfo uriInfo) {
 		MultivaluedMap<String, String> queryParams = uriInfo
 				.getQueryParameters();
 		String search = queryParams.getFirst("search");
@@ -158,30 +167,22 @@ public class BuilderRoute {
 		String classes = queryParams.getFirst("classes");
 		String forClass = queryParams.getFirst("for_class");
 		String forProperty = queryParams.getFirst("for_property");
-		String objectQuery = null;
-		if (forClass != null && !forClass.equalsIgnoreCase("")
-				&& forProperty != null && !forProperty.equalsIgnoreCase("")) {
-			System.out.println("START Searching for objects of classes '"
-					+ classes + "' having subject class '" + forClass
-					+ "' matching '" + search + "' in dataset '" + dataset
-					+ "'");
-			objectQuery = new ObjectSearch(dataset, search, classes, forClass,
-					forProperty).getSPARQLQuery();
-		} else {
-			System.out.println("START Searching for objects of classes '"
-					+ classes + "' matching '" + search + "' in dataset '"
-					+ dataset + "'");
-			objectQuery = new ObjectSearch(dataset, search, classes)
-					.getSPARQLQuery();
-		}
+		String objectQuery = new ObjectSearch(dataset, search, classes, forClass, forProperty).getSPARQLQuery();;
+		
+		System.out.println("START Searching for objects of classes '"
+				+ classes + "' having subject class '" + forClass
+				+ "' matching '" + search + "' in dataset '" + dataset
+				+ "'");
+		
 		Double startMilliseconds = (double) System.currentTimeMillis();
-		JSONConverter converter = new JSONConverter(SPARQLHandler.executeQuery(
-				dataset, objectQuery));
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ResultSetFormatter.outputAsJSON(outputStream, SPARQLHandler.executeQuery(dataset, objectQuery));
+		String json = new String(outputStream.toByteArray());
 		Double endMilliseconds = (double) System.currentTimeMillis();
-		converter.jsonOutput
-				.setTimeTaken((endMilliseconds - startMilliseconds) / 1000);
-		System.out.println("FINISH searching for objects ... ");
-		return converter.jsonOutput;
+		System.out.println("Time taken : "+((endMilliseconds - startMilliseconds) / 1000)+" seconds");
+		System.out.println("FINISH JSON conversion ... ");
+		
+		return json;
 	}
 
 	// this route is for getting properties

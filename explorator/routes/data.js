@@ -55,20 +55,27 @@ router.get('/retrieve/exhibit/all', function(req, res, next) {
 							transformation['classes'] = getClasses(classesAndFilters['classes']);
 						 	title = createTitle(parsedQuery,dset,classesAndFilters['classes']) ;
 
-							opt = getOptional(parsedQuery, dset, classesAndFilters['classes']);
+							opt = getOptional(parsedQuery, dset, classesAndFilters);
 							if (opt['optionals'].length > 0){
 								title = title + " " + opt['labels'];
 							}
 
-							filt = getFilters(parsedQuery, dset, classesAndFilters['classes'], classesAndFilters['filters']);
+							classesAndFilters = opt['optionals'];
+
+							filt = getFilters(parsedQuery, dset, classesAndFilters);
 							theFilters = filt['filters'];
+
+							classesAndFilters['filters'] = theFilters;
+
 							if (theFilters['isEmpty'] == false){
 								title += " " + filt['labels'];
 							}
-							transformation['title'] = title;
-							transformation['uri'] = buildUri(dset,classesAndFilters['classes'],opt['optionals'],filt['filters']);
-							transformation['download'] = createDownloadLink(dset,transformation['queryString'],transformation['formatresult']);
 
+
+							transformation['title'] = title;
+							transformation['uri'] = buildUri(dset, classesAndFilters);
+							 //buildUri(dset,classesAndFilters['classes'],opt['optionals'],filt['filters'], classesAndFilters['otherProps']);
+							transformation['download'] = createDownloadLink(dset,transformation['queryString'],transformation['formatresult']);
 
 							items.push(transformation)
 						}
@@ -83,9 +90,9 @@ function createTitle(parsedQuery, datasetURI, classes){
 	title = "Get All <strong>[%%classes%%]</strong>";
 
 	classLabel =  "";
-	for (var key in classes) {
-		result = rdf2AnyQuery("classes/label",{dataset: dset, class: classes[key] });
-		classLabel += JSON.parse(result)['label'] + ","
+
+	for (var idx in classes) {
+		classLabel += classes[idx]['name'] + ","
 	}
 	classLabel = classLabel.substring(0,classLabel.lastIndexOf(","))
 
@@ -105,41 +112,66 @@ function getClasses(classes){
 
 function getQueryClassesAndFilters(parsedQuery){
 	classes = [];
-	filters = []
+	filters = [];
+	otherProps = [];
+
 	for(index in parsedQuery["where"]){
+		whereType = parsedQuery["where"][index]['type'];
 		triplesBlock = parsedQuery["where"][index]["triples"];
 		for (triple in triplesBlock){
 			predicate = triplesBlock[triple]["predicate"];
 			object = triplesBlock[triple]["object"];
 			subject = triplesBlock[triple]["subject"];
 
-			if (predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-				classes[subject] = object;
+			if (predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"){
+				result = rdf2AnyQuery("classes/label",{dataset: dset, class: object });
+				title = JSON.parse(result)['label']
+				classes.push({s: subject, o:object, name:title});
+			}
 			else {
-				filters[object] = {p: predicate, s: subject}
+				if (whereType ==  'bgp'){
+					otherProps.push({s: subject, p: predicate, o:object})
+					//otherProps.push(predicate)
+				} else {
+					filters[object] = {p: predicate, s: subject}
+				}
 			}
 		}
+
+		if (whereType ==  'filter') {
+		 filters[object] = {p: predicate, s: subject}
+	  }
 	}
-	return {classes: classes, filters: filters};
+
+	return {classes: classes, filters: filters, otherProps: otherProps};
 }
 
-function getOptional(parsedQuery, datasetURI, classes){
+
+function getOptional(parsedQuery, datasetURI, classesAndFilters){
 	optional = "SHOWING [%optionals%]";
 
+	var classes = classesAndFilters['classes'];
+	classesAndFilters['optionals'] = [];
+
 	optionalsLabel = "";
-	propertiesOptional = [];
 	for(index in parsedQuery["where"]){
 		whereType = parsedQuery["where"][index]['type'];
 		if (whereType == "optional"){
+			propertiesOptional = {};
 			for (pattern in parsedQuery["where"][index]["patterns"]){
 				triplesBlock = parsedQuery["where"][index]["patterns"][pattern];
 				for (idx in triplesBlock['triples']){
 					predicate = triplesBlock['triples'][idx]["predicate"];
 					subject = triplesBlock['triples'][idx]["subject"];
+					class_ = 	""
+					for (var idx in classes) {
+						if (classes[idx]['s'] == subject) class_ = classes[idx]['o'];
+					}
 
-					result = rdf2AnyQuery("properties/label",{dataset: dset, class: classes[subject], property:predicate});
+					result = rdf2AnyQuery("properties/label",{dataset: dset, class: class_, property:predicate});
 					optionalsLabel += JSON.parse(result)['label'] + ", ";
-					propertiesOptional.push(predicate);
+
+					classesAndFilters['optionals'].push(predicate);
 				}
 			}
 		}
@@ -147,81 +179,109 @@ function getOptional(parsedQuery, datasetURI, classes){
 	optionalsLabel = optionalsLabel.substring(0,optionalsLabel.lastIndexOf(","))
 
 
-	return {optionals: propertiesOptional, labels: optional.replace("[%optionals%]",optionalsLabel)}
+	return {optionals: classesAndFilters, labels: optional.replace("[%optionals%]",optionalsLabel)}
 }
 
 
-function getFilters(parsedQuery, datasetURI, classes, filters){
+function getFilters(parsedQuery, datasetURI, classesAndFilters){
+	
+	console.log("parsed query: " + JSON.stringify(parsedQuery))
+	
 	filterString = "WITH FILTERS ON [%filters%]";
-
-	filtersHM = [];
+// classes: [{"s":"?_actor","o":"http://dbpedia.org/ontology/Actor","name":"Actor"}]
+// otherProps":[{"s":"?_actor","p":"http://dbpedia.org/ontology/Person/height","o":"?height_cm_"}]
+	classes = classesAndFilters['classes'];
+	otherProps = classesAndFilters['otherProps'];
+	filters = [];
+	filterLabel = "";
 
 	for(index in parsedQuery["where"]){
 		whereType = parsedQuery["where"][index]['type'];
 		if (whereType == "filter"){
 			expression = parsedQuery["where"][index]['expression'];
-			if (expression['args']['type'] == "operation"){ //temp TODO fix
-				exps = expression['args']
-				for (idx in exps){
-					appliedOn = filters[exps[idx]['args'][0]]['p'];
-					if (!(appliedOn in filtersHM)){
-						filtersHM[appliedOn] = {}
-						filtersHM[appliedOn]['appliedOnLabel'] = JSON.parse(rdf2AnyQuery("properties/label",{dataset: dset, class: classes[filters[exps[idx]['args'][0]]['s']], property:appliedOn }))['label'];
-						filtersHM[appliedOn]['expressions'] = []
+			if (expression['type'] == "operation"){
+				args = expression['args'];
+				filter = {};
+				filter['args'] = [];
+				
+				console.log("args: " + JSON.stringify(args));
+				
+				if (args[0]["args"]!= null){
+					
+					if (args.length > 1) filter['args'].push(expression['operator']);
+
+					for (idx in args){
+						arg = {}
+						arg['op'] = args[idx]['operator'];
+						arg['lhs'] = args[idx]['args'][0];
+						arg['rhs'] = args[idx]['args'][1];
+						filter['args'].push(arg);
+
+						theProperty = "";
+						theVariable = "";
+						for(p in otherProps){
+							if (otherProps[p]['o'] == arg['lhs']){
+								theProperty = otherProps[p]['p'];
+								theVariable = otherProps[p]['s'];
+								break;
+							}
+						}
+
+						theClass = "";
+						for (c in classes){
+							if (classes[c]['s'] == theVariable){
+								theClass = classes[c]['o'];
+								break;
+							}
+						}
+
+						theLabel = JSON.parse(rdf2AnyQuery("properties/label",{dataset: dset, class: theClass, property: theProperty }))['label'];
+						filterLabel += theLabel + ", "
 					}
-					exp = {};
-					exp['lhs'] = exps[idx]['args'][0];
-					exp['rhs'] = exps[idx]['args'][1];
-					exp['op'] = exps[idx]['operator'];
-					filtersHM[appliedOn]['expressions'].push(exp);
+				
+			}//end null args
+			else{
+				arg = {}
+				arg['op'] = expression['operator'];
+				arg['lhs'] = args[0];
+				arg['rhs'] = args[1];
+				filter['args'].push(arg);
+
+				theProperty = "";
+				theVariable = "";
+				for(p in otherProps){
+					if (otherProps[p]['o'] == arg['lhs']){
+						theProperty = otherProps[p]['p'];
+						theVariable = otherProps[p]['s'];
+						break;
+					}
 				}
-			} else {
-				appliedOn = filters[expression['args'][0]]['p'];
-				if (!(appliedOn in filtersHM)){
-					filtersHM[appliedOn] = {}
-					filtersHM[appliedOn]['appliedOnLabel'] = JSON.parse(rdf2AnyQuery("properties/label",{dataset: dset, class: classes[filters[expression['args'][0]]['s']], property:appliedOn }))['label'];
-					filtersHM[appliedOn]['expressions'] = []
+
+				theClass = "";
+				for (c in classes){
+					if (classes[c]['s'] == theVariable){
+						theClass = classes[c]['o'];
+						break;
+					}
 				}
-				exp = {};
-				exp['lhs'] = expression['args'][0];
-				exp['rhs'] = expression['args'][1];
-				exp['op'] = expression['operator'];
-				filtersHM[appliedOn]['expressions'].push(exp);
-			}
-		}
-	}
-
-	//get object type filters
-	for (key in filters){
-		if (key.indexOf("http://") === 0){
-			appliedOn = filters[key]['p'];
-			if (!(appliedOn in filtersHM)){
-				filtersHM[appliedOn] = {}
-				filtersHM[appliedOn]['appliedOnLabel'] = JSON.parse(rdf2AnyQuery("properties/label",{dataset: dset, class: classes[filters[key]['s']], property:appliedOn }))['label'];
-				filtersHM[appliedOn]['expressions'] = []
+				
+				theLabel = JSON.parse(rdf2AnyQuery("properties/label",{dataset: dset, class: theClass, property: theProperty }))['label'];
+				filterLabel += theLabel + ", "
+			};
+			filters.push(filter);
 			}
 
-			exp = {};
-			exp['op'] = "="; //unless its a minus TODO FIX
-			exp['rhs'] = key;
-			filtersHM[appliedOn]['expressions'].push(exp);
 		}
-	}
-
-	//write label
-	filterLabel = "";
-	for (key in filtersHM){
-		filterLabel += filtersHM[key]['appliedOnLabel'] + ",";
 	}
 
 	if (filterLabel != ""){
-		filtersHM['isEmpty'] = false;
+		filters['isEmpty'] = false;
 	}
 
 	filterLabel = filterLabel.substring(0,filterLabel.lastIndexOf(","));
 
 	theLbl = filterString.replace("[%filters%]",filterLabel);
-	return {filters: filtersHM, labels: theLbl};
+	return {filters: filters, labels: theLbl};
 }
 
 
@@ -260,74 +320,107 @@ function createDownloadLink(endpoint,query,format){
 	if (format == "json") link += "json?";
 
 	link += "dataset="+endpoint;
-	link += "&query="+query;
+	link += "&query="+encodeURIComponent(query);
 	link += "&generatedOntology=false";
+
+	return link
 }
 
 
-function buildUri(endpoint,classes,optional,filters){
+function buildUri(endpoint, classesAndFilters){
 	link = "http://localhost:3000/query/builder?";
-
 	link += "dataset="+endpoint;
-	link += "&classURI="
-	for (key in classes){
-		link += classes[key]+";"
-	}
-	link = link.substring(0,link.lastIndexOf(";"));
-
-	link += "&classLabel="
-	for (key in classes){
-		link +=  JSON.parse(rdf2AnyQuery("classes/label",{dataset: dset, class: classes[key]}))['label'] + ";"
-	}
-
-	link = link.substring(0,link.lastIndexOf(";"));
-
-	link += "&optionals="
-	if (optional.length > 0){
-		for (var i = 0; i < optional.length; i++){
-			link += optional[i]+";"
-		}
-		link = link.substring(0,link.lastIndexOf(";"));
-	}
-
-
-
-
-	link += "&filters="
-	if (filters['isEmpty'] == false){
-		for (key in filters){
-			filtLink = "";
-			theFilter = filters[key];
-			filtLink += key + ";";
-			filtLink += theFilter['appliedOnLabel'] + ";";
-
-
-			expr = theFilter['expressions'];
-			for (e in expr){
-				_expr = expr[e];
-				op = _expr['op'];
-				if (op == "=") filtLink += "sp:eq;";
-				if (op == "!=") filtLink += "sp:ne;";
-				if (op == "<") filtLink += "sp:lt;";
-				if (op == ">") filtLink += "sp:gt;";
-				if (op == "<=") filtLink += "sp:le;";
-				if (op == ">=") filtLink += "sp:ge;";
-
-				rhsValue = _expr['rhs'];
-				rhsLabel = rhsValue;
-				if (rhsValue.indexOf("http://") === 0){
-					//its a resource
-					rhsLabel = rhsLabel.substring(rhsLabel.lastIndexOf("/"), rhsLabel.length);
-				}
-
-				filtLink += rhsLabel + ";"
-				filtLink += rhsValue + ";"
-			}
-			filtLink = filtLink.substring(0,filtLink.lastIndexOf(";"));
-			link += filtLink+"*"
-		}
-		link = link.substring(0,link.lastIndexOf("*isEmpty;undefined"));
-	}
+	link += "&query="+encodeURIComponent(JSON.stringify(classesAndFilters));
+	link += "&propertylabels="+encodeURIComponent(JSON.stringify(propertyLabels(endpoint, classesAndFilters)));
 
 	return link;
 }
+
+function propertyLabels(dset, classesAndFilters){
+	var res = {};
+	var opts = classesAndFilters['otherProps']
+	var classes = classesAndFilters['classes']
+	for(var idx in opts){
+		var predicate = opts[idx]['p'];
+		var theClassVar = opts[idx]['s'];
+		var theClass = "";
+		for (var i in classes){
+			var curr = classes[i]['s'];
+			if (curr == theClassVar){
+				theClass = classes[i]['o'];
+				break;
+			}
+		}
+
+		result = rdf2AnyQuery("properties/label",{dataset: dset, class: theClass, property:predicate});
+		theLabel = JSON.parse(result)['label'];
+		res[predicate] = theLabel;
+	}
+
+	return res;
+}
+// function buildUri(endpoint,classes,optional,filters, otherProps){
+// 	link = "http://localhost:3000/query/builder?";
+//
+// 	link += "dataset="+endpoint;
+// 	link += "&classURI="
+// 	for (key in classes){
+// 		link += classes[key]+";"
+// 	}
+// 	link = link.substring(0,link.lastIndexOf(";"));
+//
+// 	link += "&classLabel="
+// 	for (key in classes){
+// 		link +=  JSON.parse(rdf2AnyQuery("classes/label",{dataset: dset, class: classes[key]}))['label'] + ";"
+// 	}
+//
+// 	link = link.substring(0,link.lastIndexOf(";"));
+//
+// 	link += "&optionals="
+// 	if (optional.length > 0){
+// 		for (var i = 0; i < optional.length; i++){
+// 			link += optional[i]+";"
+// 		}
+// 		link = link.substring(0,link.lastIndexOf(";"));
+// 	}
+//
+// 	link += "&filters="
+// 	if (filters['isEmpty'] == false){
+// 		for (key in filters){
+// 			filtLink = "";
+// 			theFilter = filters[key];
+// 			filtLink += key.replace("^^http://www.w3.org/2001/XMLSchema#integer",'') + ";";
+// 			filtLink += theFilter['appliedOnLabel'] + ";";
+//
+//
+// 			expr = theFilter['expressions'];
+// 			for (e in expr){
+// 				_expr = expr[e];
+// 				op = _expr['op'];
+// 				if (op == "=") filtLink += "sp:eq;";
+// 				if (op == "!=") filtLink += "sp:ne;";
+// 				if (op == "<") filtLink += "sp:lt;";
+// 				if (op == ">") filtLink += "sp:gt;";
+// 				if (op == "<=") filtLink += "sp:le;";
+// 				if (op == ">=") filtLink += "sp:ge;";
+//
+// 				rhsValue = _expr['rhs'];
+// 				rhsLabel = rhsValue;
+// 				if (rhsValue.indexOf("http://") === 0){
+// 					//its a resource
+// 					rhsLabel = rhsLabel.substring(rhsLabel.lastIndexOf("/"), rhsLabel.length);
+// 				}
+//
+// 				filtLink += rhsLabel.replace("^^http://www.w3.org/2001/XMLSchema#integer",'') + ";"
+// 				filtLink += rhsValue.replace("^^http://www.w3.org/2001/XMLSchema#integer",'') + ";"
+// 			}
+// 			filtLink = filtLink.substring(0,filtLink.lastIndexOf(";"));
+// 			link += filtLink+"*"
+// 		}
+// 		link = link.substring(0,link.lastIndexOf("*isEmpty;undefined"));
+// 	}
+//
+// 	link += "&otherProps=" + otherProps.join(';');
+// 	link = link.replace("^^http://www.w3.org/2001/XMLSchema#integer",'');
+// 	return link;
+// }

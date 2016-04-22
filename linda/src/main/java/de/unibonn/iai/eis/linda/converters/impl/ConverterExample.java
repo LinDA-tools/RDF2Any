@@ -6,6 +6,8 @@ package de.unibonn.iai.eis.linda.converters.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.QuerySolution;
@@ -38,6 +40,15 @@ public class ConverterExample implements Converter {
 	@Override
 	public void convert(OutputStream output, ResultSet rdfResults,
 			RDFClass forClass) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void convert(OutputStream output, ResultSet rdfResults,
+								Map<String, List<Object>> propTable) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

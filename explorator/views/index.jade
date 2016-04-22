@@ -13,7 +13,7 @@ block content
           br
           br
           span(onclick='$(".query_string").toggle()')
-            b Query (Show/Hide):&nbsp;
+            b Query :&nbsp;
           .query_string
             span(ex:content='.queryString')
           br
@@ -31,7 +31,7 @@ block content
           br
           // <b>Agent: </b> <span ex:content=".agent"></span><br/><br/>
           a(ex:href-content='.uri') Edit Query
-        div(ex:role='exhibit-view' ex:viewclass='Exhibit.TileView' ex:orders='.execTime' ex:directions='ascending' ex:possibleorders='.execTime, .resultset, .title' ex:showall='true' ex:grouped='false')
+        div(ex:role='exhibit-view' ex:viewclass='Exhibit.TileView' ex:orders='.execTime' ex:directions='ascending' ex:possibleorders='.execTime, .resultset, .title' ex:grouped='false' ex:paginate='true' ex:pageSize='5')
       .col-lg-4
         #dataset_div(ex:role='facet' ex:expression='.initialDataset' ex:sortmode='count' ex:facetlabel='Dataset')
         div(ex:role='facet' ex:expression='.formatresult' ex:sortmode='count' ex:facetlabel='Result Set Format')

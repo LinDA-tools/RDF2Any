@@ -8,9 +8,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpException;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -39,6 +41,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.owlike.genson.annotation.JsonIgnore;
+import com.servlet.Main;
 
 import de.unibonn.iai.eis.linda.helper.CommonHelper;
 import de.unibonn.iai.eis.linda.helper.LuceneHelper;
@@ -54,9 +57,17 @@ public class RDFClass {
 	 */
 	public String uri;
 	public String dataset;
-	public String label;
+	public String label = "";
 	public List<RDFClassProperty> properties;
 	public String status;
+	
+	public RDFClass(RDFClass rdfClass){
+		this.uri = rdfClass.uri;
+		this.dataset = rdfClass.dataset;
+		this.label = rdfClass.label;
+		this.properties = rdfClass.properties;
+		this.status = rdfClass.status;
+	}
 	
 	public RDFClass(String dataset, String uri) {
 		this.uri = uri;
@@ -687,8 +698,27 @@ public class RDFClass {
 	 * START RDB related methods
 	 */
 	// This method returns the create table script for this class
+	@JsonIgnore 
+	public List<Object> getPropertiesForRDB(){
+		List<Object> lst = new ArrayList<Object>();
+		lst.add("id");
+		lst.add("uri");
+		
+		for (RDFClassProperty property : this.properties) {
+			lst.add(property);
+		}
+		
+		return lst;
+	}
+	
+	
 	@JsonIgnore
-	public String getTableCreationScript(Boolean allProperties) {
+	public String getTableCreationScript(Boolean allProperties, Set<String> tablesDone) {
+		
+		if (tablesDone.contains(this.getTableName())) {
+			return "";
+		}
+		
 		Boolean existsForeignKey = false;
 		List<String> tablesCreated = new ArrayList<String>();
 		tablesCreated.add(getTableName());
@@ -696,76 +726,73 @@ public class RDFClass {
 		String result2 = "";
 		String result3 = "";
 
-		if (allProperties)
-			result1 += "\n\n\n-- START Table creation section for main class table";
-		result1 += "\n\n\nDROP TABLE IF EXISTS " + getTableName()
-				+ " CASCADE;\nCREATE TABLE " + getTableName()
-				+ "\n(\nid int PRIMARY KEY,\nuri varchar(300),\nname text";
 
+		result1 += "\nDROP TABLE IF EXISTS " + getTableName()
+				+ " CASCADE;\nCREATE TABLE " + getTableName()
+				+ "\n(\nid int PRIMARY KEY,\nuri varchar(300),";
+		
 		if (allProperties) {
 			for (RDFClassProperty property : this.properties) {
 				if (!property.multiplePropertiesForSameNode) {
-					result1 += ",\n" + property.getTableAttributeName() + " "
-							+ property.getTableAttributeType();
+					String extTblName = ((Main.addOrGetCachedClass(property.range.uri, null) == null) ?
+							Main.addOrGetCachedClass(property.range.uri, new RDFClass(this.dataset, property.range.uri)).getTableName()	
+							: Main.addOrGetCachedClass(property.range.uri, null).getTableName()); 
+					
+					result1 += "\n" + property.getTableAttributeName() + " "+ property.getTableAttributeType();
 					if (property.type.equals("object"))
-						result1 += " REFERENCES "
-								+ CommonHelper.getVariableName(
-										property.range.label, "thing")
-								+ "s(id)";
+						result1 += ",\n"+"FOREIGN KEY ("+property.getTableAttributeName() +") REFERENCES "+ extTblName+ "(id),";
 					if (property.range.isLanguageLiteral())
-						result1 += ",\n" + property.getTableAttributeName()
-								+ "Lang varchar(6)";
+						result1 += ",\n" + property.getTableAttributeName()+ "Lang varchar(6)";
 					if (property.type.equalsIgnoreCase("object"))
 						existsForeignKey = true;
 				}
 			}
 		}
+		
+		if (result1.length() > 0) result1 = result1.substring(0, result1.length() - 1);
 		result1 += "\n);";
-		if (allProperties)
-			result1 += "\n\n\n-- END Table creation section for main class table";
 		// Section to create tables for normalizations
 		if (allProperties) {
-			result2 += "\n\n\n-- START table creation scripts for normalized property tables";
-			String classVariableName = getVariableName();
-			for (RDFClassProperty property : this.properties) {
-				if (property.multiplePropertiesForSameNode) {
-					result2 += "\n\nDROP TABLE IF EXISTS "
-							+ property.getTableName(this)
-							+ " CASCADE;\nCREATE TABLE "
-							+ property.getTableName(this)
-							+ "\n(id int PRIMARY KEY,";
-					result2 += "\n" + classVariableName + "_id int REFERENCES "
-							+ getTableName() + "(id)" + ",";
-					result2 += "\n" + property.getTableAttributeName() + " "
-							+ property.getTableAttributeType();
-					if (property.type.equals("object"))
-						result2 += " REFERENCES "
-								+ CommonHelper.getVariableName(
-										property.range.label, "thing")
-								+ "s(id)";
-					if (property.range.isLanguageLiteral())
-						result2 += ",\n" + property.getTableAttributeName()
-								+ "Lang varchar(6)";
-					result2 += "\n);";
-				}
-			}
-			result2 += "\n\n\n-- END table creation scripts for normalized property tables";
+//			result2 += "\n\n\n-- START table creation scripts for normalized property tables";
+//			String classVariableName = getVariableName();
+//			for (RDFClassProperty property : this.properties) {
+//				if (property.multiplePropertiesForSameNode) {
+//					result2 += "\n\nDROP TABLE IF EXISTS "
+//							+ property.getTableName(this)
+//							+ " CASCADE;\nCREATE TABLE "
+//							+ property.getTableName(this)
+//							+ "\n(id int PRIMARY KEY,";
+//					result2 += "\n" + classVariableName + "_id int REFERENCES "
+//							+ getTableName() + "(id)" + ",";
+//					result2 += "\n" + property.getTableAttributeName() + " "
+//							+ property.getTableAttributeType();
+//					if (property.type.equals("object"))
+//						result2 += " REFERENCES "
+//								+ CommonHelper.getVariableName(
+//										property.range.label, "thing")
+//								+ "s(id)";
+//					if (property.range.isLanguageLiteral())
+//						result2 += ",\n" + property.getTableAttributeName()
+//								+ "Lang varchar(6)";
+//					result2 += "\n);";
+//				}
+//			}
+//			result2 += "\n\n\n-- END table creation scripts for normalized property tables";
 
 			// Section to get all related tables
-			result3 += "\n\n\n-- START table creation scripts properties pointing to other classes";
+			result3 += "\n";
 			for (RDFClassProperty property : this.properties) {
 				if (property.type.equalsIgnoreCase("object")
 						&& !property.range.label.equalsIgnoreCase("")) {
 					RDFClass propertyRangeClass = new RDFClass(this.dataset,
 							property.range.uri, property.range.label);
-					if (!tablesCreated.contains(propertyRangeClass
-							.getTableName())) {
-						result3 += propertyRangeClass.getTableCreationScript();
+					if (!tablesDone.contains(propertyRangeClass.getTableName())) {
+						result3 += propertyRangeClass.getTableCreationScript(false,tablesDone);
 						tablesCreated.add(propertyRangeClass.getTableName());
 					}
 				}
 			}
-			result3 += "\n\n\n-- END table creation scripts properties pointing to other classes";
+			result3 += "\n";
 		}
 
 		return result3 + result1 + result2;
@@ -773,12 +800,12 @@ public class RDFClass {
 
 	@JsonIgnore
 	public String getTableCreationScript() {
-		return getTableCreationScript(false);
+		return getTableCreationScript(false, new HashSet<String>());
 	}
 
 	@JsonIgnore
 	public String getTableName() {
-		return getVariableName() + "s";
+		return this.label.replace(" ", "_");
 	}
 
 	// This method returns a list of tablenames needed to have this class

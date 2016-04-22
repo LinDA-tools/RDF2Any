@@ -192,4 +192,11 @@ public class ConfiguredConverter extends MainConverter implements Converter {
 			}
 		}
 	}
+
+	@Override
+	public void convert(OutputStream output, ResultSet rdfResults,
+								Map<String, List<Object>> propTable) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }
