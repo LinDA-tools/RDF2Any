@@ -92,17 +92,19 @@ public class ConverterRoute {
 
 		query = query.replace("&lt;", "<").replace("&gt;", ">");
 
-		if (forClass != null) {
-			System.out.println("START RDF conversion for query of class ("
-					+ forClass + ") in dataset " + dataset + " \n" + query);
-			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDFConverter(), dataset, query, forClass, properties, generateOntology);
-		} else {
-			System.out.println("START RDF conversion for query in dataset "
-					+ dataset + " \n" + query);
-			return OutputStreamHandler.getConverterStreamingOutput(
-					new RDFConverter(), dataset, query, generateOntology);
-		}
+		return OutputStreamHandler.getConverterStreamingOutput(new RDFConverter(), dataset, query, generateOntology);
+
+//		if (forClass != null) {
+//			System.out.println("START RDF conversion for query of class ("
+//					+ forClass + ") in dataset " + dataset + " \n" + query);
+//			return OutputStreamHandler.getConverterStreamingOutput(
+//					new RDFConverter(), dataset, query, forClass, properties, generateOntology);
+//		} else {
+//			System.out.println("START RDF conversion for query in dataset "
+//					+ dataset + " \n" + query);
+//			return OutputStreamHandler.getConverterStreamingOutput(
+//					new RDFConverter(), dataset, query, generateOntology);
+//		}
 	}
 
 	@GET
